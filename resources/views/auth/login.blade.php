@@ -22,7 +22,7 @@
                         <input type="password" class="input input-bordered w-full" placeholder="Enter password" />
                     </label>
 
-                    <a href="/dashboard/evaluations" class="btn btn-primary w-full">Login</a>
+                    <a href="/dashboard/resumes" class="btn btn-primary w-full">Login</a>
                 </form>
 
                 <p class="text-sm text-base-content/70 text-center">

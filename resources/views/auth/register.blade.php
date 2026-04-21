@@ -13,8 +13,27 @@
 
                 <form class="flex flex-col gap-5">
                     <label class="form-control w-full">
-                        <span class="label-text mb-1">Full name</span>
-                        <input type="text" class="input input-bordered w-full" placeholder="Jane Doe" />
+                        <span class="label-text mb-1">First name</span>
+                        <input
+                            type="text"
+                            name="first_name"
+                            class="input input-bordered w-full"
+                            placeholder="Jane"
+                            autocomplete="given-name"
+                            required
+                        />
+                    </label>
+
+                    <label class="form-control w-full">
+                        <span class="label-text mb-1">Last name</span>
+                        <input
+                            type="text"
+                            name="last_name"
+                            class="input input-bordered w-full"
+                            placeholder="Doe"
+                            autocomplete="family-name"
+                            required
+                        />
                     </label>
 
                     <label class="form-control w-full">
@@ -27,7 +46,7 @@
                         <input type="password" class="input input-bordered w-full" placeholder="Create password" />
                     </label>
 
-                    <a href="/dashboard/evaluations" class="btn btn-primary w-full">Sign up</a>
+                    <a href="/dashboard/resumes" class="btn btn-primary w-full">Sign up</a>
                 </form>
 
                 <p class="text-sm text-base-content/70 text-center">

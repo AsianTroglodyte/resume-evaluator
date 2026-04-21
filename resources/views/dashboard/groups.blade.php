@@ -61,14 +61,13 @@
         <div class="grid gap-4 md:grid-cols-2">
             @foreach ($groups as $group)
                 @php $modalId = 'group_modal_' . $group['id']; @endphp
-                <article class="rounded-box border border-base-300 bg-base-100 p-4">
+                <article class="rounded-box border border-base-300 bg-base-100 p-4 "
+                onclick="{{ $modalId }}.showModal()">
                     <h3 class="text-lg font-semibold">{{ $group['name'] }}</h3>
                     <p class="mt-1 text-sm text-base-content/70">
                         Shared {{ $group['shared_count'] }} resumes ·
                         {{ $group['pending_assignments'] }} assignment pending
                     </p>
-
-                    <button type="button" class="btn btn-ghost btn-sm mt-3" onclick="{{ $modalId }}.showModal()">View group</button>
 
                     <dialog id="{{ $modalId }}" class="modal">
                         <div class="modal-box max-w-2xl">
