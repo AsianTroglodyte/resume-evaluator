@@ -12,15 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('group_memberships', function (Blueprint $table) {
-            $table->id("group_membership_id");
-            $table->foreignId("group_id")->constrained()->cascadeOnDelete();
-            $table->foreignId("user_id")->constrained();
-            $table->string("role_in_group");
-            $table->string("status");
-            $table->foreignID("added_by_user_id")->constrained();
-            $table->foreignId("removed_by_user_id")->nullable()->constrained();
-            $table->timestamp("joined_at");
-            $table->timestamp("removed_at")->nullable();
+            $table->id();
+            $table->foreignId('group_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained();
+            $table->string('role_in_group');
+            $table->string('status');
+            $table->foreignId('added_by_user_id')->constrained();
+            $table->foreignId('removed_by_user_id')->nullable()->constrained();
+            $table->timestamp('joined_at')->useCurrent();
+            $table->timestamp('removed_at')->nullable();
+            $table->unique(['group_id', 'user_id']);
         });
     }
 

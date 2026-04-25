@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('resume_scans', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('resume_id')->constrained('resumes')->cascadeOnDelete();
+            // $table->foreignId("evaluated_by_user_id");
+            $table->text('job_description_text')->nullable();
+            $table->decimal('ats_score', 5, 2);
+            // $table->numeric("keyword_score");
+            // $table->json("matched_keywords_json");
+            // $table->json("missing_keywords_json");
+            // $table->string("feedback_blob");
+            $table->string('evaluator_version');
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 

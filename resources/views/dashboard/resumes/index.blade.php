@@ -1,35 +1,4 @@
-@php
-    $evaluations = [
-        [
-            'id' => 101,
-            'name' => 'Resume 1',
-            'ats_friendliness' => 90,
-            'keyword_match' => null,
-            'groups' => [
-                ['id' => 1, 'name' => 'Group 1'],
-            ],
-        ],
-        [
-            'id' => 102,
-            'name' => 'Senior Backend Engineer (Distributed Systems)',
-            'ats_friendliness' => 67,
-            'keyword_match' => 69,
-            'groups' => [
-                ['id' => 2, 'name' => 'Senior Seminar W25'],
-                ['id' => 4, 'name' => 'Distributed Systems Cohort'],
-            ],
-        ],
-        [
-            'id' => 103,
-            'name' => 'Frontend Developer - BlueWave Analytics',
-            'ats_friendliness' => 50,
-            'keyword_match' => 50,
-            'groups' => [
-                ['id' => 3, 'name' => 'Senior Seminar W24'],
-            ],
-        ],
-    ];
-@endphp
+
 
 <x-dashboard-layout>
     <x-slot:title>Resumes</x-slot:title>

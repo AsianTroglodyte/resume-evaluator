@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('resumes', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('user_id')->constrained('users');
+            $table->string('storage_path');
+            $table->string('original_name');
+            $table->timestamp('uploaded_at')->useCurrent();
         });
     }
 

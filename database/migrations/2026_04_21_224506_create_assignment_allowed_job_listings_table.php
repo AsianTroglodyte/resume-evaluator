@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('assignment_allowed_job_listings', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('assignment_id')->constrained('assignments');
+            $table->foreignId('job_listing_id')->constrained('job_listings');
+            $table->unique(['assignment_id', 'job_listing_id']);
         });
     }
 

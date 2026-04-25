@@ -13,7 +13,15 @@ return new class extends Migration
     {
         Schema::create('assignments', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('group_id')->constrained('groups');
+            $table->foreignId('created_by_user_id')->constrained('users');
+            $table->string('title');
+            $table->text('description');
+            $table->string('status');
+            $table->timestamp('due_at')->nullable();
+            $table->string('assignment_scope');
+            $table->string('job_listing_rule');
+            $table->boolean('allow_resubmission');
         });
     }
 
