@@ -162,6 +162,151 @@ Route::get('/dashboard/groups/{id}', function ($id) {
 }
 )->name('dashboard.groups.show');
 
+Route::get('/dashboard/groups/{id}/assignments/create', function ($id) {
+    $groups = [
+        [
+            'id' => 1,
+            'name' => 'Senior Seminar W25',
+            'status' => 'active',
+            'pending_assignments' => 1,
+            'resumes' => [
+                [
+                    'id' => 101,
+                    'name' => 'Resume 1',
+                    'ats_friendliness' => 90,
+                    'keyword_match' => 67,
+                ],
+                [
+                    'id' => 102,
+                    'name' => 'Resume 2',
+                    'ats_friendliness' => 82,
+                    'keyword_match' => 71,
+                ],
+            ],
+            'job_listings' => [
+                [
+                    'id' => 201,
+                    'name' => 'Junior Backend Developer - CivicStack',
+                    'description' => 'Build and maintain Laravel APIs for civic engagement tools. '
+                        .'Looking for strong SQL fundamentals, clear Git workflow habits, '
+                        .'and experience shipping class or internship projects.',
+                ],
+                [
+                    'id' => 202,
+                    'name' => 'Software Engineering Intern - BrightPath Health',
+                    'description' => 'Support internal dashboard features with PHP and JavaScript. '
+                        .'Interns collaborate with designers, write tests, and present sprint '
+                        .'demos to product and engineering mentors.',
+                ],
+            ],
+            'assignments' => [
+                [
+                    'id' => 301,
+                    'title' => 'Tailor Resume for CivicStack Backend Role',
+                    'status' => 'pending',
+                    'due_date' => '2026-04-30',
+                    'resume_id' => 101,
+                    'job_listing_id' => 201,
+                ],
+                [
+                    'id' => 302,
+                    'title' => 'Internship Submission - BrightPath',
+                    'status' => 'completed',
+                    'due_date' => '2026-04-18',
+                    'resume_id' => 102,
+                    'job_listing_id' => 202,
+                ],
+            ],
+        ],
+        [
+            'id' => 2,
+            'name' => 'Senior Seminar W24',
+            'status' => 'completed',
+            'pending_assignments' => 0,
+            'resumes' => [
+                [
+                    'id' => 103,
+                    'name' => 'Resume 1',
+                    'ats_friendliness' => 90,
+                    'keyword_match' => 50,
+                ],
+                [
+                    'id' => 104,
+                    'name' => 'Resume 2',
+                    'ats_friendliness' => 76,
+                    'keyword_match' => 63,
+                ],
+            ],
+            'job_listings' => [
+                [
+                    'id' => 203,
+                    'name' => 'Platform Engineer - North River Logistics',
+                    'description' => 'Own backend services that power shipment tracking and route planning. '
+                        .'Ideal candidates have experience with distributed systems coursework, '
+                        .'API performance tuning, and cloud deployment basics.',
+                ],
+                [
+                    'id' => 204,
+                    'name' => 'Frontend Engineer - BlueWave Analytics',
+                    'description' => 'Develop React interfaces for analytics dashboards and partner closely '
+                        .'with data teams. Role emphasizes accessibility, component architecture, '
+                        .'and translating business metrics into clean visual experiences.',
+                ],
+            ],
+            'assignments' => [
+                [
+                    'id' => 303,
+                    'title' => 'Final Submission - North River Platform',
+                    'status' => 'pending',
+                    'due_date' => '2026-03-22',
+                    'resume_id' => 103,
+                    'job_listing_id' => 203,
+                ],
+                [
+                    'id' => 304,
+                    'title' => 'Portfolio Review - BlueWave Frontend',
+                    'status' => 'completed',
+                    'due_date' => '2026-03-29',
+                    'resume_id' => 104,
+                    'job_listing_id' => 204,
+                ],
+            ],
+        ],
+        [
+            'id' => 3,
+            'name' => 'Yeeh',
+            'status' => 'active',
+            'pending_assignments' => 0,
+            'resumes' => [],
+            'job_listings' => [
+                [
+                    'id' => 205,
+                    'name' => 'QA Automation Engineer - Harbor Fintech',
+                    'description' => 'Design automated test plans for payment workflows and customer onboarding. '
+                        .'Experience with API testing, debugging CI failures, and writing '
+                        .'maintainable test suites is a strong plus.',
+                ],
+                [
+                    'id' => 206,
+                    'name' => 'IT Business Analyst Intern - Metro Public Services',
+                    'description' => 'Work with stakeholders to document requirements and map current processes. '
+                        .'Great fit for students who can communicate technical ideas clearly '
+                        .'and turn feedback into actionable tickets.',
+                ],
+            ],
+            'assignments' => [],
+        ],
+    ];
+
+    $group = collect($groups)->firstWhere('id', (int) $id);
+
+    return view('dashboard.groups.assignment-create', [
+        'group' => $group,
+        'group_name' => $group['name'],
+        'job_listings' => $group['job_listings'],
+    ]);
+})->name('dashboard.groups.assignments.create');
+
 Route::get('/dashboard/resumes', function () {
     $evaluations = [
         [

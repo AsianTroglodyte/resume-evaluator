@@ -12,7 +12,7 @@
                 </header>
 
                 <form class="flex flex-col gap-5">
-                    <label class="form-control w-full">
+                    <label class="form-control w-full flex flex-col">
                         <span class="label-text mb-1">Email</span>
                         <input type="email" class="input input-bordered w-full" placeholder="you@example.com" />
                     </label>
