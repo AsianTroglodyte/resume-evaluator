@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Group;
+use App\Models\User;
+
 
 Route::get('/', function () {
     return view('home');
@@ -13,12 +16,15 @@ Route::get('/register', function () {
 });
 
 Route::get('/dashboard/groups', function () {
-    return view('dashboard.groups.index');
+    $groups = Group::all();
+    return view('dashboard.groups.index', [
+        "groups" => $groups
+    ]);
 });
 Route::get('/dashboard/groups/{id}', function ($id) {
     $groups = [
         [
-            'id' => 1,
+            'id' => 0,
             'name' => 'Senior Seminar W25',
             'status' => 'active',
             'pending_assignments' => 1,
@@ -72,7 +78,7 @@ Route::get('/dashboard/groups/{id}', function ($id) {
             ],
         ],
         [
-            'id' => 2,
+            'id' => 1,
             'name' => 'Senior Seminar W24',
             'status' => 'completed',
             'pending_assignments' => 0,
@@ -384,6 +390,9 @@ Route::get('/dashboard/resumes/{id}', function ($id) {
     ]);
 })->name('dashboard.resumes.show');
 
-// Route::get('/contact', function() {
-//     return view('contact');
-// });
+
+Route::get('/testdb', function() {
+    $groups = Group::all();
+    $users = User::all();
+    dd($groups, $users);
+});

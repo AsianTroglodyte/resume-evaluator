@@ -1,4 +1,4 @@
-@php
+{{-- @php
     $groups = [
         [
             'id' => 1,
@@ -48,7 +48,7 @@
             'resumes' => [],
         ],
     ];
-@endphp
+@endphp --}}
 <x-dashboard-layout>
     <x-slot:title>Groups</x-slot:title>
 
