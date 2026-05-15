@@ -132,7 +132,7 @@ Route::get('/dashboard/groups/{id}', function ($id) {
             ],
         ],
         [
-            'id' => 3,
+            'id' => 2,
             'name' => 'Yeeh',
             'status' => 'active',
             'pending_assignments' => 0,
@@ -171,7 +171,7 @@ Route::get('/dashboard/groups/{id}', function ($id) {
 Route::get('/dashboard/groups/{id}/assignments/create', function ($id) {
     $groups = [
         [
-            'id' => 1,
+            'id' => 0,
             'name' => 'Senior Seminar W25',
             'status' => 'active',
             'pending_assignments' => 1,
@@ -225,7 +225,7 @@ Route::get('/dashboard/groups/{id}/assignments/create', function ($id) {
             ],
         ],
         [
-            'id' => 2,
+            'id' => 1,
             'name' => 'Senior Seminar W24',
             'status' => 'completed',
             'pending_assignments' => 0,
@@ -279,7 +279,7 @@ Route::get('/dashboard/groups/{id}/assignments/create', function ($id) {
             ],
         ],
         [
-            'id' => 3,
+            'id' => 2,
             'name' => 'Yeeh',
             'status' => 'active',
             'pending_assignments' => 0,
@@ -303,13 +303,14 @@ Route::get('/dashboard/groups/{id}/assignments/create', function ($id) {
             'assignments' => [],
         ],
     ];
+    $group = collect($groups)->firstWhere('id', $id);
 
-    $group = collect($groups)->firstWhere('id', (int) $id);
+    if ($group == null) {
+        dd([$group, "The Group data is null"]);
+    }
 
     return view('dashboard.groups.assignment-create', [
         'group' => $group,
-        'group_name' => $group['name'],
-        'job_listings' => $group['job_listings'],
     ]);
 })->name('dashboard.groups.assignments.create');
 

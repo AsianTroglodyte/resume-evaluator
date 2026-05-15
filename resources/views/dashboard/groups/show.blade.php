@@ -50,7 +50,7 @@
 
                 <dialog id="create_job_listing_modal" class="modal">
                     <div class="modal-box 2-[92vw] max-w-3xl">
-                        <div class="flex flex-col gap-4 w-full">
+                        <div class="flex flex-col gap-4">
                             <header class="space-y-1">
                                 <h1 class="text-2xl font-bold text-primary">Create Job Listing</h1>
                             </header>
@@ -62,15 +62,15 @@
                                 @csrf
                     
                                 <fieldset class="flex flex-col gap-5">
-                                    <label class="form-control w-full">
+                                    <label class="form-control">
                                         <span class="label-text mb-1">Title</span>
-                                        <input type="text" placeholder="Job Title" class="input input-bordered w-full" />
+                                        <input type="text" placeholder="Job Title" class="input input-bordered" />
                                     </label>
 
-                                    <label class="form-control w-full">
+                                    <label class="form-control">
                                         <span class="label-text mb-1">Description</span>
                                         <textarea placeholder="Assignment details and instructions..." 
-                                        class="textarea textarea-bordered w-full flex-1 h-64"></textarea>
+                                        class="textarea textarea-bordered flex-1 h-64"></textarea>
                                     </label>
 
                                     <button type="submit" class="btn btn-neutral">

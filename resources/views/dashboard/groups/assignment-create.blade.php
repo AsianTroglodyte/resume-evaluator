@@ -9,13 +9,13 @@ $GROUP_MEMBERS = 'group_members';
 
     <section class="space-y-4">
         <header class="space-y-1">
-            <a href="{{ route('dashboard.groups.show', ['id' => $group['id']]) }}" class="link link-primary text-sm">&larr; Back to {{ $group_name }}</a>
+            <a href="{{ route('dashboard.groups.show', ['id' => $group['id']]) }}" class="link link-primary text-sm">&larr; Back to {{ $group['name'] }}</a>
             <h2 class="text-2xl font-semibold">Create Assignment</h2>
-            <p class="text-sm text-base-content/70">Build a new assignment for {{ $group_name }}.</p>
+            <p class="text-sm text-base-content/70">Build a new assignment for {{ $group['name'] }}.</p>
         </header>
 
         <article class="flex flex-col rounded-box border border-base-300 bg-base-100 p-6 md:flex-row">
-            <ul class="steps steps-vertical md:w-48 md:shrink-0 md:border-r md:border-base-300 md:pr-6">
+            <ul class="steps steps-horizontal md:steps-vertical md:w-48 md:shrink-0 md:border-r md:border-base-300 md:pr-6">
                 <li class="step step-primary" data-step="{{ $BASICS }}" data-target="{{ $BASICS }}">Basics</li>
                 <li class="step" data-step="{{ $JOB_LISTINGS }}" data-target="{{ $JOB_LISTINGS }}">Job <br/> Listings</li>
                 <li class="step" data-step="{{ $GROUP_MEMBERS }}" data-target="{{ $GROUP_MEMBERS }}">Group <br/> Members</li>
@@ -62,7 +62,7 @@ $GROUP_MEMBERS = 'group_members';
                     <label class="form-control w-full">
                         <span class="label-text mb-1">Job listing</span>
                         <select class="select select-bordered w-full">
-                            @foreach ($job_listings as $listing)
+                            @foreach ($group["job_listings"] as $listing)
                                 <option value="{{ $listing['id'] }}">{{ $listing['name'] }}</option>
                             @endforeach
                         </select>
