@@ -16,8 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('status');
             $table->foreignId('created_by_user_id')->constrained('users');
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('deleted_at')->nullable();
+            $table->timestamps();
         });
     }
 

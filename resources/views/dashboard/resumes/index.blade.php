@@ -67,7 +67,7 @@
                         onclick="window.location.href='{{ route('dashboard.resumes.show', $evaluation['id']) }}'"
                     >
                         <td>
-                            <div class="font-semibold">{{ $evaluation['name'] }}</div>
+                             <div class="font-semibold">{{ $evaluation['name'] }}</div>
                         </td>
 
                         <td>

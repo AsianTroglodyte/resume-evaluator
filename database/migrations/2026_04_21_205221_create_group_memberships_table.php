@@ -17,8 +17,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->string('role_in_group');
             $table->string('status');
-            $table->foreignId('added_by_user_id')->constrained();
-            $table->foreignId('removed_by_user_id')->nullable()->constrained();
+            $table->foreignId('added_by_user_id')->constrained('users');
+            $table->foreignId('removed_by_user_id')->nullable()->constrained('users');
+            $table->timestamp('updated_at')->nullable();
             $table->timestamp('joined_at')->useCurrent();
             $table->timestamp('removed_at')->nullable();
             $table->unique(['group_id', 'user_id']);
