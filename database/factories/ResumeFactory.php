@@ -25,4 +25,9 @@ class ResumeFactory extends Factory
             'uploaded_at' => now(),
         ];
     }
+
+    public function forUser(User $user)
+    {
+        return ['user_id' => $user->id];
+    }
 }

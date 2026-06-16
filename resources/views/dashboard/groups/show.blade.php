@@ -44,43 +44,61 @@
             <div class="flex justify-between">
                 <h3 class="text-lg font-semibold">Job Listings</h3>
                 
-                <button class="btn" 
-                onclick="create_job_listing_modal.showModal()"">
+                <button type="button" class="btn" onclick="create_job_listing_modal.showModal()">
                     Create Jobs Listing
                 </button>
 
                 <dialog id="create_job_listing_modal" class="modal">
-                    <div class="modal-box 2-[92vw] max-w-3xl">
-                        <div class="flex flex-col gap-4">
+                    <div class="modal-box w-[92vw] max-w-3xl">
+                        <form method="POST" action="{{ route('dashboard.groups.job-listings.store', $group->id) }}">
+                            @csrf
+
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                onclick="create_job_listing_modal.close()"
+                            >
+                                x
+                            </button>
+
                             <header class="space-y-1">
                                 <h1 class="text-2xl font-bold text-primary">Create Job Listing</h1>
                             </header>
 
-                            <form method="dialog">
-                                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                                    x
+                            <fieldset class="mt-4 flex flex-col gap-5">
+                                <label class="form-control">
+                                    <span class="label-text mb-1">Title</span>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value="{{ old('name') }}"
+                                        placeholder="Job Title"
+                                        class="input input-bordered w-full @error('name') input-error @enderror"
+                                        required
+                                    />
+                                    @error('name')
+                                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                                    @enderror
+                                </label>
+
+                                <label class="form-control">
+                                    <span class="label-text mb-1">Description</span>
+                                    <textarea
+                                        name="description"
+                                        placeholder="Job description and requirements..."
+                                        class="textarea textarea-bordered w-full h-64 @error('description') textarea-error @enderror"
+                                        required
+                                    >{{ old('description') }}</textarea>
+                                    @error('description')
+                                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                                    @enderror
+                                </label>
+
+                                <button type="submit" class="btn btn-neutral">
+                                    Create Job Listing
                                 </button>
-                                @csrf
-                    
-                                <fieldset class="flex flex-col gap-5">
-                                    <label class="form-control">
-                                        <span class="label-text mb-1">Title</span>
-                                        <input type="text" placeholder="Job Title" class="input input-bordered" />
-                                    </label>
-
-                                    <label class="form-control">
-                                        <span class="label-text mb-1">Description</span>
-                                        <textarea placeholder="Assignment details and instructions..." 
-                                        class="textarea textarea-bordered flex-1 h-64"></textarea>
-                                    </label>
-
-                                    <button type="submit" class="btn btn-neutral">
-                                        Create Job Listing
-                                    </button>
-                                </fieldset>
-
-                            </form>
-                        </div>
+                            </fieldset>
+                        </form>
                     </div>
                     <form method="dialog" class="modal-backdrop">
                         <button type="submit">close</button>

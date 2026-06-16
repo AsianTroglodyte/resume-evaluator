@@ -30,12 +30,23 @@ Route::get('/dashboard/groups/create', function () {
 
 Route::post('/dashboard/groups', function () {
     //
+    request()->validate([
+        'name' => ['required', 'min:3'],
+    ]);
+
+    Group::create([
+        'name' => request('name'),
+        // 'status' => 'active',
+        'created_by_user_id' => 1,
+    ]);
+
+    // dd(request()->all());
+    return redirect()->route('dashboard.groups.index');
 })->name('dashboard.groups.store');
 
 Route::get('/dashboard/groups/{id}', function ($id) {
     $group = Group::findOrFail($id);
-    if ($group === null) 
-    {
+    if ($group === null) {
         dd($group);
     }
 
@@ -45,23 +56,56 @@ Route::get('/dashboard/groups/{id}', function ($id) {
     return view('dashboard.groups.show', [
         'job_listings' => $job_listings,
         'group' => $group,
-        'assignments' => $assignments
+        'assignments' => $assignments,
     ]);
 }
 )->name('dashboard.groups.show');
 
 Route::get('/dashboard/groups/{id}/assignments/create', function ($id) {
-    $groups = Group::all();
-    $group = collect($groups)->firstWhere('id', $id);
+    $group = Group::findOrFail($id);
 
-    if ($group == null) {
-        dd([$group, 'The Group data is null']);
-    }
+    $job_listings = $group->jobListings;
 
     return view('dashboard.groups.assignment-create', [
         'group' => $group,
+        'job_listings' => $job_listings,
     ]);
 })->name('dashboard.groups.assignments.create');
+
+Route::post('/dashboard/groups/{id}/assignment/create', function ($id) {
+    // dd(request()->all());
+
+    $group = Group::findOrFail($id);
+
+    $validated = request()->validate([
+        'title' => ['required', 'string', 'min:3'],
+        'description' => ['required', 'string'],
+    ]);
+
+    $group->assignments()->create([
+        ...$validated,
+        'created_by_user_id' => 1,
+        'status' => 'pending',
+        'assignment_scope' => 'everyone',
+        'job_listing_rule' => 'any',
+        'allow_resubmission' => true,
+    ]);
+
+    return redirect()->route('dashboard.groups.show', $id);
+})->name('dashboard.groups.assignments.store');
+
+Route::post('/dashboard/groups/{id}/job-listings', function ($id) {
+    $group = Group::findOrFail($id);
+
+    $validated = request()->validate([
+        'name' => ['required', 'string', 'min:3'],
+        'description' => ['required', 'string'],
+    ]);
+
+    $group->jobListings()->create($validated);
+
+    return redirect()->route('dashboard.groups.show', $id);
+})->name('dashboard.groups.job-listings.store');
 
 Route::get('/dashboard/resumes', function () {
     $evaluations = [

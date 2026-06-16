@@ -21,13 +21,14 @@ $GROUP_MEMBERS = 'group_members';
                 <li class="step" data-step="{{ $GROUP_MEMBERS }}" data-target="{{ $GROUP_MEMBERS }}">Group <br/> Members</li>
             </ul>
 
-            <form id="assignment_form" class="flex flex-col flex-1 min-h-0 gap-5 p-6" method="POST" action="#">
+            <form id="assignment_form" class="flex flex-col flex-1 min-h-0 gap-5 p-6" 
+            method="POST" action="{{ route('dashboard.groups.assignments.store', $group->id) }}">
                 @csrf
 
                 <fieldset id="{{ $BASICS }}" class="flex flex-col gap-5 h-96 min-h-0">
                     <label class="form-control w-full">
                         <span class="label-text mb-1">Title</span>
-                        <input type="text" placeholder="Assignment title" class="input input-bordered w-full" />
+                        <input type="text" placeholder="Assignment title" name="title" class="input input-bordered w-full" />
                     </label>
 
                     <label class="label w-fit text-sm gap-3">
@@ -39,7 +40,7 @@ $GROUP_MEMBERS = 'group_members';
 
                     <label class="form-control w-full flex flex-col flex-1 min-h-0">
                         <span class="label-text mb-1">Description</span>
-                        <textarea placeholder="Job Description" class="textarea textarea-bordered w-full flex-1 min-h-0 h-full"></textarea>
+                        <textarea placeholder="Job Description" name="description" class="textarea textarea-bordered w-full flex-1 min-h-0 h-full"></textarea>
                     </label>
 
                     <div class="flex justify-end pt-2">
@@ -62,8 +63,8 @@ $GROUP_MEMBERS = 'group_members';
                     <label class="form-control w-full">
                         <span class="label-text mb-1">Job listing</span>
                         <select class="select select-bordered w-full">
-                            @foreach ($group["job_listings"] as $listing)
-                                <option value="{{ $listing['id'] }}">{{ $listing['name'] }}</option>
+                            @foreach ($job_listings as $job_listing)
+                                <option value="{{ $job_listing }}">{{ $job_listing }}</option>
                             @endforeach
                         </select>
                     </label>

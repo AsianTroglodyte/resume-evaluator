@@ -3,15 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\JobListing;
-use App\Models\Assignment;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Group extends Model
 {
     //
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'status',
+        'created_by_user_id',
+    ];
 
     public function jobListings(): HasMany
     {

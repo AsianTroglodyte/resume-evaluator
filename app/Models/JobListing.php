@@ -10,4 +10,10 @@ class JobListing extends Model
     use HasFactory;
 
     public const UPDATED_AT = null;
+
+    protected $fillable = [
+        'group_id',
+        'name',
+        'description',
+    ];
 }
