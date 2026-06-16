@@ -33,17 +33,19 @@ Route::post('/dashboard/groups', function () {
 })->name('dashboard.groups.store');
 
 Route::get('/dashboard/groups/{id}', function ($id) {
-    $groups = Group::all();
-    $group = collect($groups)->firstWhere('id', $id);
-    if ($group == null) {
+    $group = Group::findOrFail($id);
+    if ($group === null) 
+    {
         dd($group);
     }
 
-    $job_listings = $group->assignments;
+    $job_listings = $group->jobListings;
+    $assignments = $group->assignments;
 
     return view('dashboard.groups.show', [
         'job_listings' => $job_listings,
-        'group' => $group
+        'group' => $group,
+        'assignments' => $assignments
     ]);
 }
 )->name('dashboard.groups.show');

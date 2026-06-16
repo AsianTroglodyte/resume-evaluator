@@ -22,7 +22,7 @@ class JobListingFactory extends Factory
             //
             // "group_id" => constrained('groups'),
             'name' => fake()->jobTitle(),
-            'description' => 'Description placeholder',
+            'description' => $this->faker->paragraph(),
             'group_id' => Group::factory(),
         ];
     }

@@ -24,7 +24,7 @@
                 </div>
                 <p class="mb-3 text-sm text-base-content/70">Group tasks and submission targets.</p>
                 <div class="space-y-3">
-                {{-- @forelse ($assignments as $assignment)
+                @forelse ($assignments as $assignment)
                     <div class="rounded-box border border-base-300 p-3">
                         <div class="flex items-start justify-between gap-3">
                             <h4 class="font-medium">{{ $assignment['title'] }}</h4>
@@ -32,12 +32,12 @@
                                 {{ ucfirst($assignment['status']) }}
                             </span>
                         </div>
-                        <p class="mt-2 text-sm text-base-content/70">Due: {{ $assignment['due_date'] }}</p>
+                        <p class="mt-2 text-sm text-base-content/70">Due: {{ $assignment['due_at'] }}</p>
                     </div>
                 @empty
                     <p class="text-sm text-base-content/70">No assignments for this group yet.</p>
                 @endforelse
-                </div> --}}
+                </div>
             </article>
         </div>
         <article class="rounded-box border border-base-300 bg-base-100 p-4">

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Resume;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,8 +19,10 @@ class ResumeFactory extends Factory
     public function definition(): array
     {
         return [
-
-            //
+            'user_id' => User::factory(),
+            'storage_path' => 'resumes/'.$this->faker->uuid().'.pdf',
+            'original_name' => $this->faker->words(asText: true).'.pdf',
+            'uploaded_at' => now(),
         ];
     }
 }

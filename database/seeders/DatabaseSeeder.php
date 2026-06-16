@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Group;
 use App\Models\JobListing;
 use App\Models\User;
+use App\Models\Assignment;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -40,6 +41,14 @@ class DatabaseSeeder extends Seeder
             ->create();
 
         JobListing::factory(3)
+            ->forGroup($groups[1])
+            ->create();
+        
+        Assignment::factory(3)
+            ->forGroup($groups[0])
+            ->create();
+
+        Assignment::factory(3)
             ->forGroup($groups[1])
             ->create();
     }
