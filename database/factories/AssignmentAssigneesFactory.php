@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\AssignmentAssignees;
+use App\Models\User;
+use App\Models\Assignment;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,6 +21,24 @@ class AssignmentAssigneesFactory extends Factory
     {
         return [
             //
+            'assignment_id' => Assignment::factory(),
+            'user_id' => User::factory()
         ];
     }
+
+    public function hasAssignment(Assignment $assignment): static
+    {
+        return $this->state( fn () => [
+            'assignment_id' => $assignment->id
+        ]);
+    }
+
+    public function hasUser(User $user): static
+    {
+        return $this->state( fn () => [
+            'user_id' => $user->id
+        ]);
+    }
+
+    
 }

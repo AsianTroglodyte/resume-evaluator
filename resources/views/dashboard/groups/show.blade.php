@@ -25,15 +25,36 @@
                 <p class="mb-3 text-sm text-base-content/70">Group tasks and submission targets.</p>
                 <div class="space-y-3">
                 @forelse ($assignments as $assignment)
-                    <div class="rounded-box border border-base-300 p-3">
-                        <div class="flex items-start justify-between gap-3">
-                            <h4 class="font-medium">{{ $assignment['title'] }}</h4>
-                            <span class="badge {{ $assignment['status'] === 'completed' ? 'badge-primary' : 'badge-success' }}">
-                                {{ ucfirst($assignment['status']) }}
-                            </span>
-                        </div>
-                        <p class="mt-2 text-sm text-base-content/70">Due: {{ $assignment['due_at'] }}</p>
+                <div class="rounded-box border border-base-300 p-3 cursor-pointer" 
+                onclick="assignment_modal_{{$assignment['id']}}.showModal()">
+                    <div class="flex items-start justify-between gap-3">
+                        <h4 class="font-medium">{{ $assignment['title'] }}</h4>
+                        <span class="badge {{ $assignment['status'] === 'completed' ? 'badge-primary' : 'badge-success' }}">
+                            {{ ucfirst($assignment['status']) }}
+                        </span>
                     </div>
+                    <p class="mt-2 text-sm text-base-content/70">Due: {{ $assignment['due_at'] }}</p>
+                </div>
+                <!-- Open the modal using ID.showModal() method -->
+                <dialog id="assignment_modal_{{$assignment['id']}}" class="modal">
+                    <div class="modal-box">
+                        <h3 class="text-lg font-bold">Hello!</h3>
+                        <p class="py-4">Press ESC key or click the button below to close</p>
+                        <div class="modal-action">
+                        <form method="dialog">
+                            <!-- if there is a button in form, it will close the modal -->
+                            <form method="dialog">
+                                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                                    x
+                                </button>
+                            </form>
+                        </form>
+                        </div>
+                    </div>
+                    <form method="dialog" class="modal-backdrop">
+                        <button>close</button>
+                      </form>
+                </dialog>
                 @empty
                     <p class="text-sm text-base-content/70">No assignments for this group yet.</p>
                 @endforelse
@@ -128,6 +149,16 @@
                 <p class="text-sm text-base-content/70">No job listings available for this group.</p>
             @endforelse
             </ul>
+        </article>
+        <article>
+            @forelse ($users as $user)
+            <li class="rounded-box border border-base-300 p-3 cursor-pointer">
+                <h4 class="font-medium">{{ $user}}</h4>
+            </li>
+            
+            @empty
+            <p class="text-sm text-base-content/70">No job listings available for this group.</p>
+            @endforelse
         </article>
     </div>
     </section>

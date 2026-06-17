@@ -6,6 +6,8 @@ use App\Models\Group;
 use App\Models\JobListing;
 use App\Models\User;
 use App\Models\Assignment;
+use App\Models\AssignmentAssignees;
+use App\Models\GroupMembership;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -26,8 +28,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Basic users
-        User::factory(10)->create([]);
+        $basic_users = User::factory(10)->create([]);
 
+        // Creating Groups
         $groups = Group::factory(2)
             ->createdBy($admin)
             ->sequence(
@@ -36,20 +39,58 @@ class DatabaseSeeder extends Seeder
             )
             ->create();
 
-        JobListing::factory(3)
-            ->forGroup($groups[0])
-            ->create();
 
-        JobListing::factory(3)
-            ->forGroup($groups[1])
-            ->create();
-        
-        Assignment::factory(3)
-            ->forGroup($groups[0])
-            ->create();
+        // Creating Job listing for each group
+        // echo $groups;
 
-        Assignment::factory(3)
-            ->forGroup($groups[1])
-            ->create();
+        // Creating Assignments for each group
+    
+        // Adding users to Groups and assigning assignments to them
+        // group 0 
+        // for ()
+        for ($userId = 0; $userId < 3; $userId ++) {
+            GroupMembership::factory()
+                ->group($groups[0])
+                ->user($basic_users[$userId])
+                ->addedBy($admin)
+                ->create();
+
+            $job_listing = JobListing::factory()
+                ->forGroup($groups[0])
+                ->create();                
+
+            $assignment = Assignment::factory()
+                ->forGroup($groups[0])
+                ->createdBy($admin)
+                ->create();
+
+            AssignmentAssignees::factory()
+                ->hasAssignment($assignment)
+                ->hasUser($basic_users[$userId])
+                ->create();
+        }
+
+        // group 1
+        for ($userId = 3; $userId < 6; $userId ++) {
+            GroupMembership::factory()
+                ->group($groups[1])
+                ->user($basic_users[$userId])
+                ->addedBy($admin)
+                ->create();
+            
+            $job_listing = JobListing::factory()
+                ->forGroup($groups[1])
+                ->create();
+
+            $assignment = Assignment::factory()
+                ->forGroup($groups[1])
+                ->createdBy($admin)
+                ->create();
+            
+            AssignmentAssignees::factory()
+                ->hasAssignment($assignment)
+                ->hasUser($basic_users[$userId])
+                ->create();
+        }
     }
 }

@@ -38,4 +38,9 @@ class AssignmentFactory extends Factory
     {
         return $this->state(fn () => ['group_id' => $group->id]);
     }
+
+    public function createdBy(User $user): static 
+    {
+        return $this->state(fn () => ['created_by_user_id' => $user->id]);
+    }
 }

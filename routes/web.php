@@ -52,11 +52,13 @@ Route::get('/dashboard/groups/{id}', function ($id) {
 
     $job_listings = $group->jobListings;
     $assignments = $group->assignments;
+    $users = $group->users;
 
     return view('dashboard.groups.show', [
         'job_listings' => $job_listings,
         'group' => $group,
         'assignments' => $assignments,
+        'users' => $users
     ]);
 }
 )->name('dashboard.groups.show');

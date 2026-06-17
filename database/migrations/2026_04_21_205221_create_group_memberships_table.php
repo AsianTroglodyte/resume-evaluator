@@ -9,6 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
     public function up(): void
     {
         Schema::create('group_memberships', function (Blueprint $table) {
@@ -21,7 +22,7 @@ return new class extends Migration
             $table->foreignId('removed_by_user_id')->nullable()->constrained('users');
             $table->timestamp('updated_at')->nullable();
             $table->timestamp('joined_at')->useCurrent();
-            $table->timestamp('removed_at')->nullable();
+            $table->timestamp('removed_at')->   nullable();
             $table->unique(['group_id', 'user_id']);
         });
     }

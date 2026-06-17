@@ -9,4 +9,11 @@ class AssignmentAssignees extends Model
 {
     /** @use HasFactory<\Database\Factories\AssignmentAssigneesFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'assignment_id',
+        'user_id'
+    ];
+
+    
 }
