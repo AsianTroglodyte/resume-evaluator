@@ -56,7 +56,7 @@
                         <th>Name</th>
                         <th>ATS </br> Friendliness</th>
                         <th>Keyword </br> Match</th>
-                        <th>Group/s</th>
+                        <th>Module/s</th>
                         <th class="text-right">Actions</th>
                     </tr>
                 </thead>
@@ -84,10 +84,10 @@
 
                         <td>
                             <div class="text-xs">
-                                @if (count($evaluation['groups']) > 0)
-                                    {{ collect($evaluation['groups'])->pluck('name')->join(', ') }}
+                                @if (count($evaluation['modules']) > 0)
+                                    {{ collect($evaluation['modules'])->pluck('name')->join(', ') }}
                                 @else
-                                    Ungrouped
+                                    Unassigned
                                 @endif
                             </div>
                         </td>

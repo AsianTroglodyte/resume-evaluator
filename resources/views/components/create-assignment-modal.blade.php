@@ -2,7 +2,7 @@
     'modalId' => 'create_assignment_modal',
     'triggerLabel' => 'Create Assignment',
     'title' => 'Create Assignment Listing',
-    'subtitle' => 'Add assignment details for this group.',
+    'subtitle' => 'Add assignment details for this module.',
     'formAction' => '#',
     'jobListings' => [],
 ])
@@ -10,7 +10,7 @@
 @php
     $basicsId = "{$modalId}_basics";
     $jobListingsId = "{$modalId}_job_listings";
-    $groupMembersId = "{$modalId}_group_members";
+    $moduleMembersId = "{$modalId}_module_members";
 @endphp
 
 <button class="btn" type="button" onclick="document.getElementById('{{ $modalId }}').showModal()">
@@ -29,7 +29,7 @@
                 <ul class="steps steps-vertical md:w-48 md:shrink-0 md:border-r md:border-base-300 md:pr-6">
                     <li class="step step-primary" data-step-target="{{ $basicsId }}">Basics</li>
                     <li class="step" data-step-target="{{ $jobListingsId }}">Job Listings</li>
-                    <li class="step" data-step-target="{{ $groupMembersId }}">Group Members</li>
+                    <li class="step" data-step-target="{{ $moduleMembersId }}">Module Members</li>
                 </ul>
 
                 <form class="flex flex-col flex-1 min-h-0 gap-5" method="POST" action="{{ $formAction }}">
@@ -88,9 +88,9 @@
                         </div>
                     </fieldset>
 
-                    <fieldset id="{{ $groupMembersId }}" class="flex flex-col gap-5 hidden h-96 min-h-0">
+                    <fieldset id="{{ $moduleMembersId }}" class="flex flex-col gap-5 hidden h-96 min-h-0">
                         <label class="form-control w-full">
-                            <span class="label-text mb-1">Group members</span>
+                            <span class="label-text mb-1">Module members</span>
                             <input type="text" placeholder="Search members..." class="input input-bordered w-full" />
                         </label>
 

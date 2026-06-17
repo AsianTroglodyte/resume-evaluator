@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Group;
+use App\Models\Module;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -10,81 +10,89 @@ Route::get('/', function () {
 
 Route::get('/login', function () {
     return view('auth.login');
-});
+})->name('login');
 
 Route::get('/register', function () {
     return view('auth.register');
 });
 
-Route::get('/dashboard/groups', function () {
-    $groups = Group::all();
+Route::get('/dashboard/modules', function () {
+    $modules = Module::all();
 
-    return view('dashboard.groups.index', [
-        'groups' => $groups,
+    return view('dashboard.modules.index', [
+        'modules' => $modules,
     ]);
-})->name('dashboard.groups.index');
+})->name('dashboard.modules.index');
 
-Route::get('/dashboard/groups/create', function () {
-    return view('dashboard.groups.create', []);
-})->name('dashboard.groups.create');
+Route::get('/dashboard/modules/create', function () {
+    return view('dashboard.modules.create', []);
+})->name('dashboard.modules.create');
 
-Route::post('/dashboard/groups', function () {
-    //
+Route::post('/dashboard/modules', function () {
     request()->validate([
         'name' => ['required', 'min:3'],
     ]);
 
-    Group::create([
+    Module::create([
         'name' => request('name'),
-        // 'status' => 'active',
         'created_by_user_id' => 1,
     ]);
 
-    // dd(request()->all());
-    return redirect()->route('dashboard.groups.index');
-})->name('dashboard.groups.store');
+    return redirect()->route('dashboard.modules.index');
+})->name('dashboard.modules.store');
 
-Route::get('/dashboard/groups/{id}', function ($id) {
-    $group = Group::findOrFail($id);
-    if ($group === null) {
-        dd($group);
-    }
+Route::get('/dashboard/modules/{id}', function ($id) {
+    $module = Module::findOrFail($id);
 
-    $job_listings = $group->jobListings;
-    $assignments = $group->assignments;
-    $users = $group->users;
+    $job_listings = $module->jobListings;
 
-    return view('dashboard.groups.show', [
+    $assignments = $module
+        ->assignments()
+        ->with('assignees', 'jobListings')
+        ->get();
+
+    return view('dashboard.modules.show', [
         'job_listings' => $job_listings,
-        'group' => $group,
+        'module' => $module,
         'assignments' => $assignments,
-        'users' => $users
     ]);
-}
-)->name('dashboard.groups.show');
+})->name('dashboard.modules.show');
 
-Route::get('/dashboard/groups/{id}/assignments/create', function ($id) {
-    $group = Group::findOrFail($id);
+Route::get('/dashboard/modules/{id}/participants', function ($id) {
+    $module = Module::findOrFail($id);
 
-    $job_listings = $group->jobListings;
+    $participants = $module
+        ->users()
+        ->orderBy('last_name')
+        ->orderBy('first_name')
+        ->get();
 
-    return view('dashboard.groups.assignment-create', [
-        'group' => $group,
+    return view('dashboard.modules.participants', [
+        'module' => $module,
+        'participants' => $participants,
+    ]);
+})->name('dashboard.modules.participants');
+
+Route::get('/dashboard/modules/{id}/assignments/create', function ($id) {
+    $module = Module::findOrFail($id);
+
+    $job_listings = $module->jobListings;
+
+    return view('dashboard.modules.assignment-create', [
+        'module' => $module,
         'job_listings' => $job_listings,
     ]);
-})->name('dashboard.groups.assignments.create');
+})->name('dashboard.modules.assignments.create');
 
-Route::post('/dashboard/groups/{id}/assignment/create', function ($id) {
-    // dd(request()->all());
-
-    $group = Group::findOrFail($id);
+Route::post('/dashboard/modules/{id}/assignment/create', function ($id) {
+    $module = Module::findOrFail($id);
 
     $validated = request()->validate([
         'title' => ['required', 'string', 'min:3'],
         'description' => ['required', 'string'],
     ]);
 
-    $group->assignments()->create([
+    $module->assignments()->create([
         ...$validated,
         'created_by_user_id' => 1,
         'status' => 'pending',
@@ -93,21 +101,21 @@ Route::post('/dashboard/groups/{id}/assignment/create', function ($id) {
         'allow_resubmission' => true,
     ]);
 
-    return redirect()->route('dashboard.groups.show', $id);
-})->name('dashboard.groups.assignments.store');
+    return redirect()->route('dashboard.modules.show', $id);
+})->name('dashboard.modules.assignments.store');
 
-Route::post('/dashboard/groups/{id}/job-listings', function ($id) {
-    $group = Group::findOrFail($id);
+Route::post('/dashboard/modules/{id}/job-listings', function ($id) {
+    $module = Module::findOrFail($id);
 
     $validated = request()->validate([
         'name' => ['required', 'string', 'min:3'],
         'description' => ['required', 'string'],
     ]);
 
-    $group->jobListings()->create($validated);
+    $module->jobListings()->create($validated);
 
-    return redirect()->route('dashboard.groups.show', $id);
-})->name('dashboard.groups.job-listings.store');
+    return redirect()->route('dashboard.modules.show', $id);
+})->name('dashboard.modules.job-listings.store');
 
 Route::get('/dashboard/resumes', function () {
     $evaluations = [
@@ -116,8 +124,8 @@ Route::get('/dashboard/resumes', function () {
             'name' => 'Resume 1',
             'ats_friendliness' => 90,
             'keyword_match' => null,
-            'groups' => [
-                ['id' => 1, 'name' => 'Group 1'],
+            'modules' => [
+                ['id' => 1, 'name' => 'Module 1'],
             ],
         ],
         [
@@ -125,7 +133,7 @@ Route::get('/dashboard/resumes', function () {
             'name' => 'Senior Backend Engineer (Distributed Systems)',
             'ats_friendliness' => 67,
             'keyword_match' => 69,
-            'groups' => [
+            'modules' => [
                 ['id' => 2, 'name' => 'Senior Seminar W25'],
                 ['id' => 4, 'name' => 'Distributed Systems Cohort'],
             ],
@@ -135,7 +143,7 @@ Route::get('/dashboard/resumes', function () {
             'name' => 'Frontend Developer - BlueWave Analytics',
             'ats_friendliness' => 50,
             'keyword_match' => 50,
-            'groups' => [
+            'modules' => [
                 ['id' => 3, 'name' => 'Senior Seminar W24'],
             ],
         ],
@@ -144,7 +152,7 @@ Route::get('/dashboard/resumes', function () {
     return view('dashboard.resumes.index', [
         'evaluations' => $evaluations,
     ]);
-});
+})->name('dashboard.resumes.index');
 
 Route::get('/dashboard/resumes/{id}', function ($id) {
     $evaluations = [
@@ -153,8 +161,8 @@ Route::get('/dashboard/resumes/{id}', function ($id) {
             'name' => 'Resume 1',
             'ats_friendliness' => 90,
             'keyword_match' => null,
-            'groups' => [
-                ['id' => 1, 'name' => 'Group 1'],
+            'modules' => [
+                ['id' => 1, 'name' => 'Module 1'],
             ],
         ],
         [
@@ -162,7 +170,7 @@ Route::get('/dashboard/resumes/{id}', function ($id) {
             'name' => 'Senior Backend Engineer (Distributed Systems)',
             'ats_friendliness' => 67,
             'keyword_match' => 69,
-            'groups' => [
+            'modules' => [
                 ['id' => 2, 'name' => 'Senior Seminar W25'],
                 ['id' => 4, 'name' => 'Distributed Systems Cohort'],
             ],
@@ -172,7 +180,7 @@ Route::get('/dashboard/resumes/{id}', function ($id) {
             'name' => 'Frontend Developer - BlueWave Analytics',
             'ats_friendliness' => 50,
             'keyword_match' => 50,
-            'groups' => [
+            'modules' => [
                 ['id' => 3, 'name' => 'Senior Seminar W24'],
             ],
         ],
@@ -183,17 +191,20 @@ Route::get('/dashboard/resumes/{id}', function ($id) {
         'title' => $evaluation['name'],
         'evaluation' => $evaluation['ats_friendliness'],
         'keyword_match' => $evaluation['keyword_match'],
-        'groups' => $evaluation['groups'],
+        'modules' => $evaluation['modules'],
     ]);
 })->name('dashboard.resumes.show');
 
 Route::get('/testdb', function () {
-    $groups = Group::all();
+    $modules = Module::all();
     $users = User::all();
-    dd($groups, $users);
+    dd($modules, $users);
 });
 
-Route::get('/dashboard/admin', function () {
+Route::redirect('/dashboard/admin', '/dashboard/admin/users');
 
-    return view('dashboard.admin.index', ['users' => User::all()]);
-});
+Route::get('/dashboard/admin/users', function () {
+    return view('dashboard.admin.users.index', [
+        'users' => User::query()->orderBy('last_name')->orderBy('first_name')->get(),
+    ]);
+})->name('dashboard.admin.users.index');

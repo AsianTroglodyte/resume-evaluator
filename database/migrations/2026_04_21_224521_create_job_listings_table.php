@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('job_listings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_id')->constrained('groups');
+            $table->foreignId('module_id')->constrained('modules');
             $table->string('name');
             $table->text('description');
             $table->timestamp('created_at')->useCurrent();

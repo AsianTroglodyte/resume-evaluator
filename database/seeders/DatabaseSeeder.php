@@ -2,12 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Group;
-use App\Models\JobListing;
-use App\Models\User;
 use App\Models\Assignment;
+use App\Models\AssignmentAllowedJobListings;
 use App\Models\AssignmentAssignees;
-use App\Models\GroupMembership;
+use App\Models\JobListing;
+use App\Models\Module;
+use App\Models\ModuleMembership;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,81 +17,121 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
+     * @var list<array{
+     *     name: string,
+     *     status: string,
+     *     lone_members: int,
+     *     lone_job_listings: int,
+     *     assignments: list<array{
+     *         assignees: int,
+     *         job_listings: int,
+     *     }>,
+     * }>
+     */
+    private array $modulesConfig = [
+        [
+            'name' => 'Resume Workshop 2025',
+            'status' => 'Archived',
+            'lone_members' => 9,
+            'lone_job_listings' => 3,
+            'assignments' => [
+                ['assignees' => 3, 'job_listings' => 3],
+                ['assignees' => 3, 'job_listings' => 3],
+                ['assignees' => 3, 'job_listings' => 3],
+            ],
+        ],
+        [
+            'name' => 'Resume Workshop 2026',
+            'status' => 'active',
+            'lone_members' => 3,
+            'lone_job_listings' => 3,
+            'assignments' => [
+                ['assignees' => 1, 'job_listings' => 3],
+                ['assignees' => 1, 'job_listings' => 3],
+                ['assignees' => 0, 'job_listings' => 0],
+            ],
+        ],
+    ];
+
+    /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // Admin
         $admin = User::factory()->admin()->password('admin')->create([
             'first_name' => 'Karan',
             'last_name' => 'Swansi',
-            'email' => 'kswansi@southnern.edu',
+            'email' => 'kswansin@southern.edu',
         ]);
 
-        // Basic users
-        $basic_users = User::factory(10)->create([]);
+        User::factory(5)->create([]);
 
-        // Creating Groups
-        $groups = Group::factory(2)
-            ->createdBy($admin)
-            ->sequence(
-                ['name' => 'Resume Workshop 2025', 'status' => 'Archived'],
-                ['name' => 'Resume Workshop 2026'],
-            )
-            ->create();
-
-
-        // Creating Job listing for each group
-        // echo $groups;
-
-        // Creating Assignments for each group
-    
-        // Adding users to Groups and assigning assignments to them
-        // group 0 
-        // for ()
-        for ($userId = 0; $userId < 3; $userId ++) {
-            GroupMembership::factory()
-                ->group($groups[0])
-                ->user($basic_users[$userId])
-                ->addedBy($admin)
-                ->create();
-
-            $job_listing = JobListing::factory()
-                ->forGroup($groups[0])
-                ->create();                
-
-            $assignment = Assignment::factory()
-                ->forGroup($groups[0])
+        foreach ($this->modulesConfig as $config) {
+            $module = Module::factory()
                 ->createdBy($admin)
+                ->create([
+                    'name' => $config['name'],
+                    'status' => $config['status'],
+                ]);
+
+            $loneMembers = User::factory($config['lone_members'])->create();
+
+            foreach ($loneMembers as $loneMember) {
+                ModuleMembership::factory()
+                    ->module($module)
+                    ->user($loneMember)
+                    ->addedBy($admin)
+                    ->state([
+                        'role_in_module' => 'student',
+                        'status' => 'active',
+                    ])
+                    ->create();
+            }
+
+            JobListing::factory($config['lone_job_listings'])
+                ->forModule($module)
                 ->create();
 
-            AssignmentAssignees::factory()
-                ->hasAssignment($assignment)
-                ->hasUser($basic_users[$userId])
-                ->create();
-        }
+            foreach ($config['assignments'] as $assignmentSpec) {
+                $assignment = Assignment::factory()
+                    ->forModule($module)
+                    ->createdBy($admin)
+                    ->create();
 
-        // group 1
-        for ($userId = 3; $userId < 6; $userId ++) {
-            GroupMembership::factory()
-                ->group($groups[1])
-                ->user($basic_users[$userId])
-                ->addedBy($admin)
-                ->create();
-            
-            $job_listing = JobListing::factory()
-                ->forGroup($groups[1])
-                ->create();
+                if ($assignmentSpec['job_listings'] > 0) {
+                    $assignmentJobListings = JobListing::factory($assignmentSpec['job_listings'])
+                        ->forModule($module)
+                        ->create();
 
-            $assignment = Assignment::factory()
-                ->forGroup($groups[1])
-                ->createdBy($admin)
-                ->create();
-            
-            AssignmentAssignees::factory()
-                ->hasAssignment($assignment)
-                ->hasUser($basic_users[$userId])
-                ->create();
+                    foreach ($assignmentJobListings as $assignmentJobListing) {
+                        AssignmentAllowedJobListings::factory()
+                            ->withAssignment($assignment)
+                            ->withJobListing($assignmentJobListing)
+                            ->create();
+                    }
+                }
+
+                if ($assignmentSpec['assignees'] > 0) {
+                    $assignmentAssignees = User::factory($assignmentSpec['assignees'])->create();
+
+                    foreach ($assignmentAssignees as $assignee) {
+                        ModuleMembership::factory()
+                            ->module($module)
+                            ->user($assignee)
+                            ->addedBy($admin)
+                            ->state([
+                                'role_in_module' => 'student',
+                                'status' => 'active',
+                            ])
+                            ->create();
+
+                        AssignmentAssignees::factory()
+                            ->hasAssignment($assignment)
+                            ->hasUser($assignee)
+                            ->create();
+                    }
+                }
+            }
         }
     }
 }

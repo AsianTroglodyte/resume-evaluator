@@ -1,7 +1,7 @@
 @php
 $BASICS = 'basics';
 $JOB_LISTINGS = 'job_listings';
-$GROUP_MEMBERS = 'group_members';
+$MODULE_MEMBERS = 'module_members';
 @endphp
 
 <x-dashboard-layout>
@@ -9,20 +9,22 @@ $GROUP_MEMBERS = 'group_members';
 
     <section class="space-y-4">
         <header class="space-y-1">
-            <a href="{{ route('dashboard.groups.show', ['id' => $group['id']]) }}" class="link link-primary text-sm">&larr; Back to {{ $group['name'] }}</a>
+            <a href="{{ route('dashboard.modules.show', $module) }}" class="link link-primary text-sm">
+                &larr; Back to {{ $module->name }}
+            </a>
             <h2 class="text-2xl font-semibold">Create Assignment</h2>
-            <p class="text-sm text-base-content/70">Build a new assignment for {{ $group['name'] }}.</p>
+            <p class="text-sm text-base-content/70">Build a new assignment for {{ $module->name }}.</p>
         </header>
 
         <article class="flex flex-col rounded-box border border-base-300 bg-base-100 p-6 md:flex-row">
             <ul class="steps steps-horizontal md:steps-vertical md:w-48 md:shrink-0 md:border-r md:border-base-300 md:pr-6">
                 <li class="step step-primary" data-step="{{ $BASICS }}" data-target="{{ $BASICS }}">Basics</li>
                 <li class="step" data-step="{{ $JOB_LISTINGS }}" data-target="{{ $JOB_LISTINGS }}">Job <br/> Listings</li>
-                <li class="step" data-step="{{ $GROUP_MEMBERS }}" data-target="{{ $GROUP_MEMBERS }}">Group <br/> Members</li>
+                <li class="step" data-step="{{ $MODULE_MEMBERS }}" data-target="{{ $MODULE_MEMBERS }}">Module <br/> Members</li>
             </ul>
 
             <form id="assignment_form" class="flex flex-col flex-1 min-h-0 gap-5 p-6" 
-            method="POST" action="{{ route('dashboard.groups.assignments.store', $group->id) }}">
+            method="POST" action="{{ route('dashboard.modules.assignments.store', $module->id) }}">
                 @csrf
 
                 <fieldset id="{{ $BASICS }}" class="flex flex-col gap-5 h-96 min-h-0">
@@ -40,7 +42,8 @@ $GROUP_MEMBERS = 'group_members';
 
                     <label class="form-control w-full flex flex-col flex-1 min-h-0">
                         <span class="label-text mb-1">Description</span>
-                        <textarea placeholder="Job Description" name="description" class="textarea textarea-bordered w-full flex-1 min-h-0 h-full"></textarea>
+                        <textarea placeholder="Job Description" name="description" 
+                        class="textarea textarea-bordered w-full flex-1 min-h-0 h-full"></textarea>
                     </label>
 
                     <div class="flex justify-end pt-2">
@@ -84,9 +87,9 @@ $GROUP_MEMBERS = 'group_members';
                     </div>
                 </fieldset>
 
-                <fieldset id="{{ $GROUP_MEMBERS }}" class="flex flex-col gap-5 hidden h-96 min-h-0">
+                <fieldset id="{{ $MODULE_MEMBERS }}" class="flex flex-col gap-5 hidden h-96 min-h-0">
                     <label class="form-control w-full">
-                        <span class="label-text mb-1">Group members</span>
+                        <span class="label-text mb-1">Module members</span>
                         <input type="text" placeholder="Search members..." class="input input-bordered w-full" />
                     </label>
 

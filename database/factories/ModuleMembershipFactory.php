@@ -2,16 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Models\group_membership;
-use App\Models\Group;
+use App\Models\Module;
+use App\Models\ModuleMembership;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<group_membership>
+ * @extends Factory<ModuleMembership>
  */
-class GroupMembershipFactory extends Factory
+class ModuleMembershipFactory extends Factory
 {
+    protected $model = ModuleMembership::class;
+
     /**
      * Define the model's default state.
      *
@@ -20,11 +22,10 @@ class GroupMembershipFactory extends Factory
     public function definition(): array
     {
         return [
-            //
-            'group_id' => Group::factory(),
+            'module_id' => Module::factory(),
             'user_id' => User::factory(),
-            'role_in_group' => 'user',
-            'status' => 'idk',
+            'role_in_module' => 'student',
+            'status' => 'active',
             'added_by_user_id' => User::factory()->admin(),
             'removed_by_user_id' => null,
             'updated_at' => now(),
@@ -33,9 +34,9 @@ class GroupMembershipFactory extends Factory
         ];
     }
 
-    public function group(Group $group): static 
+    public function module(Module $module): static
     {
-        return $this->state(fn () => ['group_id' => $group->id]);
+        return $this->state(fn () => ['module_id' => $module->id]);
     }
 
     public function user(User $user): static
@@ -45,25 +46,16 @@ class GroupMembershipFactory extends Factory
 
     public function addedBy(User $user): static
     {
-        // Make sure to add checks if the user is an admin or
-        // instructor of group
-        // if ($user->global_role !== "admin") {
-        // }
         return $this->state(fn () => ['added_by_user_id' => $user->id]);
     }
 
     public function removedByUser(User $user): static
     {
-        // Make sure to add checks if the user is an admin or instructo
-        // if ($user->global_role !== "admin") {
-        // 
-        // }
         return $this->state(fn () => ['removed_by_user_id' => $user->id]);
     }
 
     public function instructor(): static
     {
-        return $this->state(fn () => ['role_in_group' => 'instructor']);
+        return $this->state(fn () => ['role_in_module' => 'instructor']);
     }
-
 }

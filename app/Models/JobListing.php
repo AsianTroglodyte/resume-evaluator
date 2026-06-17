@@ -12,7 +12,7 @@ class JobListing extends Model
     public const UPDATED_AT = null;
 
     protected $fillable = [
-        'group_id',
+        'module_id',
         'name',
         'description',
     ];

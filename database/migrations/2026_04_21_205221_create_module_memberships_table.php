@@ -9,21 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-
     public function up(): void
     {
-        Schema::create('group_memberships', function (Blueprint $table) {
+        Schema::create('module_memberships', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('module_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained();
-            $table->string('role_in_group');
+            $table->string('role_in_module');
             $table->string('status');
             $table->foreignId('added_by_user_id')->constrained('users');
             $table->foreignId('removed_by_user_id')->nullable()->constrained('users');
             $table->timestamp('updated_at')->nullable();
             $table->timestamp('joined_at')->useCurrent();
-            $table->timestamp('removed_at')->   nullable();
-            $table->unique(['group_id', 'user_id']);
+            $table->timestamp('removed_at')->nullable();
+            $table->unique(['module_id', 'user_id']);
         });
     }
 
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('group_memberships');
+        Schema::dropIfExists('module_memberships');
     }
 };

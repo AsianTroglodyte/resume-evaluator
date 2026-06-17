@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Group;
 use App\Models\JobListing;
+use App\Models\Module;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,16 +19,14 @@ class JobListingFactory extends Factory
     public function definition(): array
     {
         return [
-            //
-            // "group_id" => constrained('groups'),
             'name' => fake()->jobTitle(),
             'description' => $this->faker->paragraph(),
-            'group_id' => Group::factory(),
+            'module_id' => Module::factory(),
         ];
     }
 
-    public function forGroup(Group $group): static
+    public function forModule(Module $module): static
     {
-        return $this->state(fn () => ['group_id' => $group->id]);
+        return $this->state(fn () => ['module_id' => $module->id]);
     }
 }

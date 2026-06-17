@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Assignment;
-use App\Models\Group;
+use App\Models\Module;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +22,7 @@ class AssignmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'group_id' => Group::factory(),
+            'module_id' => Module::factory(),
             'created_by_user_id' => User::factory()->admin(),
             'title' => 'Assignment '.$this->faker->unique()->numberBetween(1, 10_000),
             'description' => $this->faker->paragraph(),
@@ -34,12 +34,12 @@ class AssignmentFactory extends Factory
         ];
     }
 
-    public function forGroup(Group $group): static
+    public function forModule(Module $module): static
     {
-        return $this->state(fn () => ['group_id' => $group->id]);
+        return $this->state(fn () => ['module_id' => $module->id]);
     }
 
-    public function createdBy(User $user): static 
+    public function createdBy(User $user): static
     {
         return $this->state(fn () => ['created_by_user_id' => $user->id]);
     }

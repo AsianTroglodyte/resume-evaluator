@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('assignments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_id')->constrained('groups');
+            $table->foreignId('module_id')->constrained('modules');
             $table->foreignId('created_by_user_id')->constrained('users');
             $table->string('title');
             $table->text('description');

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Assignment extends Model
 {
@@ -12,7 +13,7 @@ class Assignment extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'group_id',
+        'module_id',
         'created_by_user_id',
         'title',
         'description',
@@ -22,4 +23,22 @@ class Assignment extends Model
         'job_listing_rule',
         'allow_resubmission',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'due_at' => 'datetime',
+            'allow_resubmission' => 'boolean',
+        ];
+    }
+
+    public function assignees(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'assignment_assignees');
+    }
+
+    public function jobListings(): BelongsToMany
+    {
+        return $this->belongsToMany(JobListing::class, 'assignment_allowed_job_listings');
+    }
 }
