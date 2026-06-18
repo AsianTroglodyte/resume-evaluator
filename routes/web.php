@@ -77,29 +77,37 @@ Route::get('/dashboard/modules/{id}/assignments/create', function ($id) {
     $module = Module::findOrFail($id);
 
     $job_listings = $module->jobListings;
+    $users = $module->users;
 
     return view('dashboard.modules.assignment-create', [
         'module' => $module,
         'job_listings' => $job_listings,
+        'users' => $users
+        
     ]);
 })->name('dashboard.modules.assignments.create');
 
 Route::post('/dashboard/modules/{id}/assignment/create', function ($id) {
+
+    dd(request()->all());
+
     $module = Module::findOrFail($id);
 
-    $validated = request()->validate([
-        'title' => ['required', 'string', 'min:3'],
-        'description' => ['required', 'string'],
-    ]);
 
-    $module->assignments()->create([
-        ...$validated,
-        'created_by_user_id' => 1,
-        'status' => 'pending',
-        'assignment_scope' => 'everyone',
-        'job_listing_rule' => 'any',
-        'allow_resubmission' => true,
-    ]);
+
+    // $validated = request()->validate([
+    //     'title' => ['required', 'string', 'min:3'],
+    //     'description' => ['required', 'string'],
+    // ]);
+
+    // $module->assignments()->create([
+    //     ...$validated,
+    //     'created_by_user_id' => 1,
+    //     'status' => 'pending',
+    //     'assignment_scope' => 'everyone',
+    //     'job_listing_rule' => 'any',
+    //     'allow_resubmission' => true,
+    // ]);
 
     return redirect()->route('dashboard.modules.show', $id);
 })->name('dashboard.modules.assignments.store');

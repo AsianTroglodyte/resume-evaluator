@@ -1,5 +1,7 @@
-<nav class="border-b border-base-300 bg-base-100" aria-label="Admin sections">
-    <div class="mx-auto max-w-6xl px-4 md:px-6">
+<header class="space-y-4 border-b border-base-300 pb-4">
+    <h2 class="text-2xl font-semibold">Admin</h2>
+
+    <nav aria-label="Admin sections">
         <div role="tablist" class="tabs tabs-border">
             <a
                 role="tab"
@@ -10,5 +12,5 @@
                 Users
             </a>
         </div>
-    </div>
-</nav>
+    </nav>
+</header>

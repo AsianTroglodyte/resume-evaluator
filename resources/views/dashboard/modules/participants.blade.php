@@ -5,10 +5,7 @@
         <x-module-header :module="$module" />
 
         <div>
-            <header class="mb-4 space-y-1">
-                <h3 class="text-lg font-semibold">Participants</h3>
-                <p class="text-sm text-base-content/70">Members enrolled in this module.</p>
-            </header>
+            <p class="mb-4 text-sm text-base-content/70">Members enrolled in this module.</p>
 
             <div class="overflow-x-auto rounded-box border border-base-300">
                 <table class="table">

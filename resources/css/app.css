@@ -5,10 +5,23 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-/* @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-} */
 @plugin "daisyui" {
     themes: light --default, dark --prefersdark, lofi;
 };
+
+/*
+ * daisyUI rootscrollgutter defaults to unset until --page-has-scroll is set
+ * (e.g. when a modal opens). Always reserve gutter space to prevent layout shift
+ * between short and long pages.
+ */
+:root {
+    --page-scroll-gutter: stable;
+    --page-has-scroll: 1;
+    scrollbar-gutter: stable;
+}
+
+@layer base {
+    html {
+        scrollbar-gutter: stable;
+    }
+}

@@ -23,7 +23,7 @@
                     @forelse ($assignments as $assignment)
                         <button
                             type="button"
-                            class="w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200"
+                            class="w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200 cursor-pointer"
                             onclick="assignment_modal_{{ $assignment->id }}.showModal()"
                         >
                             <div class="flex items-start justify-between gap-3">
@@ -132,7 +132,7 @@
                         <li>
                             <button
                                 type="button"
-                                class="w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200"
+                                class="w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200 cursor-pointer"
                                 onclick="description_modal_{{ $listing->id }}.showModal()"
                             >
                                 <h4 class="font-medium">{{ $listing->name }}</h4>
@@ -167,7 +167,7 @@
                                 onclick="create_job_listing_modal.close()"
                                 aria-label="Close"
                             >
-                                ×
+                                x
                             </button>
 
                             <header class="space-y-1">
