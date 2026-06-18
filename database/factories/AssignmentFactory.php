@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Factories;
 
 use App\Models\Assignment;
@@ -28,8 +27,9 @@ class AssignmentFactory extends Factory
             'description' => $this->faker->paragraph(),
             'status' => 'pending',
             'due_at' => now()->addWeek(),
-            'assignment_scope' => 'everyone',
-            'job_listing_rule' => 'any',
+            'assignee_scope' => 'everyone',
+            'job_listing_source' => 'external',
+            'module_job_listing_scope' => 'all_module_listings',
             'allow_resubmission' => true,
         ];
     }

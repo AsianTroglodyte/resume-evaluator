@@ -1,7 +1,7 @@
 <x-dashboard-layout>
     <x-slot:title>Create Assignment</x-slot:title>
 
-    <fieldset class="space-y-4">
+    <section class="space-y-4">
         <header class="space-y-1">
             <a href="{{ route('dashboard.modules.show', $module) }}" class="link link-primary text-sm">
                 &larr; Back to {{ $module->name }}
@@ -19,10 +19,9 @@
             >
                 @csrf
 
-                <fieldset class="space-y-5 ">
-
+                <section class="min-w-0 space-y-5" aria-labelledby="assignment-basics-heading">
                     <header class="space-y-1 border-b border-base-300 pb-3">
-                        <h3 class="text-lg font-semibold">Basics</h3>
+                        <h3 id="assignment-basics-heading" class="text-lg font-semibold">Basics</h3>
                         <p class="text-sm text-base-content/70">Title, due date, and instructions for this assignment.</p>
                     </header>
 
@@ -36,13 +35,14 @@
                         />
                     </label>
 
-                    <div class="flex flex-col gap-2 mt-3">
-                        <label class="flex cursor-pointer items-center gap-3">
+                    <div class="mt-3 flex flex-col gap-2">
+                        <label class="flex w-fit cursor-pointer items-center gap-3">
                             <input
                                 type="checkbox"
                                 checked
                                 class="toggle"
                                 id="due-date-enabled"
+                                aria-controls="date-time"
                                 onchange="document.getElementById('date-time').disabled = !this.checked"
                             />
                             <span class="label-text">Enable due date</span>
@@ -67,109 +67,166 @@
                             class="textarea textarea-bordered min-h-32 w-full"
                         ></textarea>
                     </label>
-                </fieldset>
+                </section>
 
-                <fieldset class="space-y-5">
-
+                <section class="min-w-0 space-y-5" aria-labelledby="allowed-job-listings-heading">
                     <header class="space-y-1 border-b border-base-300 pb-3">
-                        <h3 class="text-lg font-semibold">Allowed job listings</h3>
+                        <h3 id="allowed-job-listings-heading" class="text-lg font-semibold">Allowed job listings</h3>
                         <p class="text-sm text-base-content/70">Students may submit against any listing you select here.</p>
                     </header>
-                    <fieldset class="[&:not(:has(input[value='selected']:checked))_.job-listing-list]:hidden">
-                        <label class="flex cursor-pointer items-center gap-3 p-1 transition hover:bg-base-200 rounded">
-                            <input type="radio" name="assignment_scope" value="everyone" class="radio radio-primary" checked />
-                            <span class="font-medium">Everyone in module</span>
+
+                    <fieldset
+                        id="job-listing-sources"
+                        class="min-w-0 space-y-3 [&:not(:has(.job-source-on-site:checked))_.module-listing-options]:hidden [&:not(:has(.job-listing-scope-selected:checked))_.job-listing-list]:hidden"
+                    >
+                        <legend class="text-sm font-semibold">Allowed job sources</legend>
+
+                        <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
+                            <input
+                                type="checkbox"
+                                name="job_listing_sources[]"
+                                value="online"
+                                class="checkbox checkbox-md"
+                            />
+                            <span class="font-medium">Online job listings</span>
                         </label>
 
-                        <label class="flex cursor-pointer items-center gap-3 p-1 transition hover:bg-base-200 rounded">
-                            <input type="radio" name="assignment_scope" value="selected" class="radio radio-primary" />
-                            <span class="font-medium">Selected members</span>
+                        <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
+                            <input
+                                type="checkbox"
+                                name="job_listing_sources[]"
+                                value="on-site"
+                                class="job-source-on-site checkbox checkbox-md"
+                            />
+                            <span class="font-medium">On-site</span>
                         </label>
 
-                        <div class="job-listing-list mt-4 space-y-3">
-                            <label class="form-control w-full">
-                                <span class="label-text mb-1 font-medium">Select Members</span>
+                        <fieldset id="module-listing-options" class="module-listing-options min-w-0 space-y-3">
+                            <legend class="text-sm font-semibold">On-site module listings</legend>
+
+                            <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
+                                <input
+                                    type="radio"
+                                    name="module_job_listing_scope"
+                                    value="all"
+                                    class="radio radio-primary"
+                                    checked
+                                />
+                                <span class="font-medium">All module job listings</span>
                             </label>
-                            <ul class="list bg-base-100 ">
-                                @forelse ($job_listings as $job_listing)
-                                <li>
-                                    <label 
-                                        class="flex cursor-pointer items-center gap-3 p-1 transition hover:bg-base-200 rounded"
-                                        for="{{$job_listing->name}} {{ $job_listing->id }}">
-                                        <input type="checkbox"
-                                            class="checkbox checkbox-md mt-0.5 shrink-0" 
-                                            id="{{$job_listing->name}} {{ $job_listing->id }}"
-                                            name="job_listing_ids[]"
-                                            value="{{$job_listing->id}}"/>
-                                        <p class="min-w-0 font-medium text-md">
-                                            {{$job_listing->name }}
-                                        </p>
-                                    </label>
-                                </li>
-                                @empty
-                                <li>
-                                    <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
-                                        No job listings in this module yet. Create one from the module overview before assigning.
-                                    </p>
-                                </li>
-                                @endforelse
-                            </ul>
-                        </div>
-                    </fieldset>
-                </fieldset>
 
-                <fieldset class="space-y-5">
+                            <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
+                                <input
+                                    type="radio"
+                                    name="module_job_listing_scope"
+                                    value="selected"
+                                    class="job-listing-scope-selected radio radio-primary"
+                                />
+                                <span class="font-medium">Select job listings</span>
+                            </label>
+
+                            <fieldset id="job-listing-list" class="job-listing-list min-w-0 space-y-3">
+                                <legend class="label-text font-medium">Select job listings</legend>
+
+                                <ul class="list max-h-150 overflow-y-auto bg-base-100">
+                                    @forelse ($job_listings as $job_listing)
+                                        <li>
+                                            <label
+                                                class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
+                                                for="job-listing-{{ $job_listing->id }}"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    class="checkbox checkbox-md mt-0.5 shrink-0"
+                                                    id="job-listing-{{ $job_listing->id }}"
+                                                    name="job_listing_ids[]"
+                                                    value="{{ $job_listing->id }}"
+                                                />
+                                                <span class="min-w-0 font-medium">
+                                                    {{ $job_listing->name }}
+                                                </span>
+                                            </label>
+                                        </li>
+                                    @empty
+                                        <li>
+                                            <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
+                                                No job listings in this module yet. Create one from the module overview before assigning.
+                                            </p>
+                                        </li>
+                                    @endforelse
+                                </ul>
+                            </fieldset>
+                        </fieldset>
+                    </fieldset>
+                </section>
+
+                <section class="min-w-0 space-y-5" aria-labelledby="assignment-assignees-heading">
                     <header class="space-y-1 border-b border-base-300 pb-3">
-                        <h3 class="text-lg font-semibold">Assignees</h3>
+                        <h3 id="assignment-assignees-heading" class="text-lg font-semibold">Assignees</h3>
                         <p class="text-sm text-base-content/70">Choose who this assignment applies to.</p>
                     </header>
 
-                    <fieldset class="min-w-0 [&:not(:has(input[value='selected']:checked))_.assignment-member-list]:hidden">
+                    <fieldset
+                        id="assignment-scope"
+                        class="min-w-0 space-y-3 [&:not(:has(.assignment-scope-selected:checked))_.assignment-member-list]:hidden"
+                    >
                         <legend class="sr-only">Assignment scope</legend>
 
-                        <label class="flex cursor-pointer items-center gap-3 p-1 transition hover:bg-base-200 rounded">
-                            <input type="radio" name="assignment_scope" value="everyone" class="radio radio-primary" checked />
+                        <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
+                            <input
+                                type="radio"
+                                name="assignment_scope"
+                                value="everyone"
+                                class="radio radio-primary"
+                                checked
+                            />
                             <span class="font-medium">Everyone in module</span>
                         </label>
 
-                        <label class="flex cursor-pointer items-center gap-3 p-1 transition hover:bg-base-200 rounded">
-                            <input type="radio" name="assignment_scope" value="selected" class="radio radio-primary" />
-                            <span class="font-medium">Selected members</span>
+                        <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
+                            <input
+                                type="radio"
+                                name="assignment_scope"
+                                value="selected"
+                                class="assignment-scope-selected radio radio-primary"
+                            />
+                            <span class="font-medium">Select members</span>
                         </label>
 
-                        <div class="assignment-member-list mt-4 space-y-3">
-                            <label class="form-control w-full">
-                                <span class="label-text mb-1 font-medium">Select Members</span>
-                            </label>
+                        <fieldset id="assignment-member-list" class="assignment-member-list min-w-0 space-y-3">
+                            <legend class="label-text font-medium">Select members</legend>
 
-                            <ul class="list bg-base-100">
+                            <ul class="list max-h-150 overflow-y-auto bg-base-100">
                                 @forelse ($users as $user)
-                                <li>
-                                    <label
-                                        class="flex cursor-pointer items-center gap-3 p-1 transition hover:bg-base-200 rounded"
-                                        for="user-{{ $user->id }}">
-                                        <input type="checkbox"
-                                            class="checkbox checkbox-md mt-0.5 shrink-0"
-                                            id="user-{{ $user->id }}"
-                                            name="assignee_ids[]"
-                                            value="{{ $user->id }}"/>
-                                        <p class="min-w-0 font-medium">
-                                            {{ $user->first_name }} {{ $user->last_name }} -
-                                            {{ $user->email }}
-                                        </p>
-                                    </label>
-                                </li>
+                                    <li>
+                                        <label
+                                            class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
+                                            for="user-{{ $user->id }}"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                class="checkbox checkbox-md mt-0.5 shrink-0"
+                                                id="user-{{ $user->id }}"
+                                                name="assignee_ids[]"
+                                                value="{{ $user->id }}"
+                                            />
+                                            <span class="min-w-0 font-medium">
+                                                {{ $user->first_name }} {{ $user->last_name }} -
+                                                {{ $user->email }}
+                                            </span>
+                                        </label>
+                                    </li>
                                 @empty
-                                <li>
-                                    <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
-                                        No members in this module yet.
-                                    </p>
-                                </li>
+                                    <li>
+                                        <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
+                                            No members in this module yet.
+                                        </p>
+                                    </li>
                                 @endforelse
                             </ul>
-                        </div>
+                        </fieldset>
                     </fieldset>
-                </fieldset>
+                </section>
 
                 <div class="flex flex-wrap justify-end gap-2 border-t border-base-300 pt-4">
                     <a href="{{ route('dashboard.modules.show', $module) }}" class="btn btn-ghost">Cancel</a>
@@ -177,5 +234,5 @@
                 </div>
             </form>
         </article>
-    </fieldset>
+    </section>
 </x-dashboard-layout>

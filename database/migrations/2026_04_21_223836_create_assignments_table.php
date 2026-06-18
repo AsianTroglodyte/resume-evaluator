@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,8 +18,9 @@ return new class extends Migration
             $table->text('description');
             $table->string('status');
             $table->timestamp('due_at')->nullable();
-            $table->string('assignment_scope');
-            $table->string('job_listing_rule');
+            $table->string('assignee_scope');
+            $table->string('job_listing_source');
+            $table->string('module_job_listing_scope');
             $table->boolean('allow_resubmission');
         });
     }
