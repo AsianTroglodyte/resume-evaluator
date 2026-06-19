@@ -63,7 +63,7 @@ Route::get('/dashboard/modules/{id}', function ($id) {
     ]);
 })->name('dashboard.modules.show');
 
-Route::get('/dashboard/modules/{id}/participants', function ($id) {
+Route::get('/dashboard/modules/{id}/participants/index', function ($id) {
     $module = Module::findOrFail($id);
 
     $participants = $module
@@ -72,7 +72,7 @@ Route::get('/dashboard/modules/{id}/participants', function ($id) {
         ->orderBy('first_name')
         ->get();
 
-    return view('dashboard.modules.participants', [
+    return view('dashboard.modules.participants.index', [
         'module' => $module,
         'participants' => $participants,
     ]);
@@ -84,7 +84,7 @@ Route::get('/dashboard/modules/{id}/assignment/create', function ($id) {
     $job_listings = $module->jobListings;
     $users = $module->users;
 
-    return view('dashboard.modules.assignment-create', [
+    return view('dashboard.modules.assignments.create', [
         'module' => $module,
         'job_listings' => $job_listings,
         'users' => $users,
@@ -167,7 +167,6 @@ Route::post('/dashboard/modules/{id}/assignment/create', function ($id) {
     return redirect()->route('dashboard.modules.assignments.create', $id);
     // dashboard.modules.show
 })->name('dashboard.modules.assignments.store');
-//
 
 Route::post('/dashboard/modules/{id}/job-listings', function ($id) {
     $module = Module::findOrFail($id);
