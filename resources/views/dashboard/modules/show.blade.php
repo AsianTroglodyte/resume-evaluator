@@ -26,16 +26,7 @@
                             class="w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200 cursor-pointer"
                             onclick="assignment_modal_{{ $assignment->id }}.showModal()"
                         >
-                            <div class="flex items-start justify-between gap-3">
-                                <h4 class="font-medium">{{ $assignment->title }}</h4>
-                                <span @class([
-                                    'badge badge-sm shrink-0',
-                                    'badge-primary' => $assignment->status === 'completed',
-                                    'badge-success' => $assignment->status !== 'completed',
-                                ])>
-                                    {{ ucfirst($assignment->status) }}
-                                </span>
-                            </div>
+                            <h4 class="font-medium">{{ $assignment->title }}</h4>
                             <p class="mt-2 text-sm text-base-content/70">
                                 Due: {{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}
                             </p>
@@ -53,10 +44,6 @@
                                     <div>
                                         <dt class="font-medium">Description</dt>
                                         <dd class="mt-1 text-base-content/80">{{ $assignment->description }}</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="font-medium">Status</dt>
-                                        <dd class="mt-1">{{ ucfirst($assignment->status) }}</dd>
                                     </div>
                                     <div>
                                         <dt class="font-medium">Due</dt>

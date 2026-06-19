@@ -31,7 +31,8 @@
                             type="text"
                             name="title"
                             placeholder="Assignment title"
-                            class="input input-bordered w-full"
+                            class="input input-bordered w-full validator"
+                            required
                         />
                     </label>
 
@@ -42,7 +43,7 @@
                                 checked
                                 class="toggle"
                                 id="due-date-enabled"
-                                aria-controls="date-time"
+                                aria-contr
                                 onchange="document.getElementById('date-time').disabled = !this.checked"
                             />
                             <span class="label-text">Enable due date</span>
@@ -52,9 +53,10 @@
                             <span class="label-text mb-1">Due date</span>
                             <input
                                 type="datetime-local"
-                                name="due_date"
+                                name="due_at"
                                 id="date-time"
                                 class="input input-bordered w-full"
+                                required
                             />
                         </label>
                     </div>
@@ -77,28 +79,41 @@
 
                     <fieldset
                         id="job-listing-sources"
-                        class="min-w-0 space-y-3 [&:not(:has(.job-source-on-site:checked))_.module-listing-options]:hidden [&:not(:has(.job-listing-scope-selected:checked))_.job-listing-list]:hidden"
+                        class="min-w-0 space-y-3 [&:not(:has(.job-source-module:checked)):not(:has(.job-source-both:checked))_.module-listing-options]:hidden 
+                        [&:not(:has(.job-listing-scope-selected:checked))_.job-listing-list]:hidden"
                     >
                         <legend class="text-sm font-semibold">Allowed job sources</legend>
 
                         <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
                             <input
-                                type="checkbox"
-                                name="job_listing_sources[]"
-                                value="online"
-                                class="checkbox checkbox-md"
+                                type="radio"
+                                name="job_listing_source"
+                                value="external"
+                                class="radio radio-primary"
+                                required
+                                checked
                             />
-                            <span class="font-medium">Online job listings</span>
+                            <span class="font-medium">External job listings only</span>
                         </label>
 
                         <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
                             <input
-                                type="checkbox"
-                                name="job_listing_sources[]"
-                                value="on-site"
-                                class="job-source-on-site checkbox checkbox-md"
+                                type="radio"
+                                name="job_listing_source"
+                                value="module"
+                                class="job-source-module radio radio-primary"
                             />
-                            <span class="font-medium">On-site</span>
+                            <span class="font-medium">Module job listings only</span>
+                        </label>
+
+                        <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
+                            <input
+                                type="radio"
+                                name="job_listing_source"
+                                value="both"
+                                class="job-source-both radio radio-primary"
+                            />
+                            <span class="font-medium">Both external and module job listings</span>
                         </label>
 
                         <fieldset id="module-listing-options" class="module-listing-options min-w-0 space-y-3">
@@ -175,7 +190,7 @@
                         <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
                             <input
                                 type="radio"
-                                name="assignment_scope"
+                                name="assignee_scope"
                                 value="everyone"
                                 class="radio radio-primary"
                                 checked
@@ -186,9 +201,10 @@
                         <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
                             <input
                                 type="radio"
-                                name="assignment_scope"
+                                name="assignee_scope"
                                 value="selected"
                                 class="assignment-scope-selected radio radio-primary"
+                                
                             />
                             <span class="font-medium">Select members</span>
                         </label>
@@ -228,10 +244,20 @@
                     </fieldset>
                 </section>
 
+                @if($errors->any())
+                    <ul = "
+                    @foreach($errors->all() as $error) 
+                        <li> {{$error}}</li>
+                    @endforeach
+                    </ul>
+                @endif
+
                 <div class="flex flex-wrap justify-end gap-2 border-t border-base-300 pt-4">
                     <a href="{{ route('dashboard.modules.show', $module) }}" class="btn btn-ghost">Cancel</a>
                     <button type="submit" class="btn btn-primary">Create assignment</button>
                 </div>
+
+
             </form>
         </article>
     </section>

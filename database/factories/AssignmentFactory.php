@@ -1,6 +1,9 @@
 <?php
 namespace Database\Factories;
 
+use App\Enums\AssigneeScope;
+use App\Enums\JobListingSource;
+use App\Enums\ModuleJobListingScope;
 use App\Models\Assignment;
 use App\Models\Module;
 use App\Models\User;
@@ -25,11 +28,10 @@ class AssignmentFactory extends Factory
             'created_by_user_id' => User::factory()->admin(),
             'title' => 'Assignment '.$this->faker->unique()->numberBetween(1, 10_000),
             'description' => $this->faker->paragraph(),
-            'status' => 'pending',
             'due_at' => now()->addWeek(),
-            'assignee_scope' => 'everyone',
-            'job_listing_source' => 'external',
-            'module_job_listing_scope' => 'all_module_listings',
+            'assignee_scope' => AssigneeScope::Everyone,
+            'job_listing_source' => JobListingSource::External,
+            'module_job_listing_scope' => ModuleJobListingScope::All,
             'allow_resubmission' => true,
         ];
     }

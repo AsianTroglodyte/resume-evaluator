@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+use App\Enums\AssigneeScope;
+use App\Enums\JobListingSource;
+use App\Enums\ModuleJobListingScope;
+
 class Assignment extends Model
 {
     use HasFactory;
@@ -17,11 +21,11 @@ class Assignment extends Model
         'created_by_user_id',
         'title',
         'description',
-        'status',
         'due_at',
-        'assignment_scope',
-        'job_listing_rule',
-        'allow_resubmission',
+        'assignee_scope',
+        'Job_listing_source',
+        'module_job_listing_scope',
+        'Module',
     ];
 
     protected function casts(): array
@@ -29,6 +33,9 @@ class Assignment extends Model
         return [
             'due_at' => 'datetime',
             'allow_resubmission' => 'boolean',
+            'assignee_scope' => AssigneeScope::class,
+            'job_listing_source' => JobListingSource::class,
+            'module_job_listing_scope' => ModuleJobListingScope::class
         ];
     }
 

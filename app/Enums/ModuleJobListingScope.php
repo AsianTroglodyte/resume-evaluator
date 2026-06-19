@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum ModuleJobListingScope
+enum ModuleJobListingScope: string
 {
     //
+    case All = 'all';
+    case Selected = 'selected';
 }
