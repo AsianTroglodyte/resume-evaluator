@@ -3,6 +3,10 @@
 use App\Enums\AssigneeScope;
 use App\Enums\JobListingSource;
 use App\Enums\ModuleJobListingScope;
+use App\Http\Controllers\ModuleAssignmentsController;
+use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\ModuleJobListingController;
+use App\Http\Controllers\ModuleParticipantsController;
 use App\Models\Module;
 use App\Models\User;
 use Illuminate\Support\Arr as SupportArr;
@@ -21,165 +25,31 @@ Route::get('/register', function () {
     return view('auth.register');
 });
 
-Route::get('/dashboard/modules', function () {
-    $modules = Module::all();
-
-    return view('dashboard.modules.index', [
-        'modules' => $modules,
-    ]);
-})->name('dashboard.modules.index');
+Route::get('/dashboard/modules', 
+    [ModuleController::class, 'index'])->name('dashboard.modules.index');
 
 Route::get('/dashboard/modules/create', function () {
     return view('dashboard.modules.create', []);
 })->name('dashboard.modules.create');
 
-Route::post('/dashboard/modules', function () {
-    request()->validate([
-        'name' => ['required', 'min:3'],
-    ]);
 
-    Module::create([
-        'name' => request('name'),
-        'created_by_user_id' => 1,
-    ]);
+Route::post('/dashboard/modules', 
+    [ModuleController::class, 'store'])->name('dashboard.modules.store');
 
-    return redirect()->route('dashboard.modules.index');
-})->name('dashboard.modules.store');
+Route::get('/dashboard/modules/{module}', 
+    [ModuleController::class, 'show'])->name('dashboard.modules.show');
 
-Route::get('/dashboard/modules/{id}', function ($id) {
-    $module = Module::findOrFail($id);
+Route::get('/dashboard/modules/{module}/participants/index', 
+    [ModuleParticipantsController::class, 'index'] )->name('dashboard.modules.participants');
 
-    $job_listings = $module->jobListings;
+Route::get('/dashboard/modules/{module}/assignment/create', 
+    [ModuleAssignmentsController::class, 'create'])->name('dashboard.modules.assignments.create');
 
-    $assignments = $module
-        ->assignments()
-        ->with('assignees', 'jobListings')
-        ->get();
+Route::post('/dashboard/modules/{module}/assignment/create', 
+    [ModuleAssignmentsController::class, 'store'])->name('dashboard.modules.assignments.store');
 
-    return view('dashboard.modules.show', [
-        'job_listings' => $job_listings,
-        'module' => $module,
-        'assignments' => $assignments,
-    ]);
-})->name('dashboard.modules.show');
-
-Route::get('/dashboard/modules/{id}/participants/index', function ($id) {
-    $module = Module::findOrFail($id);
-
-    $participants = $module
-        ->users()
-        ->orderBy('last_name')
-        ->orderBy('first_name')
-        ->get();
-
-    return view('dashboard.modules.participants.index', [
-        'module' => $module,
-        'participants' => $participants,
-    ]);
-})->name('dashboard.modules.participants');
-
-Route::get('/dashboard/modules/{id}/assignment/create', function ($id) {
-    $module = Module::findOrFail($id);
-
-    $job_listings = $module->jobListings;
-    $users = $module->users;
-
-    return view('dashboard.modules.assignments.create', [
-        'module' => $module,
-        'job_listings' => $job_listings,
-        'users' => $users,
-
-    ]);
-})->name('dashboard.modules.assignments.create');
-
-Route::post('/dashboard/modules/{id}/assignment/create', function ($id) {
-    $module = Module::findOrFail($id);
-
-    // [] ??;
-
-
-    $validated = request()->validate([
-        'title' => ['required', 'string', 'min:3', 'max:255'],
-        // made by an actual instructor/admin
-        'due_at' => ['nullable', 'date', 'after:now'],
-        'description' => ['nullable', 'string', 'max:500'],
-        'job_listing_source' => ['required', Rule::enum(JobListingSource::class)],
-        'module_job_listing_scope' => ['required', Rule::enum(ModuleJobListingScope::class)],
-        'assignee_scope' => ['required', Rule::enum(AssigneeScope::class)],
-        'allow_resubmission' => ['required', 'boolean'],
-        'job_listing_ids' => ['array'],
-        'job_listing_ids.*' => [
-            'required',
-            'integer',
-            Rule::exists('job_listings', 'id')->where('module_id', $module->id)],
-        'assignee_ids' => ['array'],
-        'assignee_ids.*' => [
-            'required',
-            'integer',
-            Rule::exists('module_memberships', 'user_id')->where('module_id', $module->id)],
-    ]);
-
-    $validated['due_at'] = $validated['due_at'] ?? null;
-
-    $assignmentInfo = SupportArr::only($validated, [
-        'title',
-        'due_at',
-        'description',
-        'job_listing_source',
-        'module_job_listing_scope',
-        'assignee_scope',
-        'allow_resubmission',
-    ]);
-
-    $jobListingIds = $validated['job_listing_ids'] ?? [];
-    $assigneeIds = $validated['assignee_ids'] ?? [];
-
-    // dd([$assignmentInfo, $jobListingIds, $assigneeIds, request()->all()]);
-
-    // dd(request()->all());
-    $assignment = $module->assignments()->create([
-        // ...$validated,
-        'created_by_user_id' => 1,
-        'module_id' => $id,
-        'title' => $assignmentInfo['title'],
-        'description' => $assignmentInfo['description'],
-        'due_at' => $assignmentInfo['due_at'],
-        'assignee_scope' => AssigneeScope::from($assignmentInfo['assignee_scope']),
-        'job_listing_source' => JobListingSource::from($assignmentInfo['job_listing_source']),
-        'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
-        'allow_resubmission' => $assignmentInfo['allow_resubmission'],
-    ]);
-
-    foreach ($jobListingIds as $jobListingId) {
-        $assignment->assignmentAllowedJobListings()->create([
-            'job_listing_id' => $jobListingId,
-            'assignment_id' => $assignment["id"]
-        ]);
-    };
-
-    foreach ($assigneeIds as $assigneeId) {
-        $assignment->assignmentAssignees()->create([
-            'user_id' => $assigneeId,
-            'assignment_id' => $assignment["id"]
-        ]);
-    };
-
-    return redirect()->route('dashboard.modules.assignments.create', $id);
-    // dashboard.modules.show
-})->name('dashboard.modules.assignments.store');
-
-Route::post('/dashboard/modules/{id}/job-listings', function ($id) {
-    $module = Module::findOrFail($id);
-
-    $validated = request()->validate([
-        'name' => ['required', 'string', 'min:3'],
-        'description' => ['required', 'string'],
-    ]);
-
-    $module->jobListings()->create($validated);
-
-    return redirect()->route('dashboard.modules.show', $id);
-})->name('dashboard.modules.job-listings.store');
+Route::post('/dashboard/modules/{module}/job-listings', 
+    [ModuleJobListingController::class, 'store'])->name('dashboard.modules.job-listings.store');
 
 Route::get('/dashboard/resumes', function () {
     $evaluations = [
@@ -269,6 +139,6 @@ Route::redirect('/dashboard/admin', '/dashboard/admin/users');
 
 Route::get('/dashboard/admin/users', function () {
     return view('dashboard.admin.users.index', [
-        'users' => User::query()->orderBy('last_name')->orderBy('first_name')->get(),
+        'users' => User::query()->orderBy('last_name', 'asc')->orderBy('first_name', 'asc')->get(),
     ]);
 })->name('dashboard.admin.users.index');
