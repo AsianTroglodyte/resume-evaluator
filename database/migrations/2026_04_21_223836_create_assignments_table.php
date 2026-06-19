@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('module_id')->constrained('modules');
             $table->foreignId('created_by_user_id')->constrained('users');
             $table->string('title');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->timestamp('due_at')->nullable();
             $table->string('assignee_scope');
             $table->string('job_listing_source');

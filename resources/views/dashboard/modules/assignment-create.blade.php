@@ -31,9 +31,21 @@
                             type="text"
                             name="title"
                             placeholder="Assignment title"
-                            class="input input-bordered w-full validator"
+                            class="input input-bordered w-full"
                             required
                         />
+                    </label>
+
+                    <label class="flex w-fit cursor-pointer items-center gap-3 mt-4">
+                        <input type="hidden" name="allow_resubmission" value="0" />
+                        <input
+                            type="checkbox"
+                            name="allow_resubmission"
+                            value="1"
+                            class="toggle"
+                            checked
+                        />
+                        <span class="label-text">Allow resubmissions</span>
                     </label>
 
                     <div class="mt-3 flex flex-col gap-2">

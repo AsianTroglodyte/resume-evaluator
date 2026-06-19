@@ -12,4 +12,9 @@ class AssignmentAllowedJobListings extends Model
     use HasFactory;
 
     public $timestamps = false;
+
+    public $fillable = [
+        'assignment_id',
+        'job_listing_id'
+    ];
 }

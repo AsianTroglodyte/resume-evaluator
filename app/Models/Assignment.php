@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
 use App\Enums\AssigneeScope;
 use App\Enums\JobListingSource;
 use App\Enums\ModuleJobListingScope;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Assignment extends Model
 {
@@ -23,8 +23,9 @@ class Assignment extends Model
         'description',
         'due_at',
         'assignee_scope',
-        'Job_listing_source',
+        'job_listing_source',
         'module_job_listing_scope',
+        'allow_resubmission',
         'Module',
     ];
 
@@ -35,7 +36,7 @@ class Assignment extends Model
             'allow_resubmission' => 'boolean',
             'assignee_scope' => AssigneeScope::class,
             'job_listing_source' => JobListingSource::class,
-            'module_job_listing_scope' => ModuleJobListingScope::class
+            'module_job_listing_scope' => ModuleJobListingScope::class,
         ];
     }
 
@@ -47,5 +48,16 @@ class Assignment extends Model
     public function jobListings(): BelongsToMany
     {
         return $this->belongsToMany(JobListing::class, 'assignment_allowed_job_listings');
+    }
+
+    public function assignmentAssignees(): HasMany
+    {
+        return $this->hasMany(AssignmentAssignees::class);
+    }
+
+    public function assignmentAllowedJobListings(): HasMany
+    {
+        return $this->hasMany(AssignmentAllowedJobListings::class);
+        
     }
 }

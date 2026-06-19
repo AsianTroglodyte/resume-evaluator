@@ -50,12 +50,8 @@
                                         <dd class="mt-1">{{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="font-medium">Scope</dt>
-                                        <dd class="mt-1">{{ ucfirst($assignment->assignment_scope) }}</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="font-medium">Job listing rule</dt>
-                                        <dd class="mt-1">{{ ucfirst($assignment->job_listing_rule) }}</dd>
+                                        <dt class="font-medium">assignee_scope</dt>
+                                        <dd class="mt-1">{{ $assignment->assignee_scope }}</dd>
                                     </div>
                                     <div>
                                         <dt class="font-medium">Resubmission allowed</dt>

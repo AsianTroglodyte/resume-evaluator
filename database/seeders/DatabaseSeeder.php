@@ -51,6 +51,13 @@ class DatabaseSeeder extends Seeder
                 ['assignees' => 0, 'job_listings' => 0],
             ],
         ],
+        [
+            'name' => 'empty-ish tester',
+            'status' => 'active',
+            'lone_members' => 10,
+            'lone_job_listings' => 4,
+            'assignments' => [],
+        ]
     ];
 
     /**
