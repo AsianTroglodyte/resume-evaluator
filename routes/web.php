@@ -35,7 +35,7 @@ Route::get('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsCo
 Route::post('/dashboard/modules/{module}/job-listings', [ModuleJobListingController::class, 'store'])->name('dashboard.modules.job-listings.store');
 Route::delete('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'destroy'] )->name('dashboard.modules.members.destroy');
 Route::get('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'index'])->name('dashboard.modules.settings.index');
-
+Route::patch('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'update'])->name('dashboard.modules.settings.index');
 
 
 Route::get('/dashboard/resumes', function () {

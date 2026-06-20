@@ -10,45 +10,61 @@
                 <p class="text-sm text-base-content/70">Basic module details and ownership information.</p>
             </header>
 
-            <dl class="divide-y divide-base-300 text-sm">
-                <div class="grid gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-                    <dt class="font-medium text-base-content/70">Module name</dt>
-                    <dd class="sm:col-span-2">{{ $module->name }}</dd>
-                </div>
+            <form method="POST" action={{ route('dashboard.modules.settings.index', $module)}} class="flex flex-col space-y-5">
+                @csrf
+                @method("PATCH")
 
-                <div class="grid gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-                    <dt class="font-medium text-base-content/70">Status</dt>
-                    <dd class="sm:col-span-2">
-                        <span @class([
-                            'badge badge-sm',
-                            'badge-neutral' => $module->status === 'Archived',
-                            'badge-success' => $module->status === 'active',
-                        ])>
-                            {{ ucfirst($module->status) }}
-                        </span>
-                    </dd>
-                </div>
+                <label class="form-control w-full">
+                    <span class="label-text mb-1 font-medium">Module name</span>
+                    <input
+                        type="text"
+                        name="name"
+                        value="{{ old('name', $module->name) }}"
+                        class="input input-bordered w-full"
+                        required
+                    />
+                </label>
 
-                <div class="grid gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-                    <dt class="font-medium text-base-content/70">Created by</dt>
-                    <dd class="sm:col-span-2">
-                        <div class="font-medium">
-                            {{ $module->creator->first_name }} {{ $module->creator->last_name }}
+                <label class="form-control w-full">
+                    <span class="label-text mb-1 font-medium">Status</span>
+                    <select
+                        name="status"
+                        class="select select-bordered w-full"
+                        required
+                    >
+                        <option value="active" @selected(old('status', $module->status) === 'active')>Active</option>
+                        <option value="archived" @selected(old('status', $module->status) === 'archived')>Archived</option>
+                    </select>
+                </label>
+
+                <section class="rounded-box border border-base-300 p-4 text-sm">
+                    <h4 class="font-medium">Module details</h4>
+
+                    <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                        <div>
+                            <p class="text-base-content/70">Created by</p>
+                            <div class="font-medium">
+                                {{ $module->creator->first_name }} {{ $module->creator->last_name }}
+                            </div>
+                            <div class="text-base-content/70">{{ $module->creator->email }}</div>
                         </div>
-                        <div class="text-base-content/70">{{ $module->creator->email }}</div>
-                    </dd>
-                </div>
 
-                <div class="grid gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-                    <dt class="font-medium text-base-content/70">Created</dt>
-                    <dd class="sm:col-span-2">{{ $module->created_at->format('M j, Y g:i A') }}</dd>
-                </div>
+                        <div>
+                            <p class="text-base-content/70">Created</p>
+                            <p class="font-medium">{{ $module->created_at->format('M j, Y g:i A') }}</p>
+                        </div>
 
-                <div class="grid gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-                    <dt class="font-medium text-base-content/70">Last updated</dt>
-                    <dd class="sm:col-span-2">{{ $module->updated_at->format('M j, Y g:i A') }}</dd>
+                        <div>
+                            <p class="text-base-content/70">Last updated</p>
+                            <p class="font-medium">{{ $module->updated_at->format('M j, Y g:i A') }}</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="flex flex-wrap items-center justify-end gap-3 border-t border-base-300 pt-4">
+                    <button type="submit" class="btn btn-primary" >Save changes</button>
                 </div>
-            </dl>
+            </form>
         </article>
     </section>
 </x-dashboard-layout>

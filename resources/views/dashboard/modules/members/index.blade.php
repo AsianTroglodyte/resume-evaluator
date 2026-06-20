@@ -1,3 +1,7 @@
+@php
+    use App\Enums\RoleInModule;
+@endphp
+
 <x-dashboard-layout>
 <x-slot:title>{{ $module->name }} — Participants</x-slot:title>
 
@@ -25,7 +29,7 @@
                         </button>
 
                         <header class="space-y-1">
-                            <h3 class="text-2xl font-bold text-primary">Create </h3>
+                            <h3 class="text-2xl font-bold text-primary">Add member</h3>
                         </header>
 
                         <fieldset class="mt-4 flex flex-col gap-5">
@@ -34,17 +38,35 @@
                                 <input
                                     type="email"
                                     name="new_member_email"
-                                    value="{{ old('name') }}"
+                                    value="{{ old('new_member_email') }}"
                                     placeholder="new_participant@southern.edu"
-                                    class="input input-bordered w-full @error('name') input-error @enderror"
+                                    class="input input-bordered w-full @error('new_member_email') input-error @enderror"
                                     required
-                                    email
                                 />
-                                @error('name')
+                                @error('new_member_email')
                                     <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                                 @enderror
                             </label>
+                            <label class="form-control w-full">
+                                <span class="label-text mb-1 font-medium">Role in Module</span>
+                                <select
+                                    name="role_in_module"
+                                    class="select select-bordered w-full"
+                                    required
+                                >
+                                    <option value="{{ RoleInModule::Student->value }}" selected>Student</option>
+                                    <option value="{{ RoleInModule::Instructor->value }}">Instructor</option>
+                                </select>
+                                @error('role_in_module')
+                                    <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                                @enderror
+
+                            </label>
+                            <button type="submit" class="btn btn-primary">
+                                Add member
+                            </button>
                         </fieldset>
+
                     </form>
                 </div>
                 <form method="dialog" class="modal-backdrop">
@@ -93,7 +115,7 @@
                                         <button
                                             type="button"
                                             class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
-                                            onclick="delete_member.close()"
+                                            onclick="delete_member_{{ $member->id }}.close()"
                                             aria-label="close">
                                             x
                                         </button>
@@ -102,9 +124,8 @@
                                             <h3 class="text-2xl font-bold text-primary">Create </h3>
                                         </header>
                                         <p>
-                                            Are you sure you want to remove
-                                            {{ ucfirst($member->first_name) }}
-                                            {{ ucfirst($member->last_name) }}
+                                            Are you sure you want to remove 
+                                            {{ ucfirst($member->first_name) }} {{ ucfirst($member->last_name) }}
                                             from the module?
                                         </p>
                 

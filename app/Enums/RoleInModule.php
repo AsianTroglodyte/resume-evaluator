@@ -5,6 +5,6 @@ namespace App\Enums;
 enum RoleInModule: string
 {
     //
-    case Student = 'Student';
-    case Instructor = 'Instructor';
+    case Student = 'student';
+    case Instructor = 'instructor';
 }

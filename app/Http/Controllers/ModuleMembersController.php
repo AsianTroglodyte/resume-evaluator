@@ -63,7 +63,7 @@ class ModuleMembersController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        return view('dashboard.modules.members.index', [
+        return redirect()->route('dashboard.modules.members.index', [
             'module' => $module,
             'members' => $members,
         ]);

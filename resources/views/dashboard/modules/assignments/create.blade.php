@@ -20,7 +20,7 @@
                 @csrf
 
                 <section class="min-w-0 space-y-5" aria-labelledby="assignment-basics-heading">
-                    <header class="space-y-1 border-b border-base-300 pb-3">
+                    <header class="space-y-1 border-b border-base-300 pb-4">
                         <h3 id="assignment-basics-heading" class="text-lg font-semibold">Basics</h3>
                         <p class="text-sm text-base-content/70">Title, due date, and instructions for this assignment.</p>
                     </header>
@@ -48,7 +48,7 @@
                         <span class="label-text">Allow resubmissions</span>
                     </label>
 
-                    <div class="mt-3 flex flex-col gap-2">
+                    <div class="mt-4 flex flex-col gap-2">
                         <label class="flex w-fit cursor-pointer items-center gap-3">
                             <input
                                 type="checkbox"
