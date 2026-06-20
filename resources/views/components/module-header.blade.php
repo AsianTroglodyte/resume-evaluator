@@ -28,9 +28,9 @@
             </a>
             <a
                 role="tab"
-                href="{{ route('dashboard.modules.participants', $module) }}"
-                class="tab {{ request()->routeIs('dashboard.modules.participants') ? 'tab-active' : '' }}"
-                aria-current="{{ request()->routeIs('dashboard.modules.participants') ? 'page' : 'false' }}"
+                href="{{ route('dashboard.modules.members.index', $module) }}"
+                class="tab {{ request()->routeIs('dashboard.modules.members.index') ? 'tab-active' : '' }}"
+                aria-current="{{ request()->routeIs('dashboard.modules.members.index') ? 'page' : 'false' }}"
             >
                 Participants
             </a>

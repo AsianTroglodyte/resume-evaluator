@@ -6,7 +6,7 @@ use App\Enums\ModuleJobListingScope;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ModuleJobListingController;
-use App\Http\Controllers\ModuleParticipantsController;
+use App\Http\Controllers\ModuleMembersController;
 use App\Models\Module;
 use App\Models\User;
 use Illuminate\Support\Arr as SupportArr;
@@ -39,8 +39,11 @@ Route::post('/dashboard/modules',
 Route::get('/dashboard/modules/{module}', 
     [ModuleController::class, 'show'])->name('dashboard.modules.show');
 
-Route::get('/dashboard/modules/{module}/participants/index', 
-    [ModuleParticipantsController::class, 'index'] )->name('dashboard.modules.participants');
+Route::get('/dashboard/modules/{module}/members/index', 
+    [ModuleMembersController::class, 'index'] )->name('dashboard.modules.members.index');
+
+Route::post('/dashboard/modules/{module}/members/index', 
+    [ModuleMembersController::class, 'store'] )->name('dashboard.modules.members.store');
 
 Route::get('/dashboard/modules/{module}/assignment/create', 
     [ModuleAssignmentsController::class, 'create'])->name('dashboard.modules.assignments.create');

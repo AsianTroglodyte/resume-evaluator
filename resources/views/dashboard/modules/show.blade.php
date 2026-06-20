@@ -105,7 +105,7 @@
                         <h3 class="text-lg font-semibold">Job Listings</h3>
                         <p class="mt-1 text-sm text-base-content/70">Relevant postings for this module.</p>
                     </div>
-                    <button type="button" class="btn btn-primary btn-sm shrink-0" onclick="create_job_listing_modal.showModal()">
+                   <button type="button" class="btn btn-primary btn-sm shrink-0" onclick="create_job_listing_modal.showModal()">
                         Create Job Listing
                     </button>
                 </header>
@@ -138,6 +138,8 @@
                         <li class="text-sm text-base-content/70">No job listings available for this module.</li>
                     @endforelse
                 </ul>
+
+
 
                 <dialog id="create_job_listing_modal" class="modal">
                     <div class="modal-box w-[92vw] max-w-3xl">
