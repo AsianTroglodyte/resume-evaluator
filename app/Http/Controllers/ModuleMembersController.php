@@ -67,4 +67,8 @@ class ModuleMembersController extends Controller
             'members' => $members,
         ]);
     }
+
+    public function destroy(Module $module) {
+        dd(request()->all());
+    }
 }

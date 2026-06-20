@@ -45,6 +45,9 @@ Route::get('/dashboard/modules/{module}/members/index',
 Route::post('/dashboard/modules/{module}/members/index', 
     [ModuleMembersController::class, 'store'] )->name('dashboard.modules.members.store');
 
+Route::delete('/dashboard/modules/{module}/members/index', 
+    [ModuleMembersController::class, 'destroy'] )->name('dashboard.modules.members.destroy');
+
 Route::get('/dashboard/modules/{module}/assignment/create', 
     [ModuleAssignmentsController::class, 'create'])->name('dashboard.modules.assignments.create');
 

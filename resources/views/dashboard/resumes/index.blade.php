@@ -63,10 +63,15 @@
                 <tbody>
                     @forelse ($evaluations as $evaluation)
                     <tr
-                        class="cursor-pointer hover:bg-base-200"
-                        onclick="window.location.href='{{ route('dashboard.resumes.show', $evaluation['id']) }}'"
+                        class="cursor-pointer hover:bg-base-200 relative"
                     >
                         <td>
+                            <a
+                                href="{{ route('dashboard.resumes.show', $evaluation['id']) }}"
+                                class="absolute inset-0"
+                                aria-label="Niew {{ $evaluation['name'] }}"
+                            >
+                            </a>
                              <div class="font-semibold">{{ $evaluation['name'] }}</div>
                         </td>
 
