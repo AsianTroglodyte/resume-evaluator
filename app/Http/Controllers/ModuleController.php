@@ -51,4 +51,9 @@ class ModuleController extends Controller
     
         return redirect()->route('dashboard.modules.index');
     }    
+
+    public function destroy()
+    {
+        dd(request()->all());
+    }
 }

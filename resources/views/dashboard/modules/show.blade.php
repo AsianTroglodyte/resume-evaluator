@@ -35,7 +35,7 @@
                         <dialog id="assignment_modal_{{ $assignment->id }}" class="modal">
                             <div class="modal-box max-w-lg">
                                 <form method="dialog">
-                                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close">×</button>
+                                    <button class="btn btn-sm btn-circle btn-outline absolute right-2 top-2" aria-label="Close">×</button>
                                 </form>
 
                                 <h3 class="text-lg font-bold">{{ $assignment->title }}</h3>
@@ -125,7 +125,7 @@
                         <dialog id="description_modal_{{ $listing->id }}" class="modal">
                             <div class="modal-box max-w-lg">
                                 <form method="dialog">
-                                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close">×</button>
+                                    <button class="btn btn-sm btn-circle btn-outline absolute right-2 top-2" aria-label="Close">×</button>
                                 </form>
                                 <h4 class="text-lg font-semibold">{{ $listing->name }}</h4>
                                 <p class="mt-2 text-sm text-base-content/80">{{ $listing->description }}</p>
@@ -148,7 +148,7 @@
 
                             <button
                                 type="button"
-                                class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
                                 onclick="create_job_listing_modal.close()"
                                 aria-label="Close"
                             >
@@ -174,8 +174,8 @@
                                         <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                                     @enderror
                                 </label>
-
-                                <label class="form-control">
+                                <label 
+                                class="form-control">
                                     <span class="label-text mb-1">Description</span>
                                     <textarea
                                         name="description"

@@ -265,7 +265,7 @@
                 @endif
 
                 <div class="flex flex-wrap justify-end gap-2 border-t border-base-300 pt-4">
-                    <a href="{{ route('dashboard.modules.show', $module) }}" class="btn btn-ghost">Cancel</a>
+                    <a href="{{ route('dashboard.modules.show', $module) }}" class="btn btn-outline">Cancel</a>
                     <button type="submit" class="btn btn-primary">Create assignment</button>
                 </div>
 

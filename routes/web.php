@@ -7,55 +7,36 @@ use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ModuleJobListingController;
 use App\Http\Controllers\ModuleMembersController;
+use App\Http\Controllers\ModuleSettingsController;
 use App\Models\Module;
 use App\Models\User;
 use Illuminate\Support\Arr as SupportArr;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 
-Route::get('/', function () {
-    return view('home');
-});
-
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-Route::get('/register', function () {
-    return view('auth.register');
-});
-
-Route::get('/dashboard/modules', 
-    [ModuleController::class, 'index'])->name('dashboard.modules.index');
-
-Route::get('/dashboard/modules/create', function () {
-    return view('dashboard.modules.create', []);
-})->name('dashboard.modules.create');
+Route::get('/', function () {return view('home');});
 
 
-Route::post('/dashboard/modules', 
-    [ModuleController::class, 'store'])->name('dashboard.modules.store');
+Route::get('/login', function () {return view('auth.login');})->name('login');
+Route::get('/register', function () {return view('auth.register');});
 
-Route::get('/dashboard/modules/{module}', 
-    [ModuleController::class, 'show'])->name('dashboard.modules.show');
 
-Route::get('/dashboard/modules/{module}/members/index', 
-    [ModuleMembersController::class, 'index'] )->name('dashboard.modules.members.index');
+Route::get('/dashboard/modules', [ModuleController::class, 'index'])->name('dashboard.modules.index');
+Route::get('/dashboard/modules/create', function () {return view('dashboard.modules.create', []);})->name('dashboard.modules.create');
 
-Route::post('/dashboard/modules/{module}/members/index', 
-    [ModuleMembersController::class, 'store'] )->name('dashboard.modules.members.store');
 
-Route::delete('/dashboard/modules/{module}/members/index', 
-    [ModuleMembersController::class, 'destroy'] )->name('dashboard.modules.members.destroy');
+Route::post('/dashboard/modules', [ModuleController::class, 'store'])->name('dashboard.modules.store');
+Route::delete('/dashboard/modules', [ModuleController::class, 'destroy'])->name('dashboard.modules.destroy');
+Route::get('/dashboard/modules/{module}', [ModuleController::class, 'show'])->name('dashboard.modules.show');
+Route::get('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'index'] )->name('dashboard.modules.members.index');
+Route::post('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'store'] )->name('dashboard.modules.members.store');
+Route::post('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'store'])->name('dashboard.modules.assignments.store');
+Route::get('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'create'])->name('dashboard.modules.assignments.create');
+Route::post('/dashboard/modules/{module}/job-listings', [ModuleJobListingController::class, 'store'])->name('dashboard.modules.job-listings.store');
+Route::delete('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'destroy'] )->name('dashboard.modules.members.destroy');
+Route::get('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'index'])->name('dashboard.modules.settings.index');
 
-Route::get('/dashboard/modules/{module}/assignment/create', 
-    [ModuleAssignmentsController::class, 'create'])->name('dashboard.modules.assignments.create');
 
-Route::post('/dashboard/modules/{module}/assignment/create', 
-    [ModuleAssignmentsController::class, 'store'])->name('dashboard.modules.assignments.store');
-
-Route::post('/dashboard/modules/{module}/job-listings', 
-    [ModuleJobListingController::class, 'store'])->name('dashboard.modules.job-listings.store');
 
 Route::get('/dashboard/resumes', function () {
     $evaluations = [

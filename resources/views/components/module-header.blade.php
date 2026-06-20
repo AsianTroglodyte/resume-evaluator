@@ -34,6 +34,14 @@
             >
                 Participants
             </a>
+            <a
+                role="tab"
+                href="{{ route('dashboard.modules.settings.index', $module) }}"
+                class="tab {{ request()->routeIs('dashboard.modules.settings.index') ? 'tab-active' : '' }}"
+                aria-current="{{ request()->routeIs('dashboard.modules.settings.index') ? 'page' : 'false' }}"
+            >
+                Settings
+            </a>
         </div>
     </nav>
 </header>

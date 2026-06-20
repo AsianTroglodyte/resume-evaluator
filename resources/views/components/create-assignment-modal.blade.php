@@ -83,7 +83,7 @@
                         </div>
 
                         <div class="flex items-center justify-between pt-2">
-                            <button type="button" class="btn btn-ghost" data-step-nav="-1">Back</button>
+                            <button type="button" class="btn btn-outline" data-step-nav="-1">Back</button>
                             <button type="button" class="btn btn-primary" data-step-nav="1">Next</button>
                         </div>
                     </fieldset>
@@ -99,7 +99,7 @@
                         </div>
 
                         <div class="flex items-center justify-between pt-2">
-                            <button type="button" class="btn btn-ghost" data-step-nav="-1">Back</button>
+                            <button type="button" class="btn btn-outline" data-step-nav="-1">Back</button>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </div>
                     </fieldset>
@@ -108,7 +108,7 @@
         </div>
 
         <form method="dialog">
-            <button type="submit" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">x</button>
+            <button type="submit" class="btn btn-sm btn-circle btn-outline absolute right-2 top-2">x</button>
         </form>
     </div>
     <form method="dialog" class="modal-backdrop">

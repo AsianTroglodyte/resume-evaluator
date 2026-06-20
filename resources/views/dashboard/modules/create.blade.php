@@ -29,7 +29,7 @@
                 </label>
 
                 <div class="flex flex-wrap justify-end gap-2 pt-2">
-                    <a href="{{ route('dashboard.modules.index') }}" class="btn btn-ghost">Cancel</a>
+                    <a href="{{ route('dashboard.modules.index') }}" class="btn btn-outline">Cancel</a>
                     <button type="submit" class="btn btn-primary">Create Module</button>
                 </div>
             </form>

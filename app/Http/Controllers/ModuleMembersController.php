@@ -57,6 +57,7 @@ class ModuleMembersController extends Controller
             'removed_by_user_id' => null,
             ]);
 
+
         $members = $module->users()
             ->orderBy('last_name')
             ->orderBy('first_name')
@@ -69,6 +70,17 @@ class ModuleMembersController extends Controller
     }
 
     public function destroy(Module $module) {
-        dd(request()->all());
+        $validated = request()->validate([
+            'user_id' => [
+                'required',
+                'integer',
+                Rule::exists('module_memberships', 'user_id')
+                    ->where('module_id', $module->id),
+            ],
+        ]);
+        
+        $module->users()->detach($validated['user_id']);
+        
+        return redirect()->route('dashboard.modules.members.index', $module);
     }
 }

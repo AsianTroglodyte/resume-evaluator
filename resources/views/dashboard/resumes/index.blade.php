@@ -38,7 +38,7 @@
                         </label>
 
                         <div class="modal-action mt-2">
-                            <button type="button" class="btn btn-ghost" onclick="new_evaluation_modal.close()">Cancel</button>
+                            <button type="button" class="btn btn-outline" onclick="new_evaluation_modal.close()">Cancel</button>
                             <button type="submit" class="btn btn-primary">Create Evaluation</button>
                         </div>
                     </form>
@@ -98,19 +98,19 @@
                         </td>
 
                         <td class="text-right">
-                            <button type="button" class="btn btn-ghost btn-xs">
+                            <button type="button" class="btn btn-outline btn-xs">
                                 <span class="sr-only">Details</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <button type="button" class="btn btn-ghost btn-xs">
+                            <button type="button" class="btn btn-outline btn-xs">
                                 <span class="sr-only">Share/Submit</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
                                         </svg>
                             </button>
-                            <button type="button" class="btn btn-ghost btn-xs btn-error">
+                            <button type="button" class="btn btn-outline btn-xs btn-error">
                                 <span class="sr-only">Delete</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
