@@ -162,7 +162,9 @@ class ModuleAssignmentsController extends Controller
             'assignee_scope',
             'allow_resubmission',
         ]);        
-        $assignment = $module->assignments()->create([
+
+
+        $assignment->update([
             // ...$validated,
             'created_by_user_id' => 1,
             'module_id' => $module["id"],
@@ -174,26 +176,16 @@ class ModuleAssignmentsController extends Controller
             'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
             'allow_resubmission' => $assignmentInfo['allow_resubmission'],
         ]);
-        
+
+        // dd($assignment);
 
         $jobListingIds = $validated['job_listing_ids'] ?? [];
-        foreach ($jobListingIds as $jobListingId) {
-            $assignment->assignmentAllowedJobListings()->create([
-                'job_listing_id' => $jobListingId,
-                'assignment_id' => $assignment['id'],
-            ]);
-        }
-        
+        $assignment->jobListings()->sync($jobListingIds);
+
 
         $assigneeIds = $validated['assignee_ids'] ?? [];
-        foreach ($assigneeIds as $assigneeId) {
-            $assignment->assignmentAssignees()->create([
-                'user_id' => $assigneeId,
-                'assignment_id' => $assignment['id'],
-            ]);
-        }
+        $assignment->assignees()->sync($assigneeIds);
 
-        $job_listings = $module->jobListings;
         $users = $module->users;
 
         return redirect()->route('dashboard.modules.assignments.show', [
