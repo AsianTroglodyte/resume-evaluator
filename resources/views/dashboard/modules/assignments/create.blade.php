@@ -48,27 +48,26 @@
                         <span class="label-text">Allow resubmissions</span>
                     </label>
 
-                    <div class="mt-4 flex flex-col gap-2">
+
+                    <div class="mt-4 flex flex-col gap-2 [&:not(:has(#due-date-enabled:checked))_.due-date-input]:hidden">
                         <label class="flex w-fit cursor-pointer items-center gap-3">
+                            <input type="hidden" name="due_date_enabled" value="0"/>
                             <input
                                 type="checkbox"
-                                checked
+                                name="due_date_enabled"
+                                value="1"
                                 class="toggle"
-                                id="due-date-enabled"
-                                aria-contr
-                                onchange="document.getElementById('date-time').disabled = !this.checked"
+                                checked
                             />
                             <span class="label-text">Enable due date</span>
                         </label>
 
-                        <label class="form-control w-full max-w-xs">
+                        <label class="due-date-input form-control w-full max-w-xs">
                             <span class="label-text mb-1">Due date</span>
                             <input
                                 type="datetime-local"
                                 name="due_at"
-                                id="date-time"
-                                class="input input-bordered w-full"
-                                required
+                                class="input input-bordered w-full"  
                             />
                         </label>
                     </div>

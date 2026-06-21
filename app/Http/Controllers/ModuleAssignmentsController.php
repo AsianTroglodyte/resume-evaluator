@@ -67,9 +67,9 @@ class ModuleAssignmentsController extends Controller
                 'integer',
                 Rule::exists('module_memberships', 'user_id')->where('module_id', $module->id)],
         ]);
+
     
         $validated['due_at'] = $validated['due_date_enabled'] ? $validated["due_at"] : null;
-
         
         $assignmentInfo = SupportArr::only($validated, [
             'title',
@@ -102,7 +102,7 @@ class ModuleAssignmentsController extends Controller
             ]);
         }
         
-        
+
         $assigneeIds = $validated['assignee_ids'] ?? [];
         foreach ($assigneeIds as $assigneeId) {
             $assignment->assignmentAssignees()->create([
