@@ -151,14 +151,54 @@ class ModuleAssignmentsController extends Controller
                 Rule::exists('module_memberships', 'user_id')->where('module_id', $module->id)],
         ]);
 
-        dd($validated);
+        $validated['due_at'] = $validated['due_date_enabled'] ? $validated["due_at"] : null;
+        
+        $assignmentInfo = SupportArr::only($validated, [
+            'title',
+            'due_at',
+            'description',
+            'job_listing_source',
+            'module_job_listing_scope',
+            'assignee_scope',
+            'allow_resubmission',
+        ]);        
+        $assignment = $module->assignments()->create([
+            // ...$validated,
+            'created_by_user_id' => 1,
+            'module_id' => $module["id"],
+            'title' => $assignmentInfo['title'],
+            'description' => $assignmentInfo['description'],
+            'due_at' => $assignmentInfo['due_at'],
+            'assignee_scope' => AssigneeScope::from($assignmentInfo['assignee_scope']),
+            'job_listing_source' => JobListingSource::from($assignmentInfo['job_listing_source']),
+            'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
+            'allow_resubmission' => $assignmentInfo['allow_resubmission'],
+        ]);
+        
+
+        $jobListingIds = $validated['job_listing_ids'] ?? [];
+        foreach ($jobListingIds as $jobListingId) {
+            $assignment->assignmentAllowedJobListings()->create([
+                'job_listing_id' => $jobListingId,
+                'assignment_id' => $assignment['id'],
+            ]);
+        }
+        
+
+        $assigneeIds = $validated['assignee_ids'] ?? [];
+        foreach ($assigneeIds as $assigneeId) {
+            $assignment->assignmentAssignees()->create([
+                'user_id' => $assigneeId,
+                'assignment_id' => $assignment['id'],
+            ]);
+        }
 
         $job_listings = $module->jobListings;
         $users = $module->users;
 
-        return view('dashboard.modules.assignments.edit', [
+        return redirect()->route('dashboard.modules.assignments.show', [
             'module' => $module,
-            'job_listings' => $job_listings,
+            'assignment' => $assignment,
             'users' => $users,
         ]);
     }
