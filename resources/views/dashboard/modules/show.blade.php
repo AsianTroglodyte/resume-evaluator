@@ -111,29 +111,93 @@
                 </header>
 
                 <ul class="space-y-3">
-                    @forelse ($job_listings as $listing)
+                    @forelse ($jobListings as $jobListing)
                         <li>
                             <button
                                 type="button"
                                 class="w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200 cursor-pointer"
-                                onclick="description_modal_{{ $listing->id }}.showModal()"
+                                onclick="description_modal_{{ $jobListing->id }}.showModal()"
                             >
-                                <h4 class="font-medium">{{ $listing->name }}</h4>
+                                <h4 class="font-medium">{{ $jobListing->name }}</h4>
                             </button>
                         </li>
-
-                        <dialog id="description_modal_{{ $listing->id }}" class="modal">
+                        @if ($loop->index % 2 === 0)
+                        <dialog id="description_modal_{{ $jobListing->id }}" class="modal">
+                            <div class="modal-box w-[92vw] max-w-3xl">
+                                <form method="POST" action="{{ route('dashboard.modules.job-listings.update', [$module, $jobListing]) }}">
+                                    @csrf
+                                    @method("PATCH")
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
+                                        onclick="description_modal_{{ $jobListing->id }}.close()"
+                                        aria-label="Close"
+                                    >
+                                        x
+                                    </button>
+        
+                                    <header class="space-y-1">
+                                        <h3 class="text-2xl font-bold text-primary">Job listing</h3>
+                                    </header>
+        
+                                    <fieldset class="mt-4 flex flex-col gap-5">
+                                        <label class="form-control">
+                                            <span class="label-text mb-1">Title</span>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value="{{ $jobListing->name}}"
+                                                placeholder="Job Title"
+                                                class="input input-bordered w-full @error('name') input-error @enderror"
+                                                required
+                                            />
+                                            @error('name')
+                                                <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                                            @enderror
+                                        </label>
+                                        <label 
+                                        class="form-control">
+                                            <span class="label-text mb-1">Description</span>
+                                            <textarea
+                                                name="description"
+                                                placeholder="Job description and requirements..."
+                                                class="textarea textarea-bordered h-64 w-full @error('description') textarea-error @enderror"
+                                                required
+                                            >{{$jobListing->description}}</textarea>
+                                            @error('description')
+                                                <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                                            @enderror
+                                        </label>
+        
+                                        <button 
+                                            type="reset" 
+                                            class="btn btn-outline"
+                                            onclick="description_modal_{{ $jobListing->id }}.close()"
+                                        >
+                                            Cancel Edits
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <form method="dialog" class="modal-backdrop">
+                                <button type="submit">close</button>
+                            </form>
+                        </dialog>
+                        @else
+                        <dialog id="description_modal_{{ $jobListing->id }}" class="modal">
                             <div class="modal-box max-w-lg">
                                 <form method="dialog">
-                                    <button class="btn btn-sm btn-circle btn-outline absolute right-2 top-2" aria-label="Close">×</button>
+                                    <button class="btn btn-sm btn-circle btn-outline absolute right-2 top-2" aria-label="Close">x</button>
                                 </form>
-                                <h4 class="text-lg font-semibold">{{ $listing->name }}</h4>
-                                <p class="mt-2 text-sm text-base-content/80">{{ $listing->description }}</p>
+                                <h4 class="text-lg font-semibold">{{ $jobListing->name }}</h4>
+                                <p class="mt-2 text-sm text-base-content/80">{{ $jobListing->description }}</p>
                             </div>
                             <form method="dialog" class="modal-backdrop">
                                 <button>close</button>
                             </form>
                         </dialog>
+                        @endif
                     @empty
                         <li class="text-sm text-base-content/70">No job listings available for this module.</li>
                     @endforelse

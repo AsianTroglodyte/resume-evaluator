@@ -24,7 +24,7 @@ class ModuleController extends Controller
     
     public function show(Module $module) 
     {
-        $job_listings = $module->jobListings;
+        $jobListings = $module->jobListings;
 
         $assignments = $module
             ->assignments()
@@ -32,7 +32,7 @@ class ModuleController extends Controller
             ->get();
 
         return view('dashboard.modules.show', [
-            'job_listings' => $job_listings,
+            'jobListings' => $jobListings,
             'module' => $module,
             'assignments' => $assignments,
         ]);

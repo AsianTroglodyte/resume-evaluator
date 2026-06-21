@@ -33,6 +33,7 @@ Route::post('/dashboard/modules/{module}/members/index', [ModuleMembersControlle
 Route::post('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'store'])->name('dashboard.modules.assignments.store');
 Route::get('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'create'])->name('dashboard.modules.assignments.create');
 Route::post('/dashboard/modules/{module}/job-listings', [ModuleJobListingController::class, 'store'])->name('dashboard.modules.job-listings.store');
+Route::patch('/dashboard/modules/{module}/job-listings/{jobListing}', [ModuleJobListingController::class, 'update'])->name('dashboard.modules.job-listings.update');
 Route::delete('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'destroy'] )->name('dashboard.modules.members.destroy');
 Route::get('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'index'])->name('dashboard.modules.settings.index');
 Route::patch('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'update'])->name('dashboard.modules.settings.index');
