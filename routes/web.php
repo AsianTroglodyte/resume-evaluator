@@ -26,7 +26,8 @@ Route::get('/dashboard/modules/create', function () {return view('dashboard.modu
 
 
 Route::post('/dashboard/modules', [ModuleController::class, 'store'])->name('dashboard.modules.store');
-Route::delete('/dashboard/modules', [ModuleController::class, 'destroy'])->name('dashboard.modules.destroy');
+
+Route::delete('/dashboard/modules/{module}', [ModuleController::class, 'destroy'])->name('dashboard.modules.destroy');
 Route::get('/dashboard/modules/{module}', [ModuleController::class, 'show'])->name('dashboard.modules.show');
 
 Route::get('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'index'] )->name('dashboard.modules.members.index');

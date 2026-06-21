@@ -52,8 +52,9 @@ class ModuleController extends Controller
         return redirect()->route('dashboard.modules.index');
     }    
 
-    public function destroy()
+    public function destroy(Module $module)
     {
-        dd(request()->all());
+        $module->delete();
+        return redirect()->route('dashboard.modules.index');
     }
 }

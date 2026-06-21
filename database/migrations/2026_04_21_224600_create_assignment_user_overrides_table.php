@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('assignment_user_overrides', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assignment_id')->constrained('assignments');
+            $table->foreignId('assignment_id')->constrained('assignments')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users');
             $table->string('due_at_override')->nullable();
             $table->boolean('is_exempt')->default(true);
