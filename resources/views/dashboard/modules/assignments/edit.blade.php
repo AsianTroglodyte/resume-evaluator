@@ -21,7 +21,7 @@
                 id="assignment_form"
                 class="flex flex-col gap-8"
                 method="POST"
-                action="{{ route('dashboard.modules.assignments.store', $module->id) }}"
+                action="{{ route('dashboard.modules.assignments.update', [$module, $assignment]) }}"
             >
                 @csrf
                 @method("PATCH")
@@ -59,8 +59,11 @@
 
                     <div class="mt-4 flex flex-col gap-2 [&:not(:has(#due-date-enabled:checked))_.due-date-input]:hidden">
                         <label class="flex w-fit cursor-pointer items-center gap-3">
+                            <input type="hidden" name="due_date_enabled" value="0"/>
                             <input
                                 type="checkbox"
+                                name="due_date_enabled"
+                                value="1"
                                 class="toggle"
                                 id="due-date-enabled"
                                 {{ $assignment->due_at ? "checked" : ""}}
@@ -274,10 +277,7 @@
 
                 <div class="flex flex-wrap justify-end gap-2 border-t border-base-300 pt-4">
                     <a href="{{ route('dashboard.modules.show', $module) }}" class="btn btn-outline">Cancel</a>
-                    <button type="submit" class="btn btn-outline">Reset</button>
-                </div>
-                <div class="flex flex-wrap justify-end gap-2 border-t border-base-300 pt-4">
-                    <a href="{{ route('dashboard.modules.show', $module) }}" class="btn btn-outline">Cancel</a>
+                    <button type="reset" class="btn btn-outline">Reset</button>
                     <button type="submit" class="btn btn-primary">Save changes</button>
                 </div>
 

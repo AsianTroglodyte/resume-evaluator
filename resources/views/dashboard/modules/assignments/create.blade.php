@@ -57,6 +57,7 @@
                                 name="due_date_enabled"
                                 value="1"
                                 class="toggle"
+                                id="due-date-enabled"
                                 checked
                             />
                             <span class="label-text">Enable due date</span>

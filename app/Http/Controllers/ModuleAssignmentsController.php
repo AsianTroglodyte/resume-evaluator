@@ -126,7 +126,33 @@ class ModuleAssignmentsController extends Controller
         ]);
     }
 
-    public function update(Module $module) {
+    public function update(Module $module, Assignment $assignment) {
+
+        
+        $validated = request()->validate([
+            'title' => ['required', 'string', 'min:3', 'max:255'],
+            // made by an actual instructor/admin
+            'due_date_enabled' => ['required', 'boolean'],
+            'due_at' => ['nullable', 'date', 'after:now'],
+            'description' => ['nullable', 'string', 'max:500'],
+            'job_listing_source' => ['required', Rule::enum(JobListingSource::class)],
+            'module_job_listing_scope' => ['required', Rule::enum(ModuleJobListingScope::class)],
+            'assignee_scope' => ['required', Rule::enum(AssigneeScope::class)],
+            'allow_resubmission' => ['required', 'boolean'],
+            'job_listing_ids' => ['array'],
+            'job_listing_ids.*' => [
+                'required',
+                'integer',
+                Rule::exists('job_listings', 'id')->where('module_id', $module->id)],
+            'assignee_ids' => ['array'],
+            'assignee_ids.*' => [
+                'required',
+                'integer',
+                Rule::exists('module_memberships', 'user_id')->where('module_id', $module->id)],
+        ]);
+
+        dd($validated);
+
         $job_listings = $module->jobListings;
         $users = $module->users;
 
