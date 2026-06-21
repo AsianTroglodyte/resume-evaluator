@@ -28,10 +28,17 @@ Route::get('/dashboard/modules/create', function () {return view('dashboard.modu
 Route::post('/dashboard/modules', [ModuleController::class, 'store'])->name('dashboard.modules.store');
 Route::delete('/dashboard/modules', [ModuleController::class, 'destroy'])->name('dashboard.modules.destroy');
 Route::get('/dashboard/modules/{module}', [ModuleController::class, 'show'])->name('dashboard.modules.show');
+
 Route::get('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'index'] )->name('dashboard.modules.members.index');
 Route::post('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'store'] )->name('dashboard.modules.members.store');
-Route::post('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'store'])->name('dashboard.modules.assignments.store');
+
 Route::get('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'create'])->name('dashboard.modules.assignments.create');
+Route::post('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'store'])->name('dashboard.modules.assignments.store');
+
+Route::get('/dashboard/modules/{module}/assignment/{assignment}', [ModuleAssignmentsController::class, 'show'])->name('dashboard.modules.assignments.show');
+Route::get('/dashboard/modules/{module}/assignment/{assignment}/edit', [ModuleAssignmentsController::class, 'edit'])->name('dashboard.modules.assignments.edit');
+Route::patch('/dashboard/modules/{module}/assignment/{assignment}/edit', [ModuleAssignmentsController::class, 'update'])->name('dashboard.modules.assignments.update');
+
 Route::post('/dashboard/modules/{module}/job-listings', [ModuleJobListingController::class, 'store'])->name('dashboard.modules.job-listings.store');
 Route::patch('/dashboard/modules/{module}/job-listings/{jobListing}', [ModuleJobListingController::class, 'update'])->name('dashboard.modules.job-listings.update');
 Route::delete('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'destroy'] )->name('dashboard.modules.members.destroy');

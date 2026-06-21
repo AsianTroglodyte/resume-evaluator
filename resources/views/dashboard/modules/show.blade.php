@@ -21,18 +21,17 @@
 
                 <div class="space-y-3">
                     @forelse ($assignments as $assignment)
-                        <button
-                            type="button"
-                            class="w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200 cursor-pointer"
-                            onclick="assignment_modal_{{ $assignment->id }}.showModal()"
+                        <a
+                            class="block w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200"
+                            href={{ route('dashboard.modules.assignments.show', [$module, $assignment]) }}
                         >
                             <h4 class="font-medium">{{ $assignment->title }}</h4>
                             <p class="mt-2 text-sm text-base-content/70">
                                 Due: {{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}
                             </p>
-                        </button>
+                        </a>
 
-                        <dialog id="assignment_modal_{{ $assignment->id }}" class="modal">
+                        {{-- <dialog id="assignment_modal_{{ $assignment->id }}" class="modal">
                             <div class="modal-box max-w-lg">
                                 <form method="dialog">
                                     <button class="btn btn-sm btn-circle btn-outline absolute right-2 top-2" aria-label="Close">×</button>
@@ -50,37 +49,20 @@
                                         <dd class="mt-1">{{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="font-medium">assignee_scope</dt>
-                                        <dd class="mt-1">{{ $assignment->assignee_scope }}</dd>
-                                    </div>
-                                    <div>
                                         <dt class="font-medium">Resubmission allowed</dt>
                                         <dd class="mt-1">{{ $assignment->allow_resubmission ? 'Yes' : 'No' }}</dd>
                                     </div>
                                 </dl>
 
-                                <div class="mt-4 space-y-4 border-t border-base-300 pt-4">
-                                    <div>
-                                        <h4 class="font-medium">Assignees</h4>
-                                        <ul class="mt-2 space-y-1 text-sm">
-                                            @forelse ($assignment->assignees as $assignee)
-                                                <li>{{ $assignee->first_name }} {{ $assignee->last_name }}</li>
-                                            @empty
-                                                <li class="text-base-content/70">No one has been assigned to this assignment.</li>
-                                            @endforelse
-                                        </ul>
-                                    </div>
-
-                                    <div>
-                                        <h4 class="font-medium">Allowed Job Listings</h4>
-                                        <ul class="mt-2 space-y-1 text-sm">
-                                            @forelse ($assignment->jobListings as $listing)
-                                                <li>{{ $listing->name }}</li>
-                                            @empty
-                                                <li class="text-base-content/70">No job listings are linked to this assignment.</li>
-                                            @endforelse
-                                        </ul>
-                                    </div>
+                                <div>
+                                    <h4 class="font-medium">Allowed Job Listings</h4>
+                                    <ul class="mt-2 space-y-1 text-sm">
+                                        @forelse ($assignment->jobListings as $listing)
+                                            <li>{{ $listing->name }}</li>
+                                        @empty
+                                            <li class="text-base-content/70">No job listings are linked to this assignment.</li>
+                                        @endforelse
+                                    </ul>
                                 </div>
 
                                 <label class="form-control mt-4 w-full">
@@ -92,7 +74,7 @@
                             <form method="dialog" class="modal-backdrop">
                                 <button>close</button>
                             </form>
-                        </dialog>
+                        </dialog> --}}
                     @empty
                         <p class="text-sm text-base-content/70">No assignments for this module yet.</p>
                     @endforelse
