@@ -34,8 +34,8 @@
                             class="input input-bordered w-full"
                             required
                         />
-                        @error('title')
-                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @error('new_member_email')
+                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
                     </label>
 

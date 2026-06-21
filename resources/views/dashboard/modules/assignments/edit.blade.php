@@ -58,6 +58,9 @@
                             {{-- checked --}}
                         />
                         <span class="label-text">Allow resubmissions</span>
+                        @error('allow_resubmission')
+                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @enderror
                     </label>
 
                     <div class="mt-4 flex flex-col gap-2 [&:not(:has(#due-date-enabled:checked))_.due-date-input]:hidden">
@@ -72,6 +75,9 @@
                                 {{ $assignment->due_at ? "checked" : ""}}
                             />
                             <span class="label-text">Enable due date</span>
+                            @error('due_date_enabled')
+                                <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                            @enderror
                         </label>
 
                         <label class="due-date-input form-control w-full max-w-xs">
@@ -82,6 +88,9 @@
                                 class="input input-bordered w-full"
                                 value="{{ $assignment->due_at?->format('Y-m-d\TH:i') }}"
                             />
+                            @error('due_at')
+                                <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                            @enderror
                         </label>
                     </div>
 
@@ -92,6 +101,9 @@
                             placeholder="Assignment details and instructions..."
                             class="textarea textarea-bordered min-h-32 w-full"
                         >{{ $assignment->description }}</textarea>
+                        @error('description')
+                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @enderror
                     </label>
                 </section>
 
@@ -141,6 +153,10 @@
                             />
                             <span class="font-medium">Both external and module job listings</span>
                         </label>
+                        
+                        @error('job_listing_source')
+                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @enderror
 
                         <fieldset id="module-listing-options" class="module-listing-options min-w-0 space-y-3">
                             <legend class="text-sm font-semibold">On-site module listings</legend>
@@ -151,6 +167,8 @@
                                     name="module_job_listing_scope"
                                     value="all"
                                     class="radio radio-primary"
+                                    @checked($assignment->module_job_listing_scope === ModuleJobListingScope::All)
+
                                     checked
                                 />
                                 <span class="font-medium">All module job listings</span>
@@ -162,38 +180,44 @@
                                     name="module_job_listing_scope"
                                     value="selected"
                                     class="job-listing-scope-selected radio radio-primary"
+                                    @checked($assignment->module_job_listing_scope === ModuleJobListingScope::Selected)
                                 />
                                 <span class="font-medium">Select job listings</span>
                             </label>
+                            
+                            @error('module_job_listing_scope')
+                                <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                            @enderror
 
                             <fieldset id="job-listing-list" class="job-listing-list min-w-0 space-y-3">
                                 <legend class="label-text font-medium">Select job listings</legend>
 
                                 <ul class="list max-h-150 overflow-y-auto bg-base-100">
                                     @forelse ($job_listings as $job_listing)
-                                        <li>
-                                            <label
-                                                class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
-                                                for="job-listing-{{ $job_listing->id }}"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    class="checkbox checkbox-md mt-0.5 shrink-0"
-                                                    id="job-listing-{{ $job_listing->id }}"
-                                                    name="job_listing_ids[]"
-                                                    value="{{ $job_listing->id }}"
-                                                />
-                                                <span class="min-w-0 font-medium">
-                                                    {{ $job_listing->name }}
-                                                </span>
-                                            </label>
-                                        </li>
+                                    <li>
+                                        <label
+                                            class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
+                                            for="job-listing-{{ $job_listing->id }}"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                class="checkbox checkbox-md mt-0.5 shrink-0"
+                                                id="job-listing-{{ $job_listing->id }}"
+                                                name="job_listing_ids[]"
+                                                @checked(in_array($job_listing->id, $assignment->jobListings->pluck('id')->toArray()))
+                                                value="{{ $job_listing->id }}"
+                                            />
+                                            <span class="min-w-0 font-medium">
+                                                {{ $job_listing->name }}
+                                            </span>
+                                        </label>
+                                    </li>
                                     @empty
-                                        <li>
-                                            <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
-                                                No job listings in this module yet. Create one from the module overview before assigning.
-                                            </p>
-                                        </li>
+                                    <li>
+                                        <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
+                                            No job listings in this module yet. Create one from the module overview before assigning.
+                                        </p>
+                                    </li>
                                     @endforelse
                                 </ul>
                             </fieldset>
@@ -219,7 +243,7 @@
                                 name="assignee_scope"
                                 value="everyone"
                                 class="radio radio-primary"
-                                checked
+                                @checked($assignment->assignee_scope === AssigneeScope::Everyone)
                             />
                             <span class="font-medium">Everyone in module</span>
                         </label>
@@ -230,7 +254,7 @@
                                 name="assignee_scope"
                                 value="selected"
                                 class="assignment-scope-selected radio radio-primary"
-                                
+                                @checked($assignment->assignee_scope === AssigneeScope::Selected)
                             />
                             <span class="font-medium">Select members</span>
                         </label>
@@ -240,43 +264,44 @@
 
                             <ul class="list max-h-150 overflow-y-auto bg-base-100">
                                 @forelse ($users as $user)
-                                    <li>
-                                        <label
-                                            class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
-                                            for="user-{{ $user->id }}"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                class="checkbox checkbox-md mt-0.5 shrink-0"
-                                                id="user-{{ $user->id }}"
-                                                name="assignee_ids[]"
-                                                value="{{ $user->id }}"
-                                            />
-                                            <span class="min-w-0 font-medium">
-                                                {{ $user->first_name }} {{ $user->last_name }} -
-                                                {{ $user->email }}
-                                            </span>
-                                        </label>
-                                    </li>
+                                <li>
+                                    <label
+                                        class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
+                                        for="user-{{ $user->id }}"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="checkbox checkbox-md mt-0.5 shrink-0"
+                                            id="user-{{ $user->id }}"
+                                            name="assignee_ids[]"
+                                            value="{{ $user->id }}"
+                                            @checked(in_array($user->id, $assignment->assignees->pluck('id')->toArray()))
+                                        />
+                                        <span class="min-w-0 font-medium">
+                                            {{ $user->first_name }} {{ $user->last_name }} -
+                                            {{ $user->email }}
+                                        </span>
+                                    </label>
+                                </li>
                                 @empty
-                                    <li>
-                                        <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
-                                            No members in this module yet.
-                                        </p>
-                                    </li>
+                                <li>
+                                    <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
+                                        No members in this module yet.
+                                    </p>
+                                </li>
                                 @endforelse
                             </ul>
                         </fieldset>
                     </fieldset>
                 </section>
 
-                @if($errors->any())
-                    <ul = "
+                {{-- @if($errors->any())
+                    <ul>
                     @foreach($errors->all() as $error) 
                         <li> {{$error}}</li>
                     @endforeach
                     </ul>
-                @endif
+                @endif --}}
 
                 <div class="flex flex-wrap justify-end gap-2 border-t border-base-300 pt-4">
                     <a href="{{ route('dashboard.modules.show', $module) }}" class="btn btn-outline">Cancel</a>
