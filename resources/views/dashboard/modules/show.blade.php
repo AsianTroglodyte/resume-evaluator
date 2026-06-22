@@ -37,11 +37,14 @@
 
                             <button
                                 type="button"
-                                class="btn btn-ghost btn-sm relative z-10"
+                                class="btn btn-ghost btn-sm btn-square relative z-10"
                                 popovertarget="popover-{{ $assignment->id }}"
                                 style="anchor-name:--anchor-{{ $assignment->id }}"
+                                aria-label="Assignment actions"
                             >
-                                Actions
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z" />
+                                </svg>
                             </button>
                             <ul
                                 class="dropdown menu z-20 w-52 rounded-box bg-base-100 shadow-sm"

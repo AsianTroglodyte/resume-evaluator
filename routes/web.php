@@ -36,13 +36,23 @@ Route::post('/dashboard/modules/{module}/members/index', [ModuleMembersControlle
 Route::get('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'create'])->name('dashboard.modules.assignments.create');
 Route::post('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'store'])->name('dashboard.modules.assignments.store');
 
-Route::get('/dashboard/modules/{module}/assignment/{assignment}', [ModuleAssignmentsController::class, 'show'])->name('dashboard.modules.assignments.show');
-Route::get('/dashboard/modules/{module}/assignment/{assignment}/edit', [ModuleAssignmentsController::class, 'edit'])->name('dashboard.modules.assignments.edit');
-Route::patch('/dashboard/modules/{module}/assignment/{assignment}/edit', [ModuleAssignmentsController::class, 'update'])->name('dashboard.modules.assignments.update');
-Route::delete('/dashboard/modules/{module}/assignment/{assignment}/delete', [ModuleAssignmentsController::class, 'destroy'])->name('dashboard.modules.assignments.delete');
+Route::get('/dashboard/modules/{module}/assignment/{assignment}', [ModuleAssignmentsController::class, 'show'])
+    ->scopeBindings()
+    ->name('dashboard.modules.assignments.show');
+Route::get('/dashboard/modules/{module}/assignment/{assignment}/edit', [ModuleAssignmentsController::class, 'edit'])
+    ->scopeBindings()
+    ->name('dashboard.modules.assignments.edit');
+Route::patch('/dashboard/modules/{module}/assignment/{assignment}', [ModuleAssignmentsController::class, 'update'])
+    ->scopeBindings()
+    ->name('dashboard.modules.assignments.update');
+Route::delete('/dashboard/modules/{module}/assignment/{assignment}', [ModuleAssignmentsController::class, 'destroy'])
+    ->scopeBindings()
+    ->name('dashboard.modules.assignments.delete');
 
 Route::post('/dashboard/modules/{module}/job-listings', [ModuleJobListingController::class, 'store'])->name('dashboard.modules.job-listings.store');
-Route::patch('/dashboard/modules/{module}/job-listings/{jobListing}', [ModuleJobListingController::class, 'update'])->name('dashboard.modules.job-listings.update');
+Route::patch('/dashboard/modules/{module}/job-listings/{jobListing}', [ModuleJobListingController::class, 'update'])
+    ->scopeBindings()
+    ->name('dashboard.modules.job-listings.update');
 Route::delete('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'destroy'] )->name('dashboard.modules.members.destroy');
 Route::get('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'index'])->name('dashboard.modules.settings.index');
 Route::patch('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'update'])->name('dashboard.modules.settings.index');
