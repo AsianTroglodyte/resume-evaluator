@@ -50,9 +50,6 @@ class ModuleMembersController extends Controller
         $moduleMembership = ModuleMembership::where('module_id', $module->id)
             ->where('user_id', $newUser->id)
             ->first();
-        // where('module_id', $module->id);
-
-        // dd($moduleMembership);
 
         // if never was a member we create the membership
         if ($moduleMembership) {
@@ -70,7 +67,6 @@ class ModuleMembersController extends Controller
                 'added_by_user_id' => 1,
             ]);
         }
-        // if was a member we update membership to active
         else {
             ModuleMembership::create([
                 'module_id' => $module->id,
@@ -81,9 +77,6 @@ class ModuleMembersController extends Controller
                 'removed_by_user_id' => null,
             ]);
         }
-
-        // dd($newUser, $moduleMembership);
-
 
         $members = $module->users()
             ->orderBy('last_name')
