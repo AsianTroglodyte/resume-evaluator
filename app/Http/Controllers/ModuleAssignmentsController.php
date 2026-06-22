@@ -111,7 +111,7 @@ class ModuleAssignmentsController extends Controller
             ]);
         }
     
-        return redirect()->route('dashboard.modules.assignments.create', ['module' => $module]);
+        return redirect()->route('dashboard.modules.show', ['module' => $module]);
     }
 
     public function edit(Module $module, Assignment $assignment) {
@@ -195,8 +195,12 @@ class ModuleAssignmentsController extends Controller
         ]);
     }
 
-    public function destroy()
+    public function destroy(Module $module,Assignment $assignment)
     {
-        
+        $assignment->delete();
+
+        return redirect()->route('dashboard.modules.show', [
+            'module' => $module,
+        ]);
     }
 }

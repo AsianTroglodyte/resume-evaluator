@@ -39,6 +39,7 @@ Route::post('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsC
 Route::get('/dashboard/modules/{module}/assignment/{assignment}', [ModuleAssignmentsController::class, 'show'])->name('dashboard.modules.assignments.show');
 Route::get('/dashboard/modules/{module}/assignment/{assignment}/edit', [ModuleAssignmentsController::class, 'edit'])->name('dashboard.modules.assignments.edit');
 Route::patch('/dashboard/modules/{module}/assignment/{assignment}/edit', [ModuleAssignmentsController::class, 'update'])->name('dashboard.modules.assignments.update');
+Route::delete('/dashboard/modules/{module}/assignment/{assignment}/delete', [ModuleAssignmentsController::class, 'destroy'])->name('dashboard.modules.assignments.delete');
 
 Route::post('/dashboard/modules/{module}/job-listings', [ModuleJobListingController::class, 'store'])->name('dashboard.modules.job-listings.store');
 Route::patch('/dashboard/modules/{module}/job-listings/{jobListing}', [ModuleJobListingController::class, 'update'])->name('dashboard.modules.job-listings.update');

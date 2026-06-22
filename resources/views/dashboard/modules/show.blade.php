@@ -21,60 +21,84 @@
 
                 <div class="space-y-3">
                     @forelse ($assignments as $assignment)
-                        <a
-                            class="block w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200"
-                            href={{ route('dashboard.modules.assignments.show', [$module, $assignment]) }}
+                        <div
+                            class="flex flex-row relative justify-between
+                            w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200"
                         >
-                            <h4 class="font-medium">{{ $assignment->title }}</h4>
-                            <p class="mt-2 text-sm text-base-content/70">
-                                Due: {{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}
-                            </p>
-                        </a>
+                            <a class="absolute inset-0 z-0"
+                            href={{ route('dashboard.modules.assignments.show', [$module, $assignment]) }}>
+                            </a>
+                            <div class="flex flex-col justify-between">
+                                <h4 class="font-medium">{{ $assignment->title }}</h4>
+                                <p class="mt-2 text-sm text-base-content/70">
+                                    Due: {{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}
+                                </p>
+                            </div>
 
-                        {{-- <dialog id="assignment_modal_{{ $assignment->id }}" class="modal">
-                            <div class="modal-box max-w-lg">
-                                <form method="dialog">
-                                    <button class="btn btn-sm btn-circle btn-outline absolute right-2 top-2" aria-label="Close">×</button>
-                                </form>
-
-                                <h3 class="text-lg font-bold">{{ $assignment->title }}</h3>
-
-                                <dl class="mt-4 space-y-3 text-sm">
-                                    <div>
-                                        <dt class="font-medium">Description</dt>
-                                        <dd class="mt-1 text-base-content/80">{{ $assignment->description }}</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="font-medium">Due</dt>
-                                        <dd class="mt-1">{{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="font-medium">Resubmission allowed</dt>
-                                        <dd class="mt-1">{{ $assignment->allow_resubmission ? 'Yes' : 'No' }}</dd>
-                                    </div>
-                                </dl>
-
-                                <div>
-                                    <h4 class="font-medium">Allowed Job Listings</h4>
-                                    <ul class="mt-2 space-y-1 text-sm">
-                                        @forelse ($assignment->jobListings as $listing)
-                                            <li>{{ $listing->name }}</li>
-                                        @empty
-                                            <li class="text-base-content/70">No job listings are linked to this assignment.</li>
-                                        @endforelse
-                                    </ul>
+                            <button
+                                type="button"
+                                class="btn btn-ghost btn-sm relative z-10"
+                                popovertarget="popover-{{ $assignment->id }}"
+                                style="anchor-name:--anchor-{{ $assignment->id }}"
+                            >
+                                Actions
+                            </button>
+                            <ul
+                                class="dropdown menu z-20 w-52 rounded-box bg-base-100 shadow-sm"
+                                popover
+                                id="popover-{{ $assignment->id }}"
+                                style="position-anchor:--anchor-{{ $assignment->id }}"
+                            >
+                                <li>
+                                    <a href="{{ route('dashboard.modules.assignments.edit', [$module, $assignment]) }}">
+                                        Edit
+                                    </a>
+                                </li>
+                                <li>
+                                    <button
+                                        type="button"
+                                        class="text-error"
+                                        onclick="assignment_delete_modal_{{ $assignment->id }}.showModal()"
+                                    >
+                                        Delete
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <dialog id="assignment_delete_modal_{{$assignment->id}}" class="modal">
+                            <div class="modal-box">
+                                <h3 class="text-lg font-bold">Delete Assignment?</h3>
+                                <p class="py-4">
+                                    This will delete {{$assignment->title}} and any data it contains
+                                </p>
+                                <form 
+                                    method="POST" 
+                                    action="{{ route('dashboard.modules.assignments.delete', [$module, $assignment]) }}""> 
+                                @csrf
+                                @method("DELETE")
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
+                                    onclick="assignment_delete_modal_{{ $assignment->id }}.close()"
+                                    aria-label="Close"
+                                >
+                                    x
+                                </button>
+                                <div class="flex flex-row justify-between">
+                                    <button type="button" class="btn btn-outline"
+                                    onclick="assignment_delete_modal_{{ $assignment->id }}.close()">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-error">
+                                        Delete
+                                    </button>
                                 </div>
-
-                                <label class="form-control mt-4 w-full">
-                                    <span class="label-text mb-1 font-medium">Resume File</span>
-                                    <input type="file" class="file-input file-input-bordered w-full" accept=".pdf,.doc,.docx" />
-                                    <span class="label-text-alt text-sm text-base-content/60">Choose a submission</span>
-                                </label>
+                            </form>
                             </div>
                             <form method="dialog" class="modal-backdrop">
                                 <button>close</button>
                             </form>
-                        </dialog> --}}
+                        </dialog>
                     @empty
                         <p class="text-sm text-base-content/70">No assignments for this module yet.</p>
                     @endforelse
