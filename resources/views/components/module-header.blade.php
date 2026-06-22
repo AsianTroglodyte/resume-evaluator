@@ -30,7 +30,17 @@
                 role="tab"
                 href="{{ route('dashboard.modules.members.index', $module) }}"
                 class="tab {{ request()->routeIs('dashboard.modules.members.index') ? 'tab-active' : '' }}"
-                aria-current="{{ request()->routeIs('dashboard.modules.members.index') ? 'page' : 'false' }}"
+                aria-current="{{ request()->routeIs('dashboard.modules.members.inde
+                
+                
+                
+                
+                
+                
+                
+                x') ? 'page' : 'false' }}"
+
+                
             >
                 Participants
             </a>

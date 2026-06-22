@@ -95,10 +95,10 @@
                         <summary class="collapse-title text-sm font-medium">Assignees</summary>
                         <div class="collapse-content">
                             <ul class="space-y-1 text-sm">
-                                @forelse ($assignment->assignees as $assignee)
+                                @forelse ($assignment->activeAssignees as $assignee)
                                     <li>{{ $assignee->first_name }} {{ $assignee->last_name }} — {{ $assignee->email }}</li>
                                 @empty
-                                    <li class="text-base-content/70">Everyone in the module.</li>
+                                    <li class="text-base-content/70">Noone in the module was selected</li>
                                 @endforelse
                             </ul>
                         </div>

@@ -275,7 +275,7 @@
                                             id="user-{{ $user->id }}"
                                             name="assignee_ids[]"
                                             value="{{ $user->id }}"
-                                            @checked(in_array($user->id, $assignment->assignees->pluck('id')->toArray()))
+                                            @checked(in_array($user->id, $assignment->activeAssignees->pluck('id')->toArray()))
                                         />
                                         <span class="min-w-0 font-medium">
                                             {{ $user->first_name }} {{ $user->last_name }} -

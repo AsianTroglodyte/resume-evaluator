@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,7 +36,8 @@ class Module extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'module_memberships')
-            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at');
+            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
+            ->wherePivot('status', 'active');
     }
 
     // Module.php

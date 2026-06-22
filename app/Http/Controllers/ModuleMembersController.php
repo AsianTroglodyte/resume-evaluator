@@ -12,12 +12,13 @@ use Illuminate\Validation\Rule;
 class ModuleMembersController extends Controller
 {
     //
-    public function index(Module $module) {
+    public function index(Module $module)
+    {
         $members = $module
-        ->users()
-        ->orderBy('last_name')
-        ->orderBy('first_name')
-        ->get();
+            ->users()
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
 
         return view('dashboard.modules.members.index', [
             'module' => $module,
@@ -25,13 +26,14 @@ class ModuleMembersController extends Controller
         ]);
     }
 
-    public function store(Module $module) {
+    public function store(Module $module)
+    {
         // dd(request('new_member_email'));
 
         request()->validate([
             'role_in_module' => [
                 'required',
-                Rule::enum(RoleInModule::class)
+                Rule::enum(RoleInModule::class),
             ],
             'new_member_email' => [
                 'required',
@@ -43,7 +45,7 @@ class ModuleMembersController extends Controller
                             ->where('module_id', $module->id);
                     });
                 }),
-            ]
+            ],
         ]);
 
         $new_user = User::where('email', request('new_member_email'))->firstOrFail();
@@ -52,11 +54,10 @@ class ModuleMembersController extends Controller
             'module_id' => $module->id,
             'user_id' => $new_user->id,
             'role_in_module' => RoleInModule::tryFrom(request('role_in_module')),
-            'status' =>  "active",
+            'status' => 'active',
             'added_by_user_id' => 1,
             'removed_by_user_id' => null,
-            ]);
-
+        ]);
 
         $members = $module->users()
             ->orderBy('last_name')
@@ -69,7 +70,8 @@ class ModuleMembersController extends Controller
         ]);
     }
 
-    public function destroy(Module $module) {
+    public function destroy(Module $module)
+    {
         $validated = request()->validate([
             'user_id' => [
                 'required',
@@ -78,9 +80,19 @@ class ModuleMembersController extends Controller
                     ->where('module_id', $module->id),
             ],
         ]);
-        
-        $module->users()->detach($validated['user_id']);
-        
+
+        ModuleMembership::where('module_id', $module->id)
+            ->where('user_id', $validated['user_id'])
+            ->update([
+                'status' => 'removed',
+                'removed_by_user_id' => 1,
+                'removed_at' => now(),
+            ]);
+
+        // dd($usersModuleMembership);
+
+        // $module->users()->detach($validated['user_id']);
+
         return redirect()->route('dashboard.modules.members.index', $module);
     }
 }

@@ -45,6 +45,16 @@ class Assignment extends Model
         return $this->belongsToMany(User::class, 'assignment_assignees');
     }
 
+    public function activeAssignees(): BelongsToMany
+    {
+        return $this->assigneesWithMembershipStatus('active');
+    }
+
+    public function removedAssignees(): BelongsToMany
+    {
+        return $this->assigneesWithMembershipStatus('removed');
+    }
+
     public function jobListings(): BelongsToMany
     {
         return $this->belongsToMany(JobListing::class, 'assignment_allowed_job_listings');
@@ -58,6 +68,19 @@ class Assignment extends Model
     public function assignmentAllowedJobListings(): HasMany
     {
         return $this->hasMany(AssignmentAllowedJobListings::class);
-        
+
+    }
+
+    private function assigneesWithMembershipStatus(string $status): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'assignment_assignees')
+            ->whereExists(function ($query) use ($status) {
+                $query->selectRaw('1')
+                    ->from('module_memberships')
+                    ->join('assignments', 'assignments.module_id', '=', 'module_memberships.module_id')
+                    ->whereColumn('assignments.id', 'assignment_assignees.assignment_id')
+                    ->whereColumn('module_memberships.user_id', 'users.id')
+                    ->where('module_memberships.status', $status);
+            });
     }
 }

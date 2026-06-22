@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Module;
-use Illuminate\Http\Request;
 
 class ModuleController extends Controller
 {
     //
-    public function index() 
+    public function index()
     {
         $modules = Module::all();
 
@@ -17,18 +16,15 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function create() 
-    {
-        
-    }
-    
-    public function show(Module $module) 
+    public function create() {}
+
+    public function show(Module $module)
     {
         $jobListings = $module->jobListings;
 
         $assignments = $module
             ->assignments()
-            ->with('assignees', 'jobListings')
+            ->with('activeAssignees', 'jobListings')
             ->get();
 
         return view('dashboard.modules.show', [
@@ -37,24 +33,25 @@ class ModuleController extends Controller
             'assignments' => $assignments,
         ]);
     }
-    
-    public function store() 
+
+    public function store()
     {
         request()->validate([
             'name' => ['required', 'min:3'],
         ]);
-    
+
         Module::create([
             'name' => request('name'),
             'created_by_user_id' => 1,
         ]);
-    
+
         return redirect()->route('dashboard.modules.index');
-    }    
+    }
 
     public function destroy(Module $module)
     {
         $module->delete();
+
         return redirect()->route('dashboard.modules.index');
     }
 }

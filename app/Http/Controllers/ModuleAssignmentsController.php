@@ -7,13 +7,14 @@ use App\Enums\JobListingSource;
 use App\Enums\ModuleJobListingScope;
 use App\Models\Assignment;
 use App\Models\Module;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Arr as SupportArr;
+use Illuminate\Validation\Rule;
+
 class ModuleAssignmentsController extends Controller
 {
     //
-    public function index(Module $module) {
+    public function index(Module $module)
+    {
         $job_listings = $module->jobListings;
         $users = $module->users;
 
@@ -24,7 +25,8 @@ class ModuleAssignmentsController extends Controller
         ]);
     }
 
-    public function create(Module $module) {
+    public function create(Module $module)
+    {
         $job_listings = $module->jobListings;
         $users = $module->users;
 
@@ -34,9 +36,11 @@ class ModuleAssignmentsController extends Controller
             'users' => $users,
         ]);
     }
-    
-    public function show(Module $module, Assignment $assignment) {
+
+    public function show(Module $module, Assignment $assignment)
+    {
         $users = $module->users;
+        $assignment->load('activeAssignees', 'jobListings');
 
         return view('dashboard.modules.assignments.show', [
             'module' => $module,
@@ -45,7 +49,8 @@ class ModuleAssignmentsController extends Controller
         ]);
     }
 
-    public function store(Module $module) {
+    public function store(Module $module)
+    {
         $validated = request()->validate([
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
@@ -68,9 +73,8 @@ class ModuleAssignmentsController extends Controller
                 Rule::exists('module_memberships', 'user_id')->where('module_id', $module->id)],
         ]);
 
-    
-        $validated['due_at'] = $validated['due_date_enabled'] ? $validated["due_at"] : null;
-        
+        $validated['due_at'] = $validated['due_date_enabled'] ? $validated['due_at'] : null;
+
         $assignmentInfo = SupportArr::only($validated, [
             'title',
             'due_at',
@@ -79,11 +83,11 @@ class ModuleAssignmentsController extends Controller
             'module_job_listing_scope',
             'assignee_scope',
             'allow_resubmission',
-        ]);        
+        ]);
         $assignment = $module->assignments()->create([
             // ...$validated,
             'created_by_user_id' => 1,
-            'module_id' => $module["id"],
+            'module_id' => $module['id'],
             'title' => $assignmentInfo['title'],
             'description' => $assignmentInfo['description'],
             'due_at' => $assignmentInfo['due_at'],
@@ -92,7 +96,6 @@ class ModuleAssignmentsController extends Controller
             'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
             'allow_resubmission' => $assignmentInfo['allow_resubmission'],
         ]);
-        
 
         $jobListingIds = $validated['job_listing_ids'] ?? [];
         foreach ($jobListingIds as $jobListingId) {
@@ -101,7 +104,6 @@ class ModuleAssignmentsController extends Controller
                 'assignment_id' => $assignment['id'],
             ]);
         }
-        
 
         $assigneeIds = $validated['assignee_ids'] ?? [];
         foreach ($assigneeIds as $assigneeId) {
@@ -110,13 +112,15 @@ class ModuleAssignmentsController extends Controller
                 'assignment_id' => $assignment['id'],
             ]);
         }
-    
+
         return redirect()->route('dashboard.modules.show', ['module' => $module]);
     }
 
-    public function edit(Module $module, Assignment $assignment) {
+    public function edit(Module $module, Assignment $assignment)
+    {
         $job_listings = $module->jobListings;
         $users = $module->users;
+        $assignment->load('activeAssignees');
 
         return view('dashboard.modules.assignments.edit', [
             'module' => $module,
@@ -126,9 +130,9 @@ class ModuleAssignmentsController extends Controller
         ]);
     }
 
-    public function update(Module $module, Assignment $assignment) {
+    public function update(Module $module, Assignment $assignment)
+    {
 
-        
         $validated = request()->validate([
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
@@ -151,8 +155,8 @@ class ModuleAssignmentsController extends Controller
                 Rule::exists('module_memberships', 'user_id')->where('module_id', $module->id)],
         ]);
 
-        $validated['due_at'] = $validated['due_date_enabled'] ? $validated["due_at"] : null;
-        
+        $validated['due_at'] = $validated['due_date_enabled'] ? $validated['due_at'] : null;
+
         $assignmentInfo = SupportArr::only($validated, [
             'title',
             'due_at',
@@ -161,13 +165,12 @@ class ModuleAssignmentsController extends Controller
             'module_job_listing_scope',
             'assignee_scope',
             'allow_resubmission',
-        ]);        
-
+        ]);
 
         $assignment->update([
             // ...$validated,
             'created_by_user_id' => 1,
-            'module_id' => $module["id"],
+            'module_id' => $module['id'],
             'title' => $assignmentInfo['title'],
             'description' => $assignmentInfo['description'],
             'due_at' => $assignmentInfo['due_at'],
@@ -182,7 +185,6 @@ class ModuleAssignmentsController extends Controller
         $jobListingIds = $validated['job_listing_ids'] ?? [];
         $assignment->jobListings()->sync($jobListingIds);
 
-
         $assigneeIds = $validated['assignee_ids'] ?? [];
         $assignment->assignees()->sync($assigneeIds);
 
@@ -195,7 +197,7 @@ class ModuleAssignmentsController extends Controller
         ]);
     }
 
-    public function destroy(Module $module,Assignment $assignment)
+    public function destroy(Module $module, Assignment $assignment)
     {
         $assignment->delete();
 

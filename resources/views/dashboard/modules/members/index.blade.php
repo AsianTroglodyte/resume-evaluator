@@ -12,7 +12,7 @@
             <p class="mb-4 text-sm text-base-content/70">Members enrolled in this module.</p>
 
             <button type="button" class="btn btn-primary btn-sm shrink-0" onclick="add_new_member.showModal()">
-                add new member
+                Add member
             </button>
             <dialog id="add_new_member" class="modal">
                 <div class="modal-box w-[92vw] max-w-3xl">
@@ -98,7 +98,7 @@
                         {{-- <form method="DELETE" action="{{route('dashboard.modules.members.destroy', $module)}}">
                             @csrf
                             @method('DELETE') --}}
-                            <button type="submit" class="btn btn-outline btn-xs btn-error" 
+                            <button type="button" class="btn btn-outline btn-xs btn-error" 
                                 onclick="delete_member_{{$member->id}}.showModal()">
                                 {{-- <span class="sr-only">Delete</span> --}}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -111,17 +111,17 @@
                                     <form method="POST" action="{{ route('dashboard.modules.members.destroy', $module) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <input type="hidden" name="user_id"value={{ $member->id }} >
+                                        <input type="hidden" name="user_id" value="{{ $member->id }}">
                                         <button
                                             type="button"
                                             class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
                                             onclick="delete_member_{{ $member->id }}.close()"
-                                            aria-label="close">
+                                            aria-label="Close">
                                             x
                                         </button>
                 
                                         <header class="space-y-1">
-                                            <h3 class="text-2xl font-bold text-primary">Create </h3>
+                                            <h3 class="text-2xl font-bold text-primary">Remove member</h3>
                                         </header>
                                         <p>
                                             Are you sure you want to remove 
@@ -140,9 +140,8 @@
                                             <button
                                                 type="submit"
                                                 class="btn btn-sm btn-error"
-                                                onclick="delete_member_{{ $member->id }}.close()"
                                                 aria-label="remove">
-                                                remove
+                                                Remove member
                                             </button>
                                         </fieldset>
                                     </form>
