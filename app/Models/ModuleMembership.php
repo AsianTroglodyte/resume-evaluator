@@ -20,5 +20,6 @@ class ModuleMembership extends Model
         'status',
         'added_by_user_id',
         'removed_by_user_id',
+        'removed_at'
     ];
 }

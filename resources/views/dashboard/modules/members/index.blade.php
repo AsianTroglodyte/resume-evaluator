@@ -74,6 +74,14 @@
                 </form>
             </dialog>
         </div>
+        @if ($errors->any())
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        @endif
+
 
         <div class="overflow-x-auto rounded-box border border-base-300">
             <table class="table">

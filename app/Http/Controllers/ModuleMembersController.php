@@ -8,6 +8,7 @@ use App\Models\ModuleMembership;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ModuleMembersController extends Controller
 {
@@ -30,7 +31,7 @@ class ModuleMembersController extends Controller
     {
         // dd(request('new_member_email'));
 
-        request()->validate([
+        $validated = request()->validate([
             'role_in_module' => [
                 'required',
                 Rule::enum(RoleInModule::class),
@@ -38,26 +39,51 @@ class ModuleMembersController extends Controller
             'new_member_email' => [
                 'required',
                 'email',
-                Rule::exists('users', 'email')->where(function ($query) use ($module) {
-                    $query->whereNotIn('id', function ($query) use ($module) {
-                        $query->select('user_id')
-                            ->from('module_memberships')
-                            ->where('module_id', $module->id);
-                    });
-                }),
+                Rule::exists('users', 'email')
             ],
         ]);
 
-        $new_user = User::where('email', request('new_member_email'))->firstOrFail();
+        $newUser = User::where('email', request('new_member_email'))->firstOrFail();
 
-        ModuleMembership::create([
-            'module_id' => $module->id,
-            'user_id' => $new_user->id,
-            'role_in_module' => RoleInModule::tryFrom(request('role_in_module')),
-            'status' => 'active',
-            'added_by_user_id' => 1,
-            'removed_by_user_id' => null,
-        ]);
+        // check if new potential user was previously a member
+        // if was, then we get the membership record. else null
+        $moduleMembership = ModuleMembership::where('module_id', $module->id)
+            ->where('user_id', $newUser->id)
+            ->first();
+        // where('module_id', $module->id);
+
+        // dd($moduleMembership);
+
+        // if never was a member we create the membership
+        if ($moduleMembership) {
+            if ($moduleMembership->status === 'active') {
+                throw ValidationException::withMessages([
+                    'new_member_email' => 'This user is already an active member of the module.',
+                ]);
+            }
+
+            $moduleMembership->update([
+                'role_in_module' => RoleInModule::from($validated['role_in_module']),
+                'status' => 'active',
+                'removed_by_user_id' => null,
+                'removed_at' => null,
+                'added_by_user_id' => 1,
+            ]);
+        }
+        // if was a member we update membership to active
+        else {
+            ModuleMembership::create([
+                'module_id' => $module->id,
+                'user_id' => $newUser->id,
+                'role_in_module' => RoleInModule::tryFrom(request('role_in_module')),
+                'status' => 'active',
+                'added_by_user_id' => 1,
+                'removed_by_user_id' => null,
+            ]);
+        }
+
+        // dd($newUser, $moduleMembership);
+
 
         $members = $module->users()
             ->orderBy('last_name')
