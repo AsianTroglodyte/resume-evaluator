@@ -74,11 +74,6 @@
                                 <p class="py-4">
                                     This will delete {{$assignment->title}} and any data it contains
                                 </p>
-                                <form 
-                                    method="POST" 
-                                    action="{{ route('dashboard.modules.assignments.delete', [$module, $assignment]) }}""> 
-                                @csrf
-                                @method("DELETE")
                                 <button
                                     type="button"
                                     class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
@@ -87,16 +82,21 @@
                                 >
                                     x
                                 </button>
-                                <div class="flex flex-row justify-between">
-                                    <button type="button" class="btn btn-outline"
-                                    onclick="assignment_delete_modal_{{ $assignment->id }}.close()">
-                                        Cancel
-                                    </button>
-                                    <button type="submit" class="btn btn-error">
-                                        Delete
-                                    </button>
-                                </div>
-                            </form>
+                                <form 
+                                    method="POST" 
+                                    action="{{ route('dashboard.modules.assignments.delete', [$module, $assignment]) }}"> 
+                                @csrf
+                                @method("DELETE")
+                                    <div class="flex flex-row justify-between">
+                                        <button type="button" class="btn btn-outline"
+                                        onclick="assignment_delete_modal_{{ $assignment->id }}.close()">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-error">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                             <form method="dialog" class="modal-backdrop">
                                 <button>close</button>
@@ -177,20 +177,69 @@
                                                 <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                                             @enderror
                                         </label>
-        
-                                        <button 
-                                            type="reset" 
-                                            class="btn btn-outline"
-                                            onclick="description_modal_{{ $jobListing->id }}.close()"
-                                        >
-                                            Cancel Edits
-                                        </button>
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        <div class="flex justify-between">
+                                            <button 
+                                                type="button" 
+                                                class="btn btn-error btn-outline"
+                                                onclick="(() => {
+                                                    description_modal_{{ $jobListing->id }}.close();
+                                                    delete_modal_{{ $jobListing->id }}.showModal();
+                                                })()"
+                                            >
+                                                Delete job listing
+                                            </button>
+                                            <div>
+                                                <button type="reset" class="btn btn-outline mr-2"
+                                                onclick="description_modal_{{ $jobListing->id }}.close()">
+                                                    Cancel edits
+                                                </button> 
+                                                <button type="submit" class="btn btn-primary">
+                                                    Save changes
+                                                </button> 
+                                            </div>
+                                        </div>
                                     </fieldset>
                                 </form>
                             </div>
                             <form method="dialog" class="modal-backdrop">
                                 <button type="submit">close</button>
+                            </form>
+                        </dialog>
+                        <dialog id="delete_modal_{{ $jobListing->id }}" class="modal">
+                            <div class="modal-box max-w-lg">
+                                <button 
+                                    class="btn btn-sm btn-circle btn-outline absolute right-2 top-2" 
+                                    aria-label="Close"
+                                    onclick="delete_modal_{{ $jobListing->id }}.close()"
+                                    >
+                                    x
+                                </button>
+                                <form 
+                                    method="POST" 
+                                    action="{{ route('dashboard.modules.job-listings.delete', [$module, $jobListing])}}">
+                                    @csrf
+                                    @method("DELETE")
+                                    <h4 class="text-lg font-semibold">
+                                        Delete "{{ $jobListing->name }}"?
+                                    </h4>
+                                    <p class="mt-2 text-sm text-base-content/80">
+                                        This will remove this job listing from any assignments that reference it.
+                                    </p>
+                                    <div class="mt-4 flex justify-between">
+                                        <button type="button"
+                                            class='btn btn-outline'
+                                            onclick="delete_modal_{{ $jobListing->id }}.close()"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-error">
+                                            Delete job listing
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <form method="dialog" class="modal-backdrop">
+                                <button>close</button>
                             </form>
                         </dialog>
                         @else

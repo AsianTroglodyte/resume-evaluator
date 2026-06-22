@@ -38,4 +38,10 @@ class ModuleJobListingController extends Controller
 
         return redirect()->route('dashboard.modules.show', ['module' => $module]);
     }
+
+    public function destroy(Module $module, JobListing $jobListing)
+    {
+        $jobListing->delete();
+        return redirect()->route('dashboard.modules.show', ['module' => $module]);
+    }
 }

@@ -53,6 +53,9 @@ Route::post('/dashboard/modules/{module}/job-listings', [ModuleJobListingControl
 Route::patch('/dashboard/modules/{module}/job-listings/{jobListing}', [ModuleJobListingController::class, 'update'])
     ->scopeBindings()
     ->name('dashboard.modules.job-listings.update');
+Route::delete('/dashboard/modules/{module}/job-listings/{jobListing}', [ModuleJobListingController::class, 'destroy'])
+    ->scopeBindings()
+    ->name('dashboard.modules.job-listings.delete');
 Route::delete('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'destroy'] )->name('dashboard.modules.members.destroy');
 Route::get('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'index'])->name('dashboard.modules.settings.index');
 Route::patch('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'update'])->name('dashboard.modules.settings.index');
