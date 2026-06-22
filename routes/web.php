@@ -15,50 +15,65 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 
 Route::get('/', function () {return view('home');});
-
-
 Route::get('/login', function () {return view('auth.login');})->name('login');
 Route::get('/register', function () {return view('auth.register');});
 
+Route::controller(ModuleController::class)->group(function () {
+    Route::get('/dashboard/modules', 'index')
+        ->name('dashboard.modules.index');
+    Route::post('/dashboard/modules', 'store')
+        ->name('dashboard.modules.store');
+    Route::delete('/dashboard/modules/{module}', 'destroy')
+        ->name('dashboard.modules.destroy');
+    Route::get('/dashboard/modules/{module}', 'show')
+        ->name('dashboard.modules.show');
+    Route::get('/dashboard/modules/create')
+        ->name('dashboard.modules.create');
+});
+Route::controller(ModuleMembersController::class)->group(function () {
+    Route::get('/dashboard/modules/{module}/members/index', 'index')
+        ->name('dashboard.modules.members.index');
+    Route::post('/dashboard/modules/{module}/members/index', 'store')
+        ->name('dashboard.modules.members.store');
+    Route::delete('/dashboard/modules/{module}/members/index', 'destroy')
+        ->name('dashboard.modules.members.destroy');  
+});
 
-Route::get('/dashboard/modules', [ModuleController::class, 'index'])->name('dashboard.modules.index');
-Route::get('/dashboard/modules/create', function () {return view('dashboard.modules.create', []);})->name('dashboard.modules.create');
+Route::controller(ModuleAssignmentsController::class)->group(function () {
+    Route::get('/dashboard/modules/{module}/assignment/create', 'create')
+        ->name('dashboard.modules.assignments.create');
+    Route::post('/dashboard/modules/{module}/assignment/create', 'store')
+        ->name('dashboard.modules.assignments.store');
+    Route::get('/dashboard/modules/{module}/assignment/{assignment}', 'show')
+        ->scopeBindings()
+        ->name('dashboard.modules.assignments.show');
+    Route::get('/dashboard/modules/{module}/assignment/{assignment}/edit','edit')
+        ->scopeBindings()
+        ->name('dashboard.modules.assignments.edit');
+    Route::patch('/dashboard/modules/{module}/assignment/{assignment}','update')
+        ->name('dashboard.modules.assignments.update');
+    Route::delete('/dashboard/modules/{module}/assignment/{assignment}','destroy')
+        ->scopeBindings()
+        ->name('dashboard.modules.assignments.delete');
+});
 
+Route::controller(ModuleJobListingController::class)->group(function () {
+    Route::post('/dashboard/modules/{module}/job-listings', 'store')
+        ->name('dashboard.modules.job-listings.store');
+    Route::patch('/dashboard/modules/{module}/job-listings/{jobListing}', 'update')
+        ->scopeBindings()
+        ->name('dashboard.modules.job-listings.update');
+    Route::delete('/dashboard/modules/{module}/job-listings/{jobListing}', 'destroy')
+        ->scopeBindings()
+        ->name('dashboard.modules.job-listings.delete');
+});
 
-Route::post('/dashboard/modules', [ModuleController::class, 'store'])->name('dashboard.modules.store');
-
-Route::delete('/dashboard/modules/{module}', [ModuleController::class, 'destroy'])->name('dashboard.modules.destroy');
-Route::get('/dashboard/modules/{module}', [ModuleController::class, 'show'])->name('dashboard.modules.show');
-
-Route::get('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'index'] )->name('dashboard.modules.members.index');
-Route::post('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'store'] )->name('dashboard.modules.members.store');
-
-Route::get('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'create'])->name('dashboard.modules.assignments.create');
-Route::post('/dashboard/modules/{module}/assignment/create', [ModuleAssignmentsController::class, 'store'])->name('dashboard.modules.assignments.store');
-
-Route::get('/dashboard/modules/{module}/assignment/{assignment}', [ModuleAssignmentsController::class, 'show'])
-    ->scopeBindings()
-    ->name('dashboard.modules.assignments.show');
-Route::get('/dashboard/modules/{module}/assignment/{assignment}/edit', [ModuleAssignmentsController::class, 'edit'])
-    ->scopeBindings()
-    ->name('dashboard.modules.assignments.edit');
-Route::patch('/dashboard/modules/{module}/assignment/{assignment}', [ModuleAssignmentsController::class, 'update'])
-    ->scopeBindings()
-    ->name('dashboard.modules.assignments.update');
-Route::delete('/dashboard/modules/{module}/assignment/{assignment}', [ModuleAssignmentsController::class, 'destroy'])
-    ->scopeBindings()
-    ->name('dashboard.modules.assignments.delete');
-
-Route::post('/dashboard/modules/{module}/job-listings', [ModuleJobListingController::class, 'store'])->name('dashboard.modules.job-listings.store');
-Route::patch('/dashboard/modules/{module}/job-listings/{jobListing}', [ModuleJobListingController::class, 'update'])
-    ->scopeBindings()
-    ->name('dashboard.modules.job-listings.update');
-Route::delete('/dashboard/modules/{module}/job-listings/{jobListing}', [ModuleJobListingController::class, 'destroy'])
-    ->scopeBindings()
-    ->name('dashboard.modules.job-listings.delete');
-Route::delete('/dashboard/modules/{module}/members/index', [ModuleMembersController::class, 'destroy'] )->name('dashboard.modules.members.destroy');
-Route::get('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'index'])->name('dashboard.modules.settings.index');
-Route::patch('/dashboard/modules/{module}/settings/index', [ModuleSettingsController::class, 'update'])->name('dashboard.modules.settings.index');
+Route::controller(ModuleSettingsController::class)->group(function () {
+    Route::get('/dashboard/modules/{module}/settings/index', 'index')
+        ->name('dashboard.modules.settings.index');
+    Route::patch('/dashboard/modules/{module}/settings/index', 'update')
+        ->name('dashboard.modules.settings.index');
+});
 
 
 Route::get('/dashboard/resumes', function () {

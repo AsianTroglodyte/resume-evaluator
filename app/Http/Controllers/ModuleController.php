@@ -16,7 +16,9 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function create() {}
+    public function create() {
+        return view('dashboard.modules.create', []);
+    }
 
     public function show(Module $module)
     {
