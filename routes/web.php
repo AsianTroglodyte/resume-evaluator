@@ -20,13 +20,15 @@ Route::get('/', function () {
 // })->name('login');
 
 Route::controller(RegisteredUserController::class)->group(function () {
-    Route::get('/register', 'create')->name('register.index');
-    Route::post('/register', 'post')->name('register.create');
+    Route::get('/register', 'create')->name('register');
+    Route::post('/register', 'post')->name('register.post');
 });
 
 Route::controller(SessionController::class)->group(function () {
-    Route::get('/login', 'index')
-        ->name('login.index');
+    Route::get('/login', 'create')
+        ->name('login');
+    Route::post('/login', 'store')
+        ->name('login.store');
 });
 
 

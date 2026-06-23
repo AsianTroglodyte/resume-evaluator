@@ -10,25 +10,34 @@
                     <h1 class="text-2xl font-bold text-primary">Welcome back</h1>
                     <p class="text-sm text-base-content/70">Sign in to continue evaluating resumes.</p>
                 </header>
-                {{-- action="{{ route() }}" --}}
-                <form method="POST"  class="flex flex-col gap-5">
-                    @csrf 
-
-                    <label class="form-control w-full flex flex-col">
-                        <span class="label-text mb-1">Email</span>
-                        <input type="email" 
-                            class="input input-bordered w-full" 
-                            placeholder="you@example.com" />
-                    </label>
+                <!-- action="{ route() }}" -->
+                <form method="POST" action="{{route('login.store')}}"  class="flex flex-col gap-5">
+                    @csrf
 
                     <label class="form-control w-full">
-                        <span class="label-text mb-1">Password</span>
-                        <input type="password" 
-                            class="input input-bordered w-full" 
-                            placeholder="Enter password" />
+                        <span class="label-text mb-1">Email</span>
+                        <input type="email"
+                               class="input input-bordered w-full"
+                               placeholder="you@example.com"
+                               name="email"
+                               required/>
                     </label>
 
-                    <a href="/dashboard/resumes" class="btn btn-primary w-full">Login</a>
+                    <label class="form-control w-full" for="password">
+                        <span class="label-text mb-1">Password</span>
+                        <input type="password"
+                               class="input input-bordered w-full"
+                               name="password"
+                               id="password"
+                               placeholder="Create password"
+                               required/>
+                    </label>
+                    <x-form-input/>
+
+                    <button type="submit"
+                            class="btn btn-primary w-full">
+                        Login
+                    </button>
                 </form>
 
                 <p class="text-sm text-base-content/70 text-center">

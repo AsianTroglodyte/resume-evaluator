@@ -32,6 +32,7 @@
                             name="title"
                             placeholder="Assignment title"
                             class="input input-bordered w-full"
+                            value="{{ old('title') }}"
                             required
                         />
                         @error('new_member_email')
@@ -44,9 +45,8 @@
                         <input
                             type="checkbox"
                             name="allow_resubmission"
-                            value="1"
                             class="toggle"
-                            checked
+                            @checked(old('allow_resubmission', true))
                         />
                         <span class="label-text">Allow resubmissions</span>
                     </label>
@@ -58,10 +58,9 @@
                             <input
                                 type="checkbox"
                                 name="due_date_enabled"
-                                value="1"
                                 class="toggle"
                                 id="due-date-enabled"
-                                checked
+                                @checked(old('due_date_enabled', true))
                             />
                             <span class="label-text">Enable due date</span>
                         </label>
@@ -72,6 +71,7 @@
                                 type="datetime-local"
                                 name="due_at"
                                 class="input input-bordered w-full"  
+                                value="{{ old('due_at') }}"
                             />
                         </label>
                     </div>
@@ -82,7 +82,7 @@
                             name="description"
                             placeholder="Assignment details and instructions..."
                             class="textarea textarea-bordered min-h-32 w-full"
-                        ></textarea>
+                        >{{ old('description') }}</textarea>
                     </label>
                 </section>
 
@@ -106,6 +106,7 @@
                                 value="external"
                                 class="radio radio-primary"
                                 required
+                                @checked(old('job_listing_source', 'external') === "external")
                                 checked
                             />
                             <span class="font-medium">External job listings only</span>
@@ -117,6 +118,7 @@
                                 name="job_listing_source"
                                 value="module"
                                 class="job-source-module radio radio-primary"
+                                @checked(old('job_listing_source', 'external') === "module") 
                             />
                             <span class="font-medium">Module job listings only</span>
                         </label>
@@ -127,6 +129,7 @@
                                 name="job_listing_source"
                                 value="both"
                                 class="job-source-both radio radio-primary"
+                                @checked(old('job_listing_source', 'external') === "both") 
                             />
                             <span class="font-medium">Both external and module job listings</span>
                         </label>
@@ -140,7 +143,7 @@
                                     name="module_job_listing_scope"
                                     value="all"
                                     class="radio radio-primary"
-                                    checked
+                                    @checked(old('module_job_listing_scope', 'all') === 'all') 
                                 />
                                 <span class="font-medium">All module job listings</span>
                             </label>
@@ -151,6 +154,7 @@
                                     name="module_job_listing_scope"
                                     value="selected"
                                     class="job-listing-scope-selected radio radio-primary"
+                                    @checked(old('module_job_listing_scope', 'selected') === 'selected') 
                                 />
                                 <span class="font-medium">Select job listings</span>
                             </label>
@@ -159,31 +163,32 @@
                                 <legend class="label-text font-medium">Select job listings</legend>
 
                                 <ul class="list max-h-150 overflow-y-auto bg-base-100">
-                                    @forelse ($job_listings as $job_listing)
-                                        <li>
-                                            <label
-                                                class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
-                                                for="job-listing-{{ $job_listing->id }}"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    class="checkbox checkbox-md mt-0.5 shrink-0"
-                                                    id="job-listing-{{ $job_listing->id }}"
-                                                    name="job_listing_ids[]"
-                                                    value="{{ $job_listing->id }}"
-                                                />
-                                                <span class="min-w-0 font-medium">
-                                                    {{ $job_listing->name }}
-                                                </span>
-                                            </label>
-                                        </li>
-                                    @empty
-                                        <li>
-                                            <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
-                                                No job listings in this module yet. Create one from the module overview before assigning.
-                                            </p>
-                                        </li>
-                                    @endforelse
+                                @forelse ($job_listings as $job_listing)
+                                    <li>
+                                        <label
+                                            class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
+                                            for="job-listing-{{ $job_listing->id }}"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                class="checkbox checkbox-md mt-0.5 shrink-0"
+                                                id="job-listing-{{ $job_listing->id }}"
+                                                name="job_listing_ids[]"
+                                                value="{{ $job_listing->id }}"
+                                                @checked(in_array($job_listing->id, old('job_listing_ids', [])))
+                                            />
+                                            <span class="min-w-0 font-medium">
+                                                {{ $job_listing->name }}
+                                            </span>
+                                        </label>
+                                    </li>
+                                @empty
+                                    <li>
+                                        <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
+                                            No job listings in this module yet. Create one from the module overview before assigning.
+                                        </p>
+                                    </li>
+                                @endforelse
                                 </ul>
                             </fieldset>
                         </fieldset>
@@ -208,7 +213,7 @@
                                 name="assignee_scope"
                                 value="everyone"
                                 class="radio radio-primary"
-                                checked
+                                @checked(old('assignee_scope', 'everyone') === 'everyone') 
                             />
                             <span class="font-medium">Everyone in module</span>
                         </label>
@@ -219,7 +224,7 @@
                                 name="assignee_scope"
                                 value="selected"
                                 class="assignment-scope-selected radio radio-primary"
-                                
+                                @checked(old('assignee_scope', 'everyone') === 'selected') 
                             />
                             <span class="font-medium">Select members</span>
                         </label>
@@ -228,32 +233,33 @@
                             <legend class="label-text font-medium">Select members</legend>
 
                             <ul class="list max-h-150 overflow-y-auto bg-base-100">
-                                @forelse ($users as $user)
-                                    <li>
-                                        <label
-                                            class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
-                                            for="user-{{ $user->id }}"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                class="checkbox checkbox-md mt-0.5 shrink-0"
-                                                id="user-{{ $user->id }}"
-                                                name="assignee_ids[]"
-                                                value="{{ $user->id }}"
-                                            />
-                                            <span class="min-w-0 font-medium">
-                                                {{ $user->first_name }} {{ $user->last_name }} -
-                                                {{ $user->email }}
-                                            </span>
-                                        </label>
-                                    </li>
-                                @empty
-                                    <li>
-                                        <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
-                                            No members in this module yet.
-                                        </p>
-                                    </li>
-                                @endforelse
+                            @forelse ($users as $user)
+                                <li>
+                                    <label
+                                        class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
+                                        for="user-{{ $user->id }}"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="checkbox checkbox-md mt-0.5 shrink-0"
+                                            id="user-{{ $user->id }}"
+                                            name="assignee_ids[]"
+                                            value="{{ $user->id }}"
+                                            @checked(in_array($user->id, old('assignee_ids', [])))
+                                        />
+                                        <span class="min-w-0 font-medium">
+                                            {{ $user->first_name }} {{ $user->last_name }} -
+                                            {{ $user->email }}
+                                        </span>
+                                    </label>
+                                </li>
+                            @empty
+                                <li>
+                                    <p class="rounded-box border border-base-300 p-4 text-sm text-base-content/70">
+                                        No members in this module yet.
+                                    </p>
+                                </li>
+                            @endforelse
                             </ul>
                         </fieldset>
                     </fieldset>
