@@ -67,7 +67,6 @@
                     </label>
 
                     <x-form-input />
-                    <x-form-
 
                     <button type="submit"
                             class="btn btn-primary w-full">

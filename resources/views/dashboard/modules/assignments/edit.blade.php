@@ -39,7 +39,7 @@
                             name="title"
                             placeholder="Assignment title"
                             class="input input-bordered w-full"
-                            value="{{ $assignment->title }}"
+                            value="{{old('title',  $assignment->title)}}"
                             required
                         />
                         @error('title')
@@ -52,9 +52,9 @@
                         <input
                             type="checkbox"
                             name="allow_resubmission"
-                            value="1"
                             class="toggle"
-                            {{ $assignment->allow_resubmission ? "checked" : ""}}
+                            value="1"
+                            @checked(old('allow_resubmission', $assignment->allow_resubmission))
                             {{-- checked --}}
                         />
                         <span class="label-text">Allow resubmissions</span>
@@ -69,10 +69,10 @@
                             <input
                                 type="checkbox"
                                 name="due_date_enabled"
-                                value="1"
                                 class="toggle"
                                 id="due-date-enabled"
-                                {{ $assignment->due_at ? "checked" : ""}}
+                                value="1"
+                                @checked(old('due_date_enabled', $assignment->due_date_enabled))
                             />
                             <span class="label-text">Enable due date</span>
                             @error('due_date_enabled')
@@ -86,7 +86,7 @@
                                 type="datetime-local"
                                 name="due_at"
                                 class="input input-bordered w-full"
-                                value="{{ $assignment->due_at?->format('Y-m-d\TH:i') }}"
+                                value="{{old('due_at', $assignment->due_at?->format('Y-m-d\TH:i'))}}"
                             />
                             @error('due_at')
                                 <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
@@ -100,7 +100,7 @@
                             name="description"
                             placeholder="Assignment details and instructions..."
                             class="textarea textarea-bordered min-h-32 w-full"
-                        >{{ $assignment->description }}</textarea>
+                        >{{ @old( 'description', $assignment->description)}}</textarea>
                         @error('description')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
@@ -126,8 +126,11 @@
                                 name="job_listing_source"
                                 value="external"
                                 class="radio radio-primary"
+                                @checked(
+                                JoblistingSource::from(
+                                    old('job_listing_source', $assignment->job_listing_source->value))
+                                    === JobListingSource::External)
                                 required
-                                @checked($assignment->job_listing_source === JobListingSource::External)
                             />
                             <span class="font-medium">External job listings only</span>
                         </label>
@@ -138,7 +141,9 @@
                                 name="job_listing_source"
                                 value="module"
                                 class="job-source-module radio radio-primary"
-                                @checked($assignment->job_listing_source === JobListingSource::Module)
+                                @checked(
+                                JoblistingSource::from(old('job_listing_source', $assignment->job_listing_source->value))
+                                    === JobListingSource::Module)
                             />
                             <span class="font-medium">Module job listings only</span>
                         </label>
@@ -149,7 +154,9 @@
                                 name="job_listing_source"
                                 value="both"
                                 class="job-source-both radio radio-primary"
-                                @checked($assignment->job_listing_source === JobListingSource::Both)
+                                @checked(
+                                    JoblistingSource::from(old('job_listing_source', $assignment->job_listing_source->value))
+                                    === JobListingSource::Both)
                             />
                             <span class="font-medium">Both external and module job listings</span>
                         </label>
@@ -167,8 +174,10 @@
                                     name="module_job_listing_scope"
                                     value="all"
                                     class="radio radio-primary"
-                                    @checked($assignment->module_job_listing_scope === ModuleJobListingScope::All)
-
+                                    @checked(
+                                    ModuleJoblistingScope::from(old('module_job_listing_scope', 
+                                    $assignment->module_job_listing_scope->value))
+                                    === ModuleJobListingScope::All)
                                     checked
                                 />
                                 <span class="font-medium">All module job listings</span>
@@ -180,7 +189,10 @@
                                     name="module_job_listing_scope"
                                     value="selected"
                                     class="job-listing-scope-selected radio radio-primary"
-                                    @checked($assignment->module_job_listing_scope === ModuleJobListingScope::Selected)
+                                    @checked(
+                                        ModuleJoblistingScope::from(old('module_job_listing_scope', 
+                                        $assignment->module_job_listing_scope->value))
+                                        === ModuleJobListingScope::Selected)
                                 />
                                 <span class="font-medium">Select job listings</span>
                             </label>
@@ -204,7 +216,10 @@
                                                 class="checkbox checkbox-md mt-0.5 shrink-0"
                                                 id="job-listing-{{ $job_listing->id }}"
                                                 name="job_listing_ids[]"
-                                                @checked(in_array($job_listing->id, $assignment->jobListings->pluck('id')->toArray()))
+                                                @checked(in_array( $job_listing->id, 
+                                                    old(
+                                                        'job_listing_ids', 
+                                                        $assignment->jobListings->pluck('id')->toArray())))
                                                 value="{{ $job_listing->id }}"
                                             />
                                             <span class="min-w-0 font-medium">
@@ -243,7 +258,9 @@
                                 name="assignee_scope"
                                 value="everyone"
                                 class="radio radio-primary"
-                                @checked($assignment->assignee_scope === AssigneeScope::Everyone)
+                                @checked(
+                                    AssigneeScope::from(old('assignee_scope', $assignment->assignee_scope->value))
+                                    === AssigneeScope::Everyone)
                             />
                             <span class="font-medium">Everyone in module</span>
                         </label>
@@ -254,7 +271,9 @@
                                 name="assignee_scope"
                                 value="selected"
                                 class="assignment-scope-selected radio radio-primary"
-                                @checked($assignment->assignee_scope === AssigneeScope::Selected)
+                                @checked(
+                                    AssigneeScope::from(old('assignee_scope', $assignment->assignee_scope->value))
+                                    === AssigneeScope::Selected)
                             />
                             <span class="font-medium">Select members</span>
                         </label>
@@ -275,7 +294,10 @@
                                             id="user-{{ $user->id }}"
                                             name="assignee_ids[]"
                                             value="{{ $user->id }}"
-                                            @checked(in_array($user->id, $assignment->activeAssignees->pluck('id')->toArray()))
+                                            @checked(in_array( $user->id, 
+                                            old(
+                                                'assignee_ids', 
+                                                $assignment->activeAssignees->pluck('id')->toArray())))
                                         />
                                         <span class="min-w-0 font-medium">
                                             {{ $user->first_name }} {{ $user->last_name }} -
