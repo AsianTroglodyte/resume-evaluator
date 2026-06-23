@@ -33,6 +33,7 @@ class ModuleController extends Controller
             'jobListings' => $jobListings,
             'module' => $module,
             'assignments' => $assignments,
+
         ]);
     }
 

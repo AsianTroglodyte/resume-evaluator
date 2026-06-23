@@ -1,22 +1,34 @@
 <?php
-
-use App\Enums\AssigneeScope;
-use App\Enums\JobListingSource;
-use App\Enums\ModuleJobListingScope;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ModuleJobListingController;
 use App\Http\Controllers\ModuleMembersController;
 use App\Http\Controllers\ModuleSettingsController;
+use App\Http\Controllers\RegisteredUserController;
+use App\Http\Controllers\SessionController;
 use App\Models\Module;
 use App\Models\User;
-use Illuminate\Support\Arr as SupportArr;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\Rule;
 
-Route::get('/', function () {return view('home');});
-Route::get('/login', function () {return view('auth.login');})->name('login');
-Route::get('/register', function () {return view('auth.register');});
+// Route::resource()
+Route::get('/', function () {
+    return view('home');
+});
+
+// Route::get('/login', function () {
+//     return view('auth.login');
+// })->name('login');
+
+Route::controller(RegisteredUserController::class)->group(function () {
+    Route::get('/register', 'create')->name('register.index');
+    Route::post('/register', 'post')->name('register.create');
+});
+
+Route::controller(SessionController::class)->group(function () {
+    Route::get('/login', 'index')
+        ->name('login.index');
+});
+
 
 Route::controller(ModuleController::class)->group(function () {
     Route::get('/dashboard/modules', 'index')
@@ -27,9 +39,10 @@ Route::controller(ModuleController::class)->group(function () {
         ->name('dashboard.modules.destroy');
     Route::get('/dashboard/modules/{module}', 'show')
         ->name('dashboard.modules.show');
-    Route::get('/dashboard/modules/create')
+    Route::get('/dashboard/modules/create', 'create')
         ->name('dashboard.modules.create');
 });
+
 Route::controller(ModuleMembersController::class)->group(function () {
     Route::get('/dashboard/modules/{module}/members/index', 'index')
         ->name('dashboard.modules.members.index');
@@ -74,7 +87,6 @@ Route::controller(ModuleSettingsController::class)->group(function () {
     Route::patch('/dashboard/modules/{module}/settings/index', 'update')
         ->name('dashboard.modules.settings.index');
 });
-
 
 Route::get('/dashboard/resumes', function () {
     $evaluations = [

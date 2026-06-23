@@ -11,7 +11,8 @@
                     <p class="text-sm text-base-content/70">Start evaluating resumes.</p>
                 </header>
 
-                <form class="flex flex-col gap-5">
+                <form method="POST" class="flex flex-col gap-5">
+                    @csrf
                     <label class="form-control w-full">
                         <span class="label-text mb-1">First name</span>
                         <input
@@ -38,15 +39,23 @@
 
                     <label class="form-control w-full">
                         <span class="label-text mb-1">Email</span>
-                        <input type="email" class="input input-bordered w-full" placeholder="you@example.com" />
+                        <input type="email" 
+                            class="input input-bordered w-full" 
+                            placeholder="you@example.com" 
+                            name="email"/>
                     </label>
 
                     <label class="form-control w-full">
                         <span class="label-text mb-1">Password</span>
-                        <input type="password" class="input input-bordered w-full" placeholder="Create password" />
+                        <input type="password"
+                            class="input input-bordered w-full" 
+                            placeholder="Create password" 
+                            name="password"/>
                     </label>
-
-                    <a href="/dashboard/resumes" class="btn btn-primary w-full">Sign up</a>
+                    <button type="submit"  
+                        class="btn btn-primary w-full">
+                        Sign up
+                    </button>
                 </form>
 
                 <p class="text-sm text-base-content/70 text-center">
