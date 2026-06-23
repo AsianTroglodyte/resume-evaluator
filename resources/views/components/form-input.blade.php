@@ -5,27 +5,34 @@
     'id' => null,
     'placeholder' => null,
     'required' => false,
-    'autocomplete' => nulle,
+    'autocomplete' => null,
     'value' => null,
 ])
 
-<label {{$attributes->merge(['class' => "form-control w-full", 'for' => $id])}} >
-    <span class="label-text mb-1"></span>
+@php
+    $id ??= $name;
+    $hasError = $errors->has($name);
+    $isPassword = $type === 'password';
+@endphp
+
+<label class="form-control w-full" for="{{ $id }}">
+    <span class="label-text mb-1">{{ $label }}</span>
     <input
         type="{{ $type }}"
         name="{{ $name }}"
         id="{{ $id }}"
-        value="{{ $value ?? old($name) }}"
+        @unless($isPassword)
+            value="{{ $value ?? old($name) }}"
+        @endunless
         @if($placeholder) placeholder="{{ $placeholder }}" @endif
         @if($autocomplete) autocomplete="{{ $autocomplete }}" @endif
-        @if($required) required @endif
-        {{ $attribues->except('class')->class([
+        @required($required)
+        {{ $attributes->class([
             'input input-bordered w-full',
-            'input-error' => $hasError
+            'input-error' => $hasError,
         ])}}
-
     />
     @error($name)
-        <span class="text-error"> {{ $message }}</span>
+        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
     @enderror
 </label>

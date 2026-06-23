@@ -13,26 +13,22 @@
                 <!-- action="{ route() }}" -->
                 <form method="POST" action="{{route('login.store')}}"  class="flex flex-col gap-5">
                     @csrf
-
-                    <label class="form-control w-full">
-                        <span class="label-text mb-1">Email</span>
-                        <input type="email"
-                               class="input input-bordered w-full"
-                               placeholder="you@example.com"
-                               name="email"
-                               required/>
-                    </label>
-
-                    <label class="form-control w-full" for="password">
-                        <span class="label-text mb-1">Password</span>
-                        <input type="password"
-                               class="input input-bordered w-full"
-                               name="password"
-                               id="password"
-                               placeholder="Create password"
-                               required/>
-                    </label>
-                    <x-form-input/>
+                    <x-form-input
+                        type="email"
+                        label="Email"
+                        name="email"
+                        autocomplete="email"
+                        placeholder="you@example.come"
+                        required
+                    />      
+                    <x-form-input
+                        type="password"
+                        label="Password"
+                        name="password"
+                        autocomplete="current-password"
+                        placeholder="Enter password"
+                        required
+                    />      
 
                     <button type="submit"
                             class="btn btn-primary w-full">
