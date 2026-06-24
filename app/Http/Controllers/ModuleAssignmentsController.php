@@ -44,7 +44,7 @@ class ModuleAssignmentsController extends Controller
     public function show(Module $module, Assignment $assignment)
     {
         $users = $module->users;
-        $assignment->load('activeAssignees', 'jobListings');
+        $assignment->load('assignees', 'jobListings');
 
         return view('dashboard.modules.assignments.show', [
             'module' => $module,
@@ -130,7 +130,7 @@ class ModuleAssignmentsController extends Controller
     {
         $job_listings = $module->jobListings;
         $users = $module->users;
-        $assignment->load('activeAssignees');
+        $assignment->load('assignees');
 
         return view('dashboard.modules.assignments.edit', [
             'module' => $module,
@@ -199,7 +199,7 @@ class ModuleAssignmentsController extends Controller
         $assignment->jobListings()->sync($jobListingIds);
 
         $assigneeIds = $validated['assignee_ids'] ?? [];
-        $assignment->assignees()->sync($assigneeIds);
+        $assignment->allAssignees()->sync($assigneeIds);
 
         $users = $module->users;
 

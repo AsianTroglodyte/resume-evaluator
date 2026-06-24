@@ -297,7 +297,7 @@
                                             @checked(in_array( $user->id, 
                                             old(
                                                 'assignee_ids', 
-                                                $assignment->activeAssignees->pluck('id')->toArray())))
+                                                $assignment->assignees->pluck('id')->toArray())))
                                         />
                                         <span class="min-w-0 font-medium">
                                             {{ $user->first_name }} {{ $user->last_name }} -

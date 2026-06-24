@@ -23,7 +23,12 @@ class AssignmentPolicy
         // they are *active* members of module
         // they are have been assigned that assignment
         // return $user->isInModule();
-        return true;
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($assignment->module)
+            || (
+                $user->isInModule($assignment->module)
+                && $assignment->assignees()->whereKey($user->id)->exists()
+            );
     }
 
     /**

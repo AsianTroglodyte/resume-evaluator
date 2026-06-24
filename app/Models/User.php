@@ -74,8 +74,8 @@ class User extends Authenticatable
         return $module->instructors()->whereKey($this->id)->exists();
     }
 
-    public function isActiveUserInModule(Module $module): bool
+    public function isGivenAssignment(Assignment $assignment): bool
     {
-        return $module->activeUser()->get()->contains($this);
+        return $assignment->assignees()->whereKey($this->id)->exists();
     }
 }

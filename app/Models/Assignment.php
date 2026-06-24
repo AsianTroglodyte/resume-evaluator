@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Assignment extends Model
 {
@@ -42,12 +43,12 @@ class Assignment extends Model
 
     public function assignees(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'assignment_assignees');
+        return $this->assigneesWithMembershipStatus('active');
     }
 
-    public function activeAssignees(): BelongsToMany
+    public function allAssignees(): BelongsToMany
     {
-        return $this->assigneesWithMembershipStatus('active');
+        return $this->belongsToMany(User::class, 'assignment_assignees');
     }
 
     public function removedAssignees(): BelongsToMany
@@ -69,6 +70,11 @@ class Assignment extends Model
     {
         return $this->hasMany(AssignmentAllowedJobListings::class);
 
+    }
+
+    public function module(): HasOne
+    {
+        return $this->hasOne(Module::class, 'module_id');
     }
 
     private function assigneesWithMembershipStatus(string $status): BelongsToMany

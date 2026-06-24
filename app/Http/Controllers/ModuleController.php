@@ -29,7 +29,7 @@ class ModuleController extends Controller
 
         $assignments = $module
             ->assignments()
-            ->with('activeAssignees', 'jobListings')
+            ->with('assignees', 'jobListings')
             ->get();
 
         return view('dashboard.modules.show', [
