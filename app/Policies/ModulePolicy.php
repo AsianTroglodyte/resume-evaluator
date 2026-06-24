@@ -29,6 +29,7 @@ class ModulePolicy
      */
     public function create(User $user): bool
     {
+        return $user->isInModule($module) || $user->isGlobalAdmin();
         return false;
     }
 

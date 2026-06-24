@@ -68,4 +68,9 @@ class User extends Authenticatable
     {
         return $module->users()->get()->contains($this);
     }
+
+    public function isInstructorInModule(Module $module): bool
+    {
+        return false;
+    }
 }

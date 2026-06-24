@@ -17,13 +17,17 @@ Route::get('/', function () {
 
 Route::middleware('guest')->group(function () {
     Route::controller(RegisteredUserController::class)->group(function () {
-        Route::get('/register', 'create')->name('register');
-        Route::post('/register', 'post')->name('register.post');
+        Route::get('/register', 'create')
+            ->name('register');
+        Route::post('/register', 'post')
+            ->name('register.post');
     });
 
     Route::controller(SessionController::class)->group(function () {
-        Route::get('/login', 'create')->name('login');
-        Route::post('/login', 'store')->name('login.store');
+        Route::get('/login', 'create')
+            ->name('login');
+        Route::post('/login', 'store')
+            ->name('login.store');
     });
 });
 
@@ -31,17 +35,26 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout.destroy');
 
     Route::controller(ModuleController::class)->group(function () {
-        Route::get('/dashboard/modules', 'index')->name('dashboard.modules.index');
-        Route::post('/dashboard/modules', 'store')->name('dashboard.modules.store');
-        Route::get('/dashboard/modules/create', 'create')->name('dashboard.modules.create');
-        Route::delete('/dashboard/modules/{module}', 'destroy')->name('dashboard.modules.destroy');
-        Route::get('/dashboard/modules/{module}', 'show')->name('dashboard.modules.show');
+        Route::get('/dashboard/modules', 'index')
+            ->name('dashboard.modules.index');
+        Route::post('/dashboard/modules', 'store')
+            ->name('dashboard.modules.store');
+        Route::get('/dashboard/modules/create', 'create')
+            ->name('dashboard.modules.create');
+        Route::delete('/dashboard/modules/{module}', 'destroy')
+            ->name('dashboard.modules.destroy');
+        Route::get('/dashboard/modules/{module}', 'show')
+            ->name('dashboard.modules.show')
+            ->can('view', 'module');
     });
 
     Route::controller(ModuleMembersController::class)->group(function () {
-        Route::get('/dashboard/modules/{module}/members/index', 'index')->name('dashboard.modules.members.index');
-        Route::post('/dashboard/modules/{module}/members/index', 'store')->name('dashboard.modules.members.store');
-        Route::delete('/dashboard/modules/{module}/members/index', 'destroy')->name('dashboard.modules.members.destroy');
+        Route::get('/dashboard/modules/{module}/members/index', 'index')
+            ->name('dashboard.modules.members.index');
+        Route::post('/dashboard/modules/{module}/members/index', 'store')
+            ->name('dashboard.modules.members.store');
+        Route::delete('/dashboard/modules/{module}/members/index', 'destroy')
+            ->name('dashboard.modules.members.destroy');
     });
 
     Route::controller(ModuleAssignmentsController::class)->group(function () {
