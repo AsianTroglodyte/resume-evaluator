@@ -38,11 +38,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/modules', 'index')
             ->name('dashboard.modules.index');
         Route::post('/dashboard/modules', 'store')
-            ->name('dashboard.modules.store');
+            ->name('dashboard.modules.store')
+            ->can('create', 'module');
         Route::get('/dashboard/modules/create', 'create')
-            ->name('dashboard.modules.create');
+            ->name('dashboard.modules.create')
+            ->can('create', 'module');
         Route::delete('/dashboard/modules/{module}', 'destroy')
-            ->name('dashboard.modules.destroy');
+            ->name('dashboard.modules.destroy')
+            ->can('delete', 'module');
         Route::get('/dashboard/modules/{module}', 'show')
             ->name('dashboard.modules.show')
             ->can('view', 'module');
@@ -58,8 +61,10 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::controller(ModuleAssignmentsController::class)->group(function () {
-        Route::get('/dashboard/modules/{module}/assignment/create', 'create')->name('dashboard.modules.assignments.create');
-        Route::post('/dashboard/modules/{module}/assignment/create', 'store')->name('dashboard.modules.assignments.store');
+        Route::get('/dashboard/modules/{module}/assignment/create', 'create')
+            ->name('dashboard.modules.assignments.create');
+        Route::post('/dashboard/modules/{module}/assignment/create', 'store')
+            ->name('dashboard.modules.assignments.store');
         Route::get('/dashboard/modules/{module}/assignment/{assignment}', 'show')
             ->scopeBindings()
             ->name('dashboard.modules.assignments.show');
@@ -84,8 +89,12 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::controller(ModuleSettingsController::class)->group(function () {
-        Route::get('/dashboard/modules/{module}/settings/index', 'index')->name('dashboard.modules.settings.index');
-        Route::patch('/dashboard/modules/{module}/settings/index', 'update')->name('dashboard.modules.settings.update');
+        Route::get('/dashboard/modules/{module}/settings/index', 'index')
+            ->name('dashboard.modules.settings.index')
+            ->can('update', 'module');
+        Route::patch('/dashboard/modules/{module}/settings/index', 'update')
+            ->name('dashboard.modules.settings.update')
+            ->can('update', 'module');
     });
 
     Route::get('/dashboard/resumes', function () {

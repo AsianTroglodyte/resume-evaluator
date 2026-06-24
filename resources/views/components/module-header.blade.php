@@ -31,19 +31,11 @@
                 href="{{ route('dashboard.modules.members.index', $module) }}"
                 class="tab {{ request()->routeIs('dashboard.modules.members.index') ? 'tab-active' : '' }}"
                 aria-current="{{ request()->routeIs('dashboard.modules.members.inde
-                
-                
-                
-                
-                
-                
-                
                 x') ? 'page' : 'false' }}"
-
-                
             >
                 Participants
             </a>
+            @can('update', $module)
             <a
                 role="tab"
                 href="{{ route('dashboard.modules.settings.index', $module) }}"
@@ -52,6 +44,7 @@
             >
                 Settings
             </a>
+            @endcan
         </div>
     </nav>
 </header>

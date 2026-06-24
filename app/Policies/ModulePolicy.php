@@ -27,9 +27,9 @@ class ModulePolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, Module $module): bool
+    public function create(User $user): bool
     {
-        return $user->isInstructorInModule($module) || $user->isGlobalAdmin();
+        return $user->isGlobalAdmin();
     }
 
     /**

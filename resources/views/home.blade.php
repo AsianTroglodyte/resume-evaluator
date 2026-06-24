@@ -28,8 +28,8 @@
                 </div>
 
                 <footer class="border-t border-base-300 pt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-                    <a href="/login" class="btn btn-outline">Login</a>
-                    <a href="/register" class="btn btn-primary">Sign up</a>
+                    <a href="{{route('login')}}"class="btn btn-outline">Login</a>
+                    <a href="{{route('register')}}" class="btn btn-primary">Sign up</a>
                 </footer>
             </div>
         </section>

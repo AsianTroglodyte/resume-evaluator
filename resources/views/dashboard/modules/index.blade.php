@@ -1,3 +1,5 @@
+@php use App\Models\Module; @endphp
+
 <x-dashboard-layout>
     <x-slot:title>Modules</x-slot:title>
 
@@ -6,7 +8,11 @@
             <div>
                 <h2 class="text-2xl font-semibold">Modules</h2>
             </div>
-            <a href="{{ route('dashboard.modules.create') }}" class="btn btn-primary btn-sm">Create Module</a>
+            @can('create', Module::class)
+            <a href="{{ route('dashboard.modules.create') }}" class="btn btn-primary btn-sm">
+                Create Module
+            </a>
+            @endcan
         </header>
 
         <div class="grid gap-4 md:grid-cols-2">
@@ -21,7 +27,6 @@
                     <p class="mt-1 text-sm text-base-content/70">
                         Status: {{ ucfirst($module->status) }}
                     </p>
-
                 </div>
                 @endcan
             @endforeach
