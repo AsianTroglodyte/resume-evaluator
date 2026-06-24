@@ -42,52 +42,54 @@ class Module extends Model
         return $this->hasMany(ModuleMembership::class);
     }
 
-    public function activeUsers(): BelongsToMany
+    public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'module_memberships')
-            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
-            ->wherePivot('status', 'active');
+        return $this->usersWithMembership(status: 'active');
     }
 
     public function removedUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'module_memberships')
-            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
-            ->wherePivot('status', 'removed');
+        return $this->usersWithMembership(status: 'removed');
     }
 
     public function allUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'module_memberships')
-            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at');
+        return $this->usersWithMembership();
     }
 
-    public function activeInstructors(): BelongsToMany
+    public function instructors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'module_memberships')
-            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
-            ->wherePivot('status', 'active')
-            ->wherePivot('role_in_module', RoleInModule::Instructor->value);
+        return $this->usersWithMembership(status: 'active', role: RoleInModule::Instructor);
     }
 
     public function removedInstructors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'module_memberships')
-            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
-            ->wherePivot('status', 'removed')
-            ->wherePivot('role_in_module', RoleInModule::Instructor->value);
+        return $this->usersWithMembership(status: 'removed', role: RoleInModule::Instructor);
     }
 
     public function allInstructors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'module_memberships')
-            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
-            ->wherePivot('role_in_module', RoleInModule::Instructor->value);
+        return $this->usersWithMembership(role: RoleInModule::Instructor);
     }
 
-    // Module.php
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    private function usersWithMembership(?string $status = null, ?RoleInModule $role = null): BelongsToMany
+    {
+        $query = $this->belongsToMany(User::class, 'module_memberships')
+            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at');
+
+        if ($status !== null) {
+            $query->wherePivot('status', $status);
+        }
+
+        if ($role !== null) {
+            $query->wherePivot('role_in_module', $role->value);
+        }
+
+        return $query;
     }
 }
