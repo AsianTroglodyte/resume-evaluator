@@ -3,8 +3,9 @@
 ])
 
 @php
+    use App\Enums\GlobalRole;
     $actingUser = $actingUser ?? auth()->user();
-    $isAdmin = $actingUser?->global_role === 'admin';
+    $isAdmin = $actingUser?->global_role === GlobalRole::Admin;
 @endphp
 
 <x-dashboard-layout>

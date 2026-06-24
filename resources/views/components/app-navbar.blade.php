@@ -3,8 +3,9 @@
 ])
 
 @php
+    use App\Enums\GlobalRole;
     $actingUser = $actingUser ?? auth()->user();
-    $isAdmin = $actingUser?->global_role === 'admin';
+    $isAdmin = $actingUser?->global_role === GlobalRole::Admin;
 @endphp
 
 <header class="border-b border-base-300 bg-base-100">
@@ -102,7 +103,7 @@
                             {{ $actingUser->first_name }} {{ $actingUser->last_name }}
                         </span>
                         <span class="badge badge-ghost badge-sm">
-                            {{ ucfirst($actingUser->global_role) }}
+                            {{ ucfirst($actingUser->global_role->value) }}
                         </span>
                     </div>
                     <ul tabindex="0"

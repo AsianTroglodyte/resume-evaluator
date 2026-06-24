@@ -16,7 +16,10 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function create() {
+    public function create()
+    {
+        dd('bruh');
+
         return view('dashboard.modules.create', []);
     }
 

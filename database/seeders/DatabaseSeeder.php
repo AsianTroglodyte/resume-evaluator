@@ -57,7 +57,7 @@ class DatabaseSeeder extends Seeder
             'lone_members' => 10,
             'lone_job_listings' => 4,
             'assignments' => [],
-        ]
+        ],
     ];
 
     /**
@@ -74,10 +74,10 @@ class DatabaseSeeder extends Seeder
         User::factory(5)->create([]);
 
         // specific stable user to reference when we need to reference a user
-        User::factory(1)->create([
+        User::factory(1)->password('password')->create([
             'first_name' => 'Robert',
             'last_name' => 'Ordonez',
-            'email' => 'rordonez@southern.edu',            
+            'email' => 'rordonez@southern.edu',
         ]);
 
         foreach ($this->modulesConfig as $config) {
@@ -88,7 +88,7 @@ class DatabaseSeeder extends Seeder
                     'status' => $config['status'],
                 ]);
 
-            $loneMembers = User::factory($config['lone_members'])->create();
+            $loneMembers = User::factory($config['lone_members'])->password('password')->create();
 
             foreach ($loneMembers as $loneMember) {
                 ModuleMembership::factory()
@@ -126,7 +126,9 @@ class DatabaseSeeder extends Seeder
                 }
 
                 if ($assignmentSpec['assignees'] > 0) {
-                    $assignmentAssignees = User::factory($assignmentSpec['assignees'])->create();
+                    $assignmentAssignees = User::factory($assignmentSpec['assignees'])
+                        ->password('password')
+                        ->create();
 
                     foreach ($assignmentAssignees as $assignee) {
                         ModuleMembership::factory()

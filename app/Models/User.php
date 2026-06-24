@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\GlobalRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -48,11 +50,17 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'global_role' => GlobalRole::class,
         ];
     }
 
     public function memberships(): HasMany
     {
         return $this->hasMany(ModuleMembership::class);
+    }
+
+    public function isGlobalAdmin(): bool
+    {
+        return $this->global_role === GlobalRole::Admin;
     }
 }

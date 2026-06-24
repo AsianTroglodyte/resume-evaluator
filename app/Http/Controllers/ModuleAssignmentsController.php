@@ -8,6 +8,7 @@ use App\Enums\ModuleJobListingScope;
 use App\Models\Assignment;
 use App\Models\Module;
 use Illuminate\Support\Arr as SupportArr;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class ModuleAssignmentsController extends Controller
@@ -27,6 +28,9 @@ class ModuleAssignmentsController extends Controller
 
     public function create(Module $module)
     {
+
+        Gate::authorize('add-assignment', $module);
+
         $job_listings = $module->jobListings;
         $users = $module->users;
 
@@ -57,11 +61,11 @@ class ModuleAssignmentsController extends Controller
             'due_date_enabled' => ['required', 'boolean'],
             'due_at' => ['nullable', 'date', 'after:now'],
             'description' => ['nullable', 'string', 'max:500'],
-            'job_listing_source' => ['required', 
+            'job_listing_source' => ['required',
                 Rule::enum(JobListingSource::class)],
-            'module_job_listing_scope' => ['required', 
+            'module_job_listing_scope' => ['required',
                 Rule::enum(ModuleJobListingScope::class)],
-            'assignee_scope' => ['required', 
+            'assignee_scope' => ['required',
                 Rule::enum(AssigneeScope::class)],
             'allow_resubmission' => ['required', 'boolean'],
             'job_listing_ids' => ['array'],
@@ -76,7 +80,7 @@ class ModuleAssignmentsController extends Controller
                 'integer',
                 Rule::exists('module_memberships', 'user_id')
                     ->where('module_id', $module->id)
-                    ->where('status', 'active')], 
+                    ->where('status', 'active')],
         ]);
 
         $validated['due_at'] = $validated['due_date_enabled'] ? $validated['due_at'] : null;
@@ -97,12 +101,9 @@ class ModuleAssignmentsController extends Controller
             'title' => $assignmentInfo['title'],
             'description' => $assignmentInfo['description'],
             'due_at' => $assignmentInfo['due_at'],
-            'assignee_scope' => 
-                AssigneeScope::from($assignmentInfo['assignee_scope']),
-            'job_listing_source' => 
-                JobListingSource::from($assignmentInfo['job_listing_source']),
-            'module_job_listing_scope' => 
-                ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
+            'assignee_scope' => AssigneeScope::from($assignmentInfo['assignee_scope']),
+            'job_listing_source' => JobListingSource::from($assignmentInfo['job_listing_source']),
+            'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
             'allow_resubmission' => $assignmentInfo['allow_resubmission'],
         ]);
 

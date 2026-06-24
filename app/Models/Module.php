@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RoleInModule;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,6 +39,14 @@ class Module extends Model
         return $this->belongsToMany(User::class, 'module_memberships')
             ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
             ->wherePivot('status', 'active');
+    }
+
+    public function instructors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'module_memberships')
+            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
+            ->wherePivot('status', 'active')
+            ->wherePivot('role_in_module', RoleInModule::Instructor->value);
     }
 
     // Module.php
