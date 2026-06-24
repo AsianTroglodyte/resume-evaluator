@@ -18,7 +18,7 @@ class SessionController extends Controller
     {
         $validated = request()->validate([
             'email' =>  ['required', 'email', 'max:254'],
-            'password' => ['required',  Password::min(6)], 'confirmed',
+            'password' => ['required',  Password::min(6)],
         ]);
 
         if (!Auth::attempt($validated)) {
@@ -30,8 +30,6 @@ class SessionController extends Controller
         request()->session()->regenerate();
 
         return redirect()->route('dashboard.resumes.index');
-
-        dd("dieded");
     }
 
     public function destroy()
