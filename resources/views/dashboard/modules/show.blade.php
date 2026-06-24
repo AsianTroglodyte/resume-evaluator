@@ -141,7 +141,7 @@
                             </button>
                         </li>
                         @if ($isAdmin)
-                            <x-job-listing-desc-admin 
+                            <x-job-listing-edit-modal
                                 :jobListing="$jobListing"
                                 :module="$module"/>
                         @else
