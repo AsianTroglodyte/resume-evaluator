@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModuleStatus;
 use App\Enums\RoleInModule;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,13 @@ class Module extends Model
         'status',
         'created_by_user_id',
     ];
+
+    protected function casts(): array 
+    {
+        return [
+            'module_status' => ModuleStatus::class,
+        ];
+    }
 
     public function jobListings(): HasMany
     {

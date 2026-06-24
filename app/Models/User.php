@@ -71,6 +71,6 @@ class User extends Authenticatable
 
     public function isInstructorInModule(Module $module): bool
     {
-        return false;
+        return $module->instructors()->get()->contains($this);
     }
 }

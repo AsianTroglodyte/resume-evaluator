@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\JobListingSource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,4 +17,11 @@ class JobListing extends Model
         'name',
         'description',
     ];
+
+    public function casts() : array 
+    {
+        return [
+            'job_listing_source' => JobListingSource::class
+        ];
+    }
 }
