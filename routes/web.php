@@ -29,6 +29,8 @@ Route::controller(SessionController::class)->group(function () {
         ->name('login');
     Route::post('/login', 'store')
         ->name('login.store');
+    Route::post('/logout', 'destroy')
+        ->name('logout.destroy');
 });
 
 

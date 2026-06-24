@@ -107,12 +107,19 @@
                     </div>
                     <ul tabindex="0"
                         class="menu menu-sm dropdown-content bg-base-100 rounded-box z-50
-                                  mt-3 w-52 border border-base-300 p-2 shadow"
+                                  mt-3 w-52 border border-base-300 p-2 shadow">
                         <li class="menu-title">
                             <span>{{ $actingUser->email }}</span>
                         </li>
-                        <li><a href="{{ route('login') }}">Sign out</a></li>
+                        <li>
+                            <button type="submit" form="navbar-logout-form">
+                                Log out
+                            </button>
+                        </li>
                     </ul>
+                    <form id="navbar-logout-form" method="POST" action="{{ route('logout.destroy') }}" class="hidden">
+                        @csrf
+                    </form>
                 </div>
             @else
                 <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Sign in</a>
