@@ -18,7 +18,6 @@ class ModuleController extends Controller
 
     public function create()
     {
-        dd('bruh');
 
         return view('dashboard.modules.create', []);
     }

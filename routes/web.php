@@ -33,9 +33,9 @@ Route::middleware('auth')->group(function () {
     Route::controller(ModuleController::class)->group(function () {
         Route::get('/dashboard/modules', 'index')->name('dashboard.modules.index');
         Route::post('/dashboard/modules', 'store')->name('dashboard.modules.store');
+        Route::get('/dashboard/modules/create', 'create')->name('dashboard.modules.create');
         Route::delete('/dashboard/modules/{module}', 'destroy')->name('dashboard.modules.destroy');
         Route::get('/dashboard/modules/{module}', 'show')->name('dashboard.modules.show');
-        Route::get('/dashboard/modules/create', 'create')->name('dashboard.modules.create');
     });
 
     Route::controller(ModuleMembersController::class)->group(function () {

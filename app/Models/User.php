@@ -63,4 +63,9 @@ class User extends Authenticatable
     {
         return $this->global_role === GlobalRole::Admin;
     }
+
+    public function isInModule(Module $module): bool
+    {
+        return $module->users()->get()->contains($this);
+    }
 }

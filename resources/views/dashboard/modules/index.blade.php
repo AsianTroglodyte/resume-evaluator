@@ -11,17 +11,19 @@
 
         <div class="grid gap-4 md:grid-cols-2">
             @foreach ($modules as $module)
-            <div class="rounded-box border border-base-300 p-4 transition hover:bg-base-200 relative">
-                <a class="absolute inset-0 z-10"
-                    href="{{ route('dashboard.modules.show', $module) }}">
-                </a>
+                @can("view", $module)
+                <div class="rounded-box border border-base-300 p-4 transition hover:bg-base-200 relative">
+                    <a class="absolute inset-0 z-10"
+                        href="{{ route('dashboard.modules.show', $module) }}">
+                    </a>
 
-                <h3 class="text-lg font-semibold">{{ $module->name }}</h3>
-                <p class="mt-1 text-sm text-base-content/70">
-                    Status: {{ ucfirst($module->status) }}
-                </p>
+                    <h3 class="text-lg font-semibold">{{ $module->name }}</h3>
+                    <p class="mt-1 text-sm text-base-content/70">
+                        Status: {{ ucfirst($module->status) }}
+                    </p>
 
-            </div>
+                </div>
+                @endcan
             @endforeach
         </div>
     </section>
