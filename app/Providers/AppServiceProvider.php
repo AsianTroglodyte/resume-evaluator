@@ -32,11 +32,11 @@ class AppServiceProvider extends ServiceProvider
         //     return $module->users()->contains($user);
         // });
 
-        Gate::define('add-assignment', function (User $user, Module $module) {
-            $userIsModuleInstructor = $module->instructors->contains($user);
-            $userIsAdmin = $user->global_role === GlobalRole::Admin;
+        // Gate::define('add-assignment', function (User $user, Module $module) {
+        //     $userIsModuleInstructor = $module->instructors->contains($user);
+        //     $userIsAdmin = $user->global_role === GlobalRole::Admin;
 
-            return $userIsModuleInstructor || $userIsAdmin;
-        });
+        //     return $userIsModuleInstructor || $userIsAdmin;
+        // });
     }
 }
