@@ -66,11 +66,11 @@ class User extends Authenticatable
 
     public function isInModule(Module $module): bool
     {
-        return $module->users()->get()->contains($this);
+        return $module->activeUsers()->whereKey($this->id)->exists();
     }
 
     public function isInstructorInModule(Module $module): bool
     {
-        return $module->instructors()->get()->contains($this);
+        return $module->activeInstructors()->whereKey($this->id)->exists();
     }
 }

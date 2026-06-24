@@ -20,7 +20,7 @@ class Module extends Model
         'created_by_user_id',
     ];
 
-    protected function casts(): array 
+    protected function casts(): array
     {
         return [
             'module_status' => ModuleStatus::class,
@@ -42,18 +42,46 @@ class Module extends Model
         return $this->hasMany(ModuleMembership::class);
     }
 
-    public function users(): BelongsToMany
+    public function activeUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'module_memberships')
             ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
             ->wherePivot('status', 'active');
     }
 
-    public function instructors(): BelongsToMany
+    public function removedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'module_memberships')
+            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
+            ->wherePivot('status', 'removed');
+    }
+
+    public function allUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'module_memberships')
+            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at');
+    }
+
+    public function activeInstructors(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'module_memberships')
             ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
             ->wherePivot('status', 'active')
+            ->wherePivot('role_in_module', RoleInModule::Instructor->value);
+    }
+
+    public function removedInstructors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'module_memberships')
+            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
+            ->wherePivot('status', 'removed')
+            ->wherePivot('role_in_module', RoleInModule::Instructor->value);
+    }
+
+    public function allInstructors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'module_memberships')
+            ->withPivot('role_in_module', 'status', 'joined_at', 'removed_at')
             ->wherePivot('role_in_module', RoleInModule::Instructor->value);
     }
 

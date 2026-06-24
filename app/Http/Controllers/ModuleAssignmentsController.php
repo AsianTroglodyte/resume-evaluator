@@ -17,7 +17,7 @@ class ModuleAssignmentsController extends Controller
     public function index(Module $module)
     {
         $job_listings = $module->jobListings;
-        $users = $module->users;
+        $users = $module->activeUsers;
 
         return view('dashboard.modules.assignments.create', [
             'module' => $module,
@@ -32,7 +32,7 @@ class ModuleAssignmentsController extends Controller
         Gate::authorize('add-assignment', $module);
 
         $job_listings = $module->jobListings;
-        $users = $module->users;
+        $users = $module->activeUsers;
 
         return view('dashboard.modules.assignments.create', [
             'module' => $module,
@@ -43,7 +43,7 @@ class ModuleAssignmentsController extends Controller
 
     public function show(Module $module, Assignment $assignment)
     {
-        $users = $module->users;
+        $users = $module->activeUsers;
         $assignment->load('activeAssignees', 'jobListings');
 
         return view('dashboard.modules.assignments.show', [
@@ -129,7 +129,7 @@ class ModuleAssignmentsController extends Controller
     public function edit(Module $module, Assignment $assignment)
     {
         $job_listings = $module->jobListings;
-        $users = $module->users;
+        $users = $module->activeUsers;
         $assignment->load('activeAssignees');
 
         return view('dashboard.modules.assignments.edit', [
@@ -201,7 +201,7 @@ class ModuleAssignmentsController extends Controller
         $assigneeIds = $validated['assignee_ids'] ?? [];
         $assignment->assignees()->sync($assigneeIds);
 
-        $users = $module->users;
+        $users = $module->activeUsers;
 
         return redirect()->route('dashboard.modules.assignments.show', [
             'module' => $module,

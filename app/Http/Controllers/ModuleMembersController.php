@@ -16,7 +16,7 @@ class ModuleMembersController extends Controller
     public function index(Module $module)
     {
         $members = $module
-            ->users()
+            ->activeUsers()
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();
@@ -39,7 +39,7 @@ class ModuleMembersController extends Controller
             'new_member_email' => [
                 'required',
                 'email',
-                Rule::exists('users', 'email')
+                Rule::exists('users', 'email'),
             ],
         ]);
 
@@ -66,8 +66,7 @@ class ModuleMembersController extends Controller
                 'removed_at' => null,
                 'added_by_user_id' => 1,
             ]);
-        }
-        else {
+        } else {
             ModuleMembership::create([
                 'module_id' => $module->id,
                 'user_id' => $newUser->id,
@@ -78,7 +77,7 @@ class ModuleMembersController extends Controller
             ]);
         }
 
-        $members = $module->users()
+        $members = $module->activeUsers()
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();
@@ -107,10 +106,6 @@ class ModuleMembersController extends Controller
                 'removed_by_user_id' => 1,
                 'removed_at' => now(),
             ]);
-
-        // dd($usersModuleMembership);
-
-        // $module->users()->detach($validated['user_id']);
 
         return redirect()->route('dashboard.modules.members.index', $module);
     }
