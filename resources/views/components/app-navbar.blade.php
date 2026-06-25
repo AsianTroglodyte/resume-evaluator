@@ -109,8 +109,10 @@
                     <ul tabindex="0"
                         class="menu menu-sm dropdown-content bg-base-100 rounded-box z-50
                                   mt-3 w-52 border border-base-300 p-2 shadow">
-                        <li class="menu-title">
-                            <span>{{ $actingUser->email }}</span>
+                        <li>
+                            <button type="submit" form="navbar-logout-form">
+                                out
+                            </button>
                         </li>
                         <li>
                             <button type="submit" form="navbar-logout-form">

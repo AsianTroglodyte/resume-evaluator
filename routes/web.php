@@ -41,13 +41,13 @@ Route::middleware('auth')->group(function () {
             ->name('dashboard.modules.index');
         Route::post('/dashboard/modules', 'store')
             ->name('dashboard.modules.store')
-            ->can('create', 'module');
+            ->can('create', Module::class);
         Route::get('/dashboard/modules/create', 'create')
             ->name('dashboard.modules.create')
-            ->can('create', 'module');
+            ->can('create', Module::class);
         Route::delete('/dashboard/modules/{module}', 'destroy')
             ->name('dashboard.modules.destroy')
-            ->can('delete', 'module');
+            ->can('delete', Module::class);
         Route::get('/dashboard/modules/{module}', 'show')
             ->name('dashboard.modules.show')
             ->can('view', 'module');
