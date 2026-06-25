@@ -5,8 +5,10 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ModuleJobListingController;
 use App\Http\Controllers\ModuleMembersController;
 use App\Http\Controllers\ModuleSettingsController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\UserController;
 use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
@@ -111,6 +113,11 @@ Route::middleware('auth')->group(function () {
             ->name('dashboard.modules.settings.update')
             ->can('update', 'module');
     });
+
+    Route::get('/user/profile', [ProfileController::class, 'profile'])
+        ->name('user.profile');
+    Route::get('/user/show/{user}', [UserController::class, 'show'])
+        ->name('user.show');
 
     Route::get('/dashboard/resumes', function () {
         $evaluations = [

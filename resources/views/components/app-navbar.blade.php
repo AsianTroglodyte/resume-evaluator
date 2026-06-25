@@ -110,19 +110,19 @@
                         class="menu menu-sm dropdown-content bg-base-100 rounded-box z-50
                                   mt-3 w-52 border border-base-300 p-2 shadow">
                         <li>
-                            <button type="submit" form="navbar-logout-form">
-                                out
-                            </button>
+                            <a href="{{ route('user.profile') }}">
+                                Profile
+                            </a>
                         </li>
                         <li>
-                            <button type="submit" form="navbar-logout-form">
-                                Log out
-                            </button>
+                            <form method="POST" action="{{ route('logout.destroy') }}">
+                                @csrf
+                                <button type="submit">
+                                    Log out
+                                </button>
+                            </form>
                         </li>
                     </ul>
-                    <form id="navbar-logout-form" method="POST" action="{{ route('logout.destroy') }}" class="hidden">
-                        @csrf
-                    </form>
                 </div>
             @else
                 <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Sign in</a>
