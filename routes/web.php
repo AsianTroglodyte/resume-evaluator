@@ -67,7 +67,8 @@ Route::middleware('auth')->group(function () {
             ->name('dashboard.modules.assignments.store');
         Route::get('/dashboard/modules/{module}/assignment/{assignment}', 'show')
             ->scopeBindings()
-            ->name('dashboard.modules.assignments.show');
+            ->name('dashboard.modules.assignments.show')
+            ->can('view', 'assignment');
         Route::get('/dashboard/modules/{module}/assignment/{assignment}/edit', 'edit')
             ->scopeBindings()
             ->name('dashboard.modules.assignments.edit');

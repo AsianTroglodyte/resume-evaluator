@@ -7,6 +7,7 @@ use App\Enums\JobListingSource;
 use App\Enums\ModuleJobListingScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -72,9 +73,9 @@ class Assignment extends Model
 
     }
 
-    public function module(): HasOne
+    public function module(): BelongsTo
     {
-        return $this->hasOne(Module::class, 'module_id');
+        return $this->belongsTo(Module::class);
     }
 
     private function assigneesWithMembershipStatus(string $status): BelongsToMany
