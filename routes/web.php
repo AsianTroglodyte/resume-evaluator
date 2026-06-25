@@ -7,6 +7,7 @@ use App\Http\Controllers\ModuleMembersController;
 use App\Http\Controllers\ModuleSettingsController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
+use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\User;
@@ -64,10 +65,10 @@ Route::middleware('auth')->group(function () {
     Route::controller(ModuleAssignmentsController::class)->group(function () {
         Route::get('/dashboard/modules/{module}/assignment/create', 'create')
             ->name('dashboard.modules.assignments.create')
-            ->can('create', 'assignment');
+            ->can('create', [Assignment::class, 'module']);
         Route::post('/dashboard/modules/{module}/assignment/create', 'store')
             ->name('dashboard.modules.assignments.store')
-            ->can('create', 'assignment');
+            ->can('create', [Assignment::class, 'module']);
         Route::get('/dashboard/modules/{module}/assignment/{assignment}', 'show')
             ->scopeBindings()
             ->name('dashboard.modules.assignments.show')

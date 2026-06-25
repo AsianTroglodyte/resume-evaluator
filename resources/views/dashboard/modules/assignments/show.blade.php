@@ -40,26 +40,50 @@
                     <h3 class="text-lg font-semibold">Details</h3>
                 </header>
 
-                <dl class="space-y-4 text-sm">
+                <dl class="space-y-6 text-sm">
                     <div>
                         <dt class="font-medium">Description</dt>
                         <dd class="mt-1 text-base-content/80">
                             {{ $assignment->description ?? '—' }}
                         </dd>
                     </div>
-                    <div>
-                        <dt class="font-medium">Due date</dt>
-                        <dd class="mt-1">{{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium">Resubmission</dt>
-                        <dd class="mt-1">{{ $assignment->allow_resubmission ? 'Allowed' : 'Not allowed' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium">Job listing source</dt>
-                        <dd class="mt-1">{{ ucfirst($assignment->job_listing_source->value) }}</dd>
+
+                    <div class="grid gap-4 sm:grid-cols-3">
+                        <div>
+                            <dt class="font-medium">Due date</dt>
+                            <dd class="mt-1">{{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="font-medium">Resubmission</dt>
+                            <dd class="mt-1">{{ $assignment->allow_resubmission ? 'Allowed' : 'Not allowed' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="font-medium">Job listing source</dt>
+                            <dd class="mt-1">{{ ucfirst($assignment->job_listing_source->value) }}</dd>
+                        </div>
                     </div>
                 </dl>
+
+                <div class="mt-6 space-y-5 border-t border-base-300 pt-6">
+                    <div>
+                        <h4 class="text-sm font-semibold">Submit resume</h4>
+                        <p class="mt-1 text-sm text-base-content/70">Upload your resume for this assignment.</p>
+                    </div>
+
+                    <label class="form-control w-full">
+                        <span class="label-text mb-1 font-medium">Resume file</span>
+                        <input
+                            type="file"
+                            class="file-input file-input-bordered w-full"
+                            accept=".pdf,.doc,.docx"
+                        />
+                        <span class="label-text-alt mt-1 text-base-content/60">Accepted formats: PDF, DOC, DOCX</span>
+                    </label>
+
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <button type="submit" class="btn btn-primary">Submit resume</button>
+                    </div>
+                </div>
             </article>
 
             {{-- Allowed job listings --}}
@@ -133,30 +157,6 @@
                     </details>
                 </article>
             @endcan
-
-            {{-- Resume submission --}}
-            <article class="rounded-box border border-base-300 bg-base-100 p-6">
-                <header class="mb-4 space-y-1 border-b border-base-300 pb-4">
-                    <h3 class="text-lg font-semibold">Your submission</h3>
-                    <p class="text-sm text-base-content/70">Upload your resume for this assignment.</p>
-                </header>
-
-                <div class="space-y-5">
-                    <label class="form-control w-full">
-                        <span class="label-text mb-1 font-medium">Resume file</span>
-                        <input
-                            type="file"
-                            class="file-input file-input-bordered w-full"
-                            accept=".pdf,.doc,.docx"
-                        />
-                        <span class="label-text-alt mt-1 text-base-content/60">Accepted formats: PDF, DOC, DOCX</span>
-                    </label>
-
-                    <div class="flex flex-wrap justify-end gap-2 border-t border-base-300 pt-4">
-                        <button type="submit" class="btn btn-primary">Submit resume</button>
-                    </div>
-                </div>
-            </article>
 
         </div>
     </section>
