@@ -29,6 +29,7 @@
 
                 <div class="space-y-3">
                     @forelse ($assignments as $assignment)
+                        @can('view', $assignment)
                         <div
                             class="flex flex-row relative justify-between
                             w-full rounded-box border border-base-300 p-3 text-left transition hover:bg-base-200"
@@ -110,6 +111,7 @@
                                 <button>close</button>
                             </form>
                         </dialog>
+                        @endcan
                     @empty
                         <p class="text-sm text-base-content/70">No assignments for this module yet.</p>
                     @endforelse
