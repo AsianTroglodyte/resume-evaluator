@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Assignment;
+use App\Models\Module;
 use App\Models\User;
 
 class AssignmentPolicy
@@ -36,9 +37,10 @@ class AssignmentPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, Module $module): bool
     {
-        return false;
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($module);
     }
 
     /**
@@ -46,7 +48,8 @@ class AssignmentPolicy
      */
     public function update(User $user, Assignment $assignment): bool
     {
-        return false;
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($assignment->module);
     }
 
     /**
@@ -54,7 +57,8 @@ class AssignmentPolicy
      */
     public function delete(User $user, Assignment $assignment): bool
     {
-        return false;
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($assignment->module);
     }
 
     /**

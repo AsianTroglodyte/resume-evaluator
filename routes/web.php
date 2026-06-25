@@ -62,21 +62,26 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(ModuleAssignmentsController::class)->group(function () {
         Route::get('/dashboard/modules/{module}/assignment/create', 'create')
-            ->name('dashboard.modules.assignments.create');
+            ->name('dashboard.modules.assignments.create')
+            ->can('create', 'assignment');
         Route::post('/dashboard/modules/{module}/assignment/create', 'store')
-            ->name('dashboard.modules.assignments.store');
+            ->name('dashboard.modules.assignments.store')
+            ->can('create', 'assignment');
         Route::get('/dashboard/modules/{module}/assignment/{assignment}', 'show')
             ->scopeBindings()
             ->name('dashboard.modules.assignments.show')
             ->can('view', 'assignment');
         Route::get('/dashboard/modules/{module}/assignment/{assignment}/edit', 'edit')
             ->scopeBindings()
-            ->name('dashboard.modules.assignments.edit');
+            ->name('dashboard.modules.assignments.edit')
+            ->can('update', 'assignment');
         Route::patch('/dashboard/modules/{module}/assignment/{assignment}', 'update')
-            ->name('dashboard.modules.assignments.update');
+            ->name('dashboard.modules.assignments.update')
+            ->can('update', 'assignment');
         Route::delete('/dashboard/modules/{module}/assignment/{assignment}', 'destroy')
             ->scopeBindings()
-            ->name('dashboard.modules.assignments.delete');
+            ->name('dashboard.modules.assignments.delete')
+            ->can('delete', 'assignment');;
     });
 
     Route::controller(ModuleJobListingController::class)->group(function () {

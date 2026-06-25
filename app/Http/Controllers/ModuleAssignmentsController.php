@@ -8,7 +8,6 @@ use App\Enums\ModuleJobListingScope;
 use App\Models\Assignment;
 use App\Models\Module;
 use Illuminate\Support\Arr as SupportArr;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class ModuleAssignmentsController extends Controller
@@ -28,9 +27,6 @@ class ModuleAssignmentsController extends Controller
 
     public function create(Module $module)
     {
-
-        Gate::authorize('add-assignment', $module);
-
         $job_listings = $module->jobListings;
         $users = $module->users;
 

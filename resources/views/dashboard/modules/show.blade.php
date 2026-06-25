@@ -1,9 +1,6 @@
-@props([
-    'actingUser' => null
-])
-
 @php
     use App\Enums\GlobalRole;
+    use App\Models\Assignment;
     $actingUser = $actingUser ?? auth()->user();
     $isAdmin = $actingUser?->global_role === GlobalRole::Admin;
 @endphp
@@ -21,12 +18,13 @@
                         <h3 class="text-lg font-semibold">Assignments</h3>
                         <p class="mt-1 text-sm text-base-content/70">Module tasks and submission targets.</p>
                     </div>
-                    <a
-                        href="{{ route('dashboard.modules.assignments.create', $module) }}"
-                        class="btn btn-primary btn-sm shrink-0"
-                    >
-                        Create Assignment
-                    </a>
+                    @can('create', [Assignment::class, $module])
+                        <a  href="{{ route('dashboard.modules.assignments.create', $module) }}"
+                            class="btn btn-primary btn-sm shrink-0"
+                        >
+                            Create Assignment
+                        </a>
+                    @endcan
                 </header>
 
                 <div class="space-y-3">
