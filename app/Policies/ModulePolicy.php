@@ -47,9 +47,21 @@ class ModulePolicy
         return $user->isGlobalAdmin();
     }
 
+    /** 
+     * 
+    */
+    public function viewMembers(User $user, Module $module)
+    {
+        return $user->isInstructorInModule($module) || $user->isGlobalAdmin();
+    }
+
     /**
      * Determine whether the user can restore the model.
      */
+    public function removeUsers(User $user, Module $module)
+    {
+        return $user->isInstructorInModule($module) || $user->isGlobalAdmin();
+    }
 
     /**
      * Determine whether the user can permanently delete the model.

@@ -88,6 +88,7 @@
                 <thead>
                     <tr>
                         <th>Name</th>
+                        
                         <th>Email</th>
                         <th>Module role</th>
                         <th>Status</th>

@@ -33,7 +33,7 @@
                 aria-current="{{ request()->routeIs('dashboard.modules.members.inde
                 x') ? 'page' : 'false' }}"
             >
-                Participants
+                Members
             </a>
             @can('update', $module)
             <a
