@@ -66,6 +66,8 @@ class User extends Authenticatable
 
     public function isGlobalAdmin(): bool
     {
+        // return true;
+        // print($this->global_role === GlobalRole::Admin);
         return $this->global_role === GlobalRole::Admin;
     }
 

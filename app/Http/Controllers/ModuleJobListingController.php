@@ -36,6 +36,8 @@ class ModuleJobListingController extends Controller
             'description' => $validated['description'] 
         ]);
 
+        // dd($jobListing);
+
         return redirect()->route('dashboard.modules.show', ['module' => $module]);
     }
 

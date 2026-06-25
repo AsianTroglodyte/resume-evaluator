@@ -27,7 +27,7 @@
                     <input
                         type="text"
                         name="name"
-                        value="{{ $jobListing->name}}"
+                        value="{{ old('name', $jobListing->name)}}"
                         placeholder="Job Title"
                         class="input input-bordered w-full @error('name') input-error @enderror"
                         required
@@ -45,7 +45,7 @@
                         class="textarea textarea-bordered h-64 w-full @error('description') textarea-error @enderror"
 
                         required
-                    >{{old($jobListing->description)}}</textarea>
+                    >{{old('description', $jobListing->description)}}</textarea>
                     @error('description')
                         <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                     @enderror
