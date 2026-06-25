@@ -1,4 +1,7 @@
-@php $canManageModule = true; @endphp
+@php
+    
+    use App\Enums\ModuleJobListingScope;
+@endphp
 
 <x-dashboard-layout>
     <x-slot:title>{{ $assignment->title }}</x-slot:title>
@@ -17,14 +20,14 @@
                 </div>
 
                 {{-- Instructor/admin only --}}
-                @if ($canManageModule)
+                @can('update', $assignment)
                     <a
                         href="{{ route('dashboard.modules.assignments.edit', [$module, $assignment]) }}"
                         class="btn btn-outline btn-sm shrink-0"
                     >
                         Edit assignment
                     </a>
-                @endif
+                @endcan
             </div>
         </header>
 
@@ -63,21 +66,41 @@
                 <summary class="collapse-title text-lg font-semibold">Allowed job listings</summary>
                 <div class="collapse-content space-y-3">
                     <p class="text-sm text-base-content/70">Submit your resume against one of these postings.</p>
-                    @forelse ($assignment->jobListings as $listing)
-                        <details class="collapse collapse-arrow rounded-box border border-base-300">
-                            <summary class="collapse-title font-medium">{{ $listing->name }}</summary>
-                            <div class="collapse-content">
-                                <p class="text-sm text-base-content/70">{{ $listing->description }}</p>
-                            </div>
-                        </details>
-                    @empty
-                        <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
-                    @endforelse
+
+                    {{-- {{ $assignment->module_job_listing_scope }}
+                    {{ ModuleJobListingScope::All->value}} --}}
+                    @if ($assignment->module_job_listing_scope === ModuleJobListingScope::All)
+                        @forelse ($module->jobListings as $jobListing)
+                            <details class="collapse collapse-arrow rounded-box border border-base-300">
+                                <summary class="collapse-title font-medium">
+                                    {{ $jobListing->name }}
+                                </summary>
+                                <div class="collapse-content">
+                                    <p class="text-sm text-base-content/70">
+                                        {{ $jobListing->description }}
+                                    </p>
+                                </div>
+                            </details>
+                        @empty
+                            <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
+                        @endforelse
+                    @else
+                        @forelse ($assignment->jobListings as $listing)
+                            <details class="collapse collapse-arrow rounded-box border border-base-300">
+                                <summary class="collapse-title font-medium">{{ $listing->name }}</summary>
+                                <div class="collapse-content">
+                                    <p class="text-sm text-base-content/70">{{ $listing->description }}</p>
+                                </div>
+                            </details>
+                        @empty
+                            <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
+                        @endforelse
+                    @endif
                 </div>
             </details>
 
             {{-- Instructor-only section --}}
-            @if ($canManageModule)
+            @can('seeAllAssignmentDetails', $assignment)
                 <article class="rounded-box border border-base-300 bg-base-100 p-6">
                     <header class="mb-4 space-y-1 border-b border-base-300 pb-4">
                         <h3 class="text-lg font-semibold">Assignment configuration</h3>
@@ -104,7 +127,7 @@
                         </div>
                     </details>
                 </article>
-            @endif
+            @endcan
 
             {{-- Resume submission --}}
             <article class="rounded-box border border-base-300 bg-base-100 p-6">

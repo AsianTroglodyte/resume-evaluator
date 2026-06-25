@@ -61,6 +61,12 @@ class AssignmentPolicy
             || $user->isInstructorInModule($assignment->module);
     }
 
+    public function seeAllAssignmentDetails(User $user, Assignment $assignment): bool
+    {
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($assignment->module);
+    }
+
     /**
      * Determine whether the user can restore the model.
      */
