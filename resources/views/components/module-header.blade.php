@@ -26,6 +26,7 @@
             >
                 Overview
             </a>
+            @can('manageUsers', $module)
             <a
                 role="tab"
                 href="{{ route('dashboard.modules.members.index', $module) }}"
@@ -35,6 +36,7 @@
             >
                 Members
             </a>
+            @endcan
             @can('update', $module)
             <a
                 role="tab"

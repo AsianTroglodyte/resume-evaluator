@@ -56,9 +56,9 @@ class ModulePolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determine whether a user can manage members in the module
      */
-    public function removeUsers(User $user, Module $module)
+    public function manageUsers(User $user, Module $module)
     {
         return $user->isInstructorInModule($module) || $user->isGlobalAdmin();
     }

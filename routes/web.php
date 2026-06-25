@@ -55,11 +55,14 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(ModuleMembersController::class)->group(function () {
         Route::get('/dashboard/modules/{module}/members/index', 'index')
-            ->name('dashboard.modules.members.index');
+            ->name('dashboard.modules.members.index')
+            ->can('manageUsers', 'module');
         Route::post('/dashboard/modules/{module}/members/index', 'store')
-            ->name('dashboard.modules.members.store');
+            ->name('dashboard.modules.members.store')
+            ->can('manageUsers', 'module');
         Route::delete('/dashboard/modules/{module}/members/index', 'destroy')
-            ->name('dashboard.modules.members.destroy');
+            ->name('dashboard.modules.members.destroy')
+            ->can('manageUsers', 'module');
     });
 
     Route::controller(ModuleAssignmentsController::class)->group(function () {
