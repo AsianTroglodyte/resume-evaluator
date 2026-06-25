@@ -1,6 +1,7 @@
 @php
     
     use App\Enums\ModuleJobListingScope;
+    use App\Enums\JobListingSource;
 @endphp
 
 <x-dashboard-layout>
@@ -62,15 +63,18 @@
             </article>
 
             {{-- Allowed job listings --}}
+            @if ($assignment->job_listing_source === JobListingSource::Both
+                || $assignment->job_listing_source === JobListingSource::Module)
             <details class="collapse collapse-arrow rounded-box border border-base-300 bg-base-100" open>
                 <summary class="collapse-title text-lg font-semibold">Allowed job listings</summary>
-                <div class="collapse-content space-y-3">
+                <div class="collapse-content space-y-1">
                     <p class="text-sm text-base-content/70">Submit your resume against one of these postings.</p>
 
                     {{-- {{ $assignment->module_job_listing_scope }}
                     {{ ModuleJobListingScope::All->value}} --}}
                     @if ($assignment->module_job_listing_scope === ModuleJobListingScope::All)
                         @forelse ($module->jobListings as $jobListing)
+                        
                             <details class="collapse collapse-arrow rounded-box border border-base-300">
                                 <summary class="collapse-title font-medium">
                                     {{ $jobListing->name }}
@@ -98,6 +102,7 @@
                     @endif
                 </div>
             </details>
+            @endif
 
             {{-- Instructor-only section --}}
             @can('seeAllAssignmentDetails', $assignment)

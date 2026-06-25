@@ -185,7 +185,7 @@
                     @endcan
                 </header>
 
-                <ul class="space-y-3">
+                <ul class="space-y-1">
                     @forelse ($jobListings as $jobListing)
                         <li>
                             <button
