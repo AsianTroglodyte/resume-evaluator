@@ -5,7 +5,6 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ModuleJobListingController;
 use App\Http\Controllers\ModuleMembersController;
 use App\Http\Controllers\ModuleSettingsController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
@@ -114,10 +113,14 @@ Route::middleware('auth')->group(function () {
             ->can('update', 'module');
     });
 
-    Route::get('/user/profile', [ProfileController::class, 'profile'])
-        ->name('user.profile');
-    Route::get('/user/show/{user}', [UserController::class, 'show'])
-        ->name('user.show');
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/user/profile', 'profile')
+            ->name('user.profile');
+        Route::get('/user/show/{user}', 'show')
+            ->name('user.show')
+            ->can('view', 'user');
+    });
+
 
     Route::get('/dashboard/resumes', function () {
         $evaluations = [

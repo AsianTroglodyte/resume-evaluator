@@ -5,8 +5,10 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Enums\GlobalRole;
+use App\Enums\ModuleStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -62,6 +64,12 @@ class User extends Authenticatable
     public function memberships(): HasMany
     {
         return $this->hasMany(ModuleMembership::class);
+    }
+
+    public function modulesPartOf(): BelongsToMany
+    {
+        return $this->belongsToMany(Module::class, 'module_memberships')
+            ->wherePivot('status', ModuleStatus::Active);
     }
 
     public function isGlobalAdmin(): bool

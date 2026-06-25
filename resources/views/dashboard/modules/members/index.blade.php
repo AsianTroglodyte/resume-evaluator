@@ -88,7 +88,6 @@
                 <thead>
                     <tr>
                         <th>Name</th>
-                        
                         <th>Email</th>
                         <th>Module role</th>
                         <th>Status</th>
@@ -98,7 +97,11 @@
                 <tbody>
                     @forelse ($members as $member)
                     <tr>
-                        <td>{{ $member->first_name }} {{ $member->last_name }}</td>
+                        <td>
+                            <a href="{{ route('user.show', $member) }}" class="link">
+                            {{ $member->first_name }} {{ $member->last_name }}
+                            </a>
+                        </td>
                         <td>{{ $member->email }}</td>
                         <td>{{ ucfirst($member->pivot->role_in_module) }}</td>
                         <td>{{ ucfirst($member->pivot->status) }}</td>

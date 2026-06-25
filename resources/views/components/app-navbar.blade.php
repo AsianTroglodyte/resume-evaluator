@@ -115,14 +115,14 @@
                             </a>
                         </li>
                         <li>
-                            <form method="POST" action="{{ route('logout.destroy') }}">
-                                @csrf
-                                <button type="submit">
-                                    Log out
-                                </button>
-                            </form>
+                            <button type="submit" form="logout-form">
+                                Log out
+                            </button>
                         </li>
-                    </ul>
+                        </ul>
+                        <form method="POST" id="logout-form" action="{{ route('logout.destroy') }}">
+                            @csrf
+                        </form>
                 </div>
             @else
                 <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Sign in</a>
@@ -130,3 +130,4 @@
         </div>
     </div>
 </header>
+{{-- http://localhost:8000/user/show/13 --}}

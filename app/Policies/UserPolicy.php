@@ -12,16 +12,28 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->isGlobalAdmin();;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, User $model): bool
+    public function view(User $user, User $userToLookAt): bool
     {
-        return false;
+
+        if($user->id === $userToLookAt->id) {
+            return true;
+        }
+
+        return $this->viewAny($user)
+            || $userToLookAt->modulesPartOf() // if user is an instructor in any 
+            ->whereHas('instructors', fn ($query) => $query->whereKey($user->id))
+            ->exists();
     }
+
+    // return $jobListing->assignments()
+    //      ->whereHas('assignees', fn ($query) => $query->whereKey($user->id))
+    //      ->exists();
 
     /**
      * Determine whether the user can create models.
