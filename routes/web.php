@@ -7,6 +7,7 @@ use App\Http\Controllers\ModuleMembersController;
 use App\Http\Controllers\ModuleSettingsController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
+use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -81,17 +82,21 @@ Route::middleware('auth')->group(function () {
         Route::delete('/dashboard/modules/{module}/assignment/{assignment}', 'destroy')
             ->scopeBindings()
             ->name('dashboard.modules.assignments.delete')
-            ->can('delete', 'assignment');;
+            ->can('delete', 'assignment');
     });
 
     Route::controller(ModuleJobListingController::class)->group(function () {
-        Route::post('/dashboard/modules/{module}/job-listings', 'store')->name('dashboard.modules.job-listings.store');
+        Route::post('/dashboard/modules/{module}/job-listings', 'store')
+            ->name('dashboard.modules.job-listings.store')
+            ->can('create', [JobListing::class, 'module']);
         Route::patch('/dashboard/modules/{module}/job-listings/{jobListing}', 'update')
             ->scopeBindings()
-            ->name('dashboard.modules.job-listings.update');
+            ->name('dashboard.modules.job-listings.update')
+            ->can('update', 'jobListing');
         Route::delete('/dashboard/modules/{module}/job-listings/{jobListing}', 'destroy')
             ->scopeBindings()
-            ->name('dashboard.modules.job-listings.delete');
+            ->name('dashboard.modules.job-listings.delete')
+            ->can('delete', 'jobListing');
     });
 
     Route::controller(ModuleSettingsController::class)->group(function () {

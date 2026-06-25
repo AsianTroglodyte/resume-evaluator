@@ -54,6 +54,11 @@ class User extends Authenticatable
         ];
     }
 
+    // public function assignments(): HasMany
+    // {
+
+    // }
+
     public function memberships(): HasMany
     {
         return $this->hasMany(ModuleMembership::class);

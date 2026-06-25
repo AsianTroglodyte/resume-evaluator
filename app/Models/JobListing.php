@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\JobListingSource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class JobListing extends Model
 {
@@ -18,10 +20,20 @@ class JobListing extends Model
         'description',
     ];
 
-    public function casts() : array 
+    protected function casts(): array
     {
         return [
-            'job_listing_source' => JobListingSource::class
+            'job_listing_source' => JobListingSource::class,
         ];
+    }
+
+    public function module(): BelongsTo
+    {
+        return $this->belongsTo(Module::class);
+    }
+
+    public function assignments(): BelongsToMany
+    {
+        return $this->belongsToMany(Assignment::class, 'assignment_allowed_job_listings');
     }
 }

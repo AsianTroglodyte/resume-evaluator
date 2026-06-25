@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JobListing;
 use App\Models\Module;
+use Illuminate\Support\Facades\Gate;
 
 class ModuleController extends Controller
 {
@@ -25,7 +27,9 @@ class ModuleController extends Controller
 
     public function show(Module $module)
     {
-        $jobListings = $module->jobListings;
+        $jobListings = $module->jobListings->filter(
+            fn (JobListing $jobListing): bool => Gate::allows('view', $jobListing)
+        );
 
         $assignments = $module
             ->assignments()
