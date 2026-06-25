@@ -67,6 +67,7 @@
                 </div>
             </form>
             
+            @can('delete', $module)
             <section class="mt-6 rounded-box border border-error/40 bg-error/5 p-4">
                 <div class="flex flex-col items-start gap-4">
                     <div class="space-y-1">
@@ -132,6 +133,7 @@
                 </dialog>
 
             </section>
+            @endcan
         </article>
     </section>
 </x-dashboard-layout>
