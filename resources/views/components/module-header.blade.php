@@ -9,7 +9,7 @@
         <h2 class="text-2xl font-semibold">{{ $module->name }}</h2>
         <span @class([
             'badge badge-sm',
-            'badge-neutral' => $module->status === 'Archived',
+            'badge-neutral' => $module->status === 'archived',
             'badge-success' => $module->status === 'active',
         ])>
             {{ ucfirst($module->status) }}

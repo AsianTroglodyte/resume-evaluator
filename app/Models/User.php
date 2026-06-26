@@ -92,9 +92,9 @@ class User extends Authenticatable
 
     public function isGivenAssignment(Assignment $assignment): bool
     {
-        if (<!DOCTYPE html>$this->isInModule($assignment->module)){
+        if (! $this->isInModule($assignment->module)) {
             return false;
-        };
+        }
 
         return $assignment->assignee_scope === AssigneeScope::Everyone
             || $assignment->assignees()->whereKey($this->id)->exists();

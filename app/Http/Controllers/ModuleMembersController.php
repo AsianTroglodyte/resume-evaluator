@@ -64,7 +64,7 @@ class ModuleMembersController extends Controller
                 'status' => 'active',
                 'removed_by_user_id' => null,
                 'removed_at' => null,
-                'added_by_user_id' => 1,
+                'added_by_user_id' => auth()->id(),
             ]);
         } else {
             ModuleMembership::create([
@@ -72,7 +72,7 @@ class ModuleMembersController extends Controller
                 'user_id' => $newUser->id,
                 'role_in_module' => RoleInModule::tryFrom(request('role_in_module')),
                 'status' => 'active',
-                'added_by_user_id' => 1,
+                'added_by_user_id' => auth()->id(),
                 'removed_by_user_id' => null,
             ]);
         }
@@ -103,7 +103,7 @@ class ModuleMembersController extends Controller
             ->where('user_id', $validated['user_id'])
             ->update([
                 'status' => 'removed',
-                'removed_by_user_id' => 1,
+                'removed_by_user_id' => auth()->id(),
                 'removed_at' => now(),
             ]);
 

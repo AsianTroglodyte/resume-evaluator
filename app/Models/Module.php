@@ -23,7 +23,7 @@ class Module extends Model
     protected function casts(): array
     {
         return [
-            'module_status' => ModuleStatus::class,
+            'status' => ModuleStatus::class,
         ];
     }
 

@@ -51,7 +51,7 @@ class ModuleController extends Controller
 
         Module::create([
             'name' => request('name'),
-            'created_by_user_id' => 1,
+            'created_by_user_id' => auth()->id(),
         ]);
 
         return redirect()->route('dashboard.modules.index');
