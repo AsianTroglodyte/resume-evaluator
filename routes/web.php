@@ -259,7 +259,9 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
         ]);
-    })->name('dashboard.workspaces.show');
+    })
+    ->whereNumber('id')
+    ->name('dashboard.workspaces.show');
 
     // Route::get('/testdb', function () {
     //     $modules = Module::all();
