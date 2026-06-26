@@ -16,7 +16,7 @@
             'badge-neutral' => $module->status === ModuleStatus::Archived,
             'badge-success' => $module->status === ModuleStatus::Active,
         ])>
-            {{ ucfirst($module->status) }}
+            {{ ucfirst($module->status->value) }}
         </span>
     </div>
 
