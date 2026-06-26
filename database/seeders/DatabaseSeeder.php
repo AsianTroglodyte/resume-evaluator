@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
         User::factory(5)->create([]);
 
         // specific stable user to reference when we need to reference a user
-        User::factory(1)->password('password')->create([
+        User::factory(1)->admin()->password('password')->create([
             'first_name' => 'Robert',
             'last_name' => 'Ordonez',
             'email' => 'rordonez@southern.edu',
