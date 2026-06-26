@@ -19,18 +19,18 @@ class RegisteredUserController extends Controller
     {
         $validated = request()->validate([
             'first_name' => ['required'],
-            'last_name' =>  ['required'],
-            'email' =>  ['required', 'email', 'max:254'],
+            'last_name' => ['required'],
+            'email' => ['required', 'email', 'max:254'],
             'password' => ['required',  Password::min(6), 'confirmed'],
         ]);
 
         $user = User::create([
             ...$validated,
-            'global_role' => GlobalRole::User
+            'global_role' => GlobalRole::User,
         ]);
 
         Auth::login($user);
 
-        return redirect('/dashboard/resumes');
+        return redirect()->route('dashboard.workspaces.index');
     }
 }

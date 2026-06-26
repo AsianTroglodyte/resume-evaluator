@@ -31,9 +31,9 @@
                               z-50 mt-3 w-52 border border-base-300 p-2 shadow"
                 >
                     <li>
-                        <a href="{{ route('dashboard.resumes.index') }}"
-                           @class(['active' => request()->routeIs('dashboard.resumes.*')])>
-                            Resumes
+                        <a href="{{ route('dashboard.workspaces.index') }}"
+                           @class(['active' => request()->routeIs('dashboard.workspaces.*')])>
+                            Workspaces
                         </a>
                     </li>
                     <li>
@@ -52,7 +52,7 @@
                     @endif
                 </ul>
             </div>
-            <a href="{{ route('dashboard.resumes.index') }}"
+            <a href="{{ route('dashboard.workspaces.index') }}"
                class="btn btn-ghost text-lg font-bold text-primary">
                 Resume Matcher
             </a>
@@ -62,11 +62,11 @@
             <ul class="menu menu-horizontal px-1">
                 <li>
                     <a
-                        href="{{ route('dashboard.resumes.index') }}"
-                        @class(['font-medium', 'active' => request()->routeIs('dashboard.resumes.*')])
-                        aria-current="{{ request()->routeIs('dashboard.resumes.*') ? 'page' : 'false' }}"
+                        href="{{ route('dashboard.workspaces.index') }}"
+                        @class(['font-medium', 'active' => request()->routeIs('dashboard.workspaces.*')])
+                        aria-current="{{ request()->routeIs('dashboard.workspaces.*') ? 'page' : 'false' }}"
                     >
-                        Resumes
+                        Workspaces
                     </a>
                 </li>
                 <li>
