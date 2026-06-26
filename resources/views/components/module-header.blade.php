@@ -1,3 +1,7 @@
+@php
+    use App\Enums\ModuleStatus;
+@endphp
+
 @props([
     'module',
 ])
@@ -9,8 +13,8 @@
         <h2 class="text-2xl font-semibold">{{ $module->name }}</h2>
         <span @class([
             'badge badge-sm',
-            'badge-neutral' => $module->status === 'archived',
-            'badge-success' => $module->status === 'active',
+            'badge-neutral' => $module->status === ModuleStatus::Archived,
+            'badge-success' => $module->status === ModuleStatus::Active,
         ])>
             {{ ucfirst($module->status) }}
         </span>
@@ -31,8 +35,7 @@
                 role="tab"
                 href="{{ route('dashboard.modules.members.index', $module) }}"
                 class="tab {{ request()->routeIs('dashboard.modules.members.index') ? 'tab-active' : '' }}"
-                aria-current="{{ request()->routeIs('dashboard.modules.members.inde
-                x') ? 'page' : 'false' }}"
+                aria-current="{{ request()->routeIs('dashboard.modules.members.index') ? 'page' : 'false' }}"
             >
                 Members
             </a>

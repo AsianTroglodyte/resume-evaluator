@@ -32,8 +32,8 @@
                         class="select select-bordered w-full"
                         required
                     >
-                        <option value="active" @selected(old('status', $module->status) === 'active')>Active</option>
-                        <option value="archived" @selected(old('status', $module->status) === 'archived')>Archived</option>
+                        <option value="active" @selected(old('status', $module->status->selected) === 'active')>Active</option>
+                        <option value="archived" @selected(old('status', $module->status->selected) === 'archived')>Archived</option>
                     </select>
                 </label>
 
