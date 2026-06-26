@@ -92,7 +92,7 @@ class ModuleAssignmentsController extends Controller
         ]);
         $assignment = $module->assignments()->create([
             // ...$validated,
-            'created_by_user_id' => 1,
+            'created_by_user_id' => auth()->id(),
             'module_id' => $module['id'],
             'title' => $assignmentInfo['title'],
             'description' => $assignmentInfo['description'],
@@ -178,7 +178,6 @@ class ModuleAssignmentsController extends Controller
 
         $assignment->update([
             // ...$validated,
-            'created_by_user_id' => 1,
             'module_id' => $module['id'],
             'title' => $assignmentInfo['title'],
             'description' => $assignmentInfo['description'],

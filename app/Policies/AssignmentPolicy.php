@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\AssigneeScope;
 use App\Models\Assignment;
 use App\Models\Module;
 use App\Models\User;
@@ -30,7 +31,9 @@ class AssignmentPolicy
             || (
                 $user->isInModule($assignment->module)
                 // user is assigned that assignent
-                && $assignment->assignees()->whereKey($user->id)->exists()
+                && (
+                    $assignment->assignee_scope === AssigneeScope::Everyone
+                    || $assignment->assignees()->whereKey($user->id)->exists())
             );
     }
 

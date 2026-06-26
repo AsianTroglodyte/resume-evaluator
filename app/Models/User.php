@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Enums\AssigneeScope;
 use App\Enums\GlobalRole;
 use App\Enums\ModuleStatus;
 use Database\Factories\UserFactory;
@@ -91,6 +92,11 @@ class User extends Authenticatable
 
     public function isGivenAssignment(Assignment $assignment): bool
     {
-        return $assignment->assignees()->whereKey($this->id)->exists();
+        if (! $this->isInModule($assignment->module)) {
+            return false;
+        }
+
+        return $assignment->assignee_scope === AssigneeScope::Everyone
+            || $assignment->assignees()->whereKey($this->id)->exists();
     }
 }

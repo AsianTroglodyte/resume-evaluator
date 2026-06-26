@@ -11,8 +11,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>First name</th>
-                            <th>Last name</th>
+                            <th>Name</th>
                             <th>Email</th>
                             <th>Global role</th>
                             <th>Email verified</th>
@@ -23,8 +22,11 @@
                     <tbody>
                         @forelse ($users as $user)
                             <tr>
-                                <td>{{ $user->first_name }}</td>
-                                <td>{{ $user->last_name }}</td>
+                                <td>
+                                    <a href="{{ route('user.show', $user) }}" class="link">
+                                        {{ $user->first_name }} {{ $user->last_name }}
+                                    </a>
+                                </td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->global_role }}</td>
                                 <td>{{ $user->email_verified_at?->format('M j, Y g:i A') ?? 'No' }}</td>
@@ -33,7 +35,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-base-content/70">No users found.</td>
+                                <td colspan="6" class="text-center text-base-content/70">No users found.</td>
                             </tr>
                         @endforelse
                     </tbody>

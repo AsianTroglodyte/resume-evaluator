@@ -25,7 +25,7 @@
 
                     <h3 class="text-lg font-semibold">{{ $module->name }}</h3>
                     <p class="mt-1 text-sm text-base-content/70">
-                        Status: {{ ucfirst($module->status) }}
+                        Status: {{ ucfirst($module->status->value) }}
                     </p>
                 </div>
                 @endcan

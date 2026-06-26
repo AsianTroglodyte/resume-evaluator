@@ -1,3 +1,7 @@
+@php
+    use App\Enums\ModuleStatus;
+@endphp
+
 <x-dashboard-layout>
     <x-slot:title>{{ $module->name }} — Settings</x-slot:title>
 
@@ -32,8 +36,8 @@
                         class="select select-bordered w-full"
                         required
                     >
-                        <option value="active" @selected(old('status', $module->status) === 'active')>Active</option>
-                        <option value="archived" @selected(old('status', $module->status) === 'archived')>Archived</option>
+                        <option value="active" @selected(old('status', $module->status->value) === 'active')>Active</option>
+                        <option value="archived" @selected(old('status', $module->status->value) === 'archived')>Archived</option>
                     </select>
                 </label>
 

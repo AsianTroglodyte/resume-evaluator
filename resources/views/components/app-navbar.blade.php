@@ -14,7 +14,7 @@
             <div class="dropdown">
                 <div tabindex="0"
                      role="button"
-                     0class="btn btn-ghost lg:hidden"
+                     class="btn btn-ghost lg:hidden"
                      1aria-label="Open navigation menu">
                     <svg xmlns="http://www.w3.org/2000/svg"
                          class="h-5 w-5"

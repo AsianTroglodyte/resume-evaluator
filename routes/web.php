@@ -200,11 +200,11 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('dashboard.resumes.show');
 
-    Route::get('/testdb', function () {
-        $modules = Module::all();
-        $users = User::all();
-        dd($modules, $users);
-    });
+    // Route::get('/testdb', function () {
+    //     $modules = Module::all();
+    //     $users = User::all();
+    //     dd($modules, $users);
+    // });
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');
 
@@ -212,5 +212,6 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.admin.users.index', [
             'users' => User::query()->orderBy('last_name', 'asc')->orderBy('first_name', 'asc')->get(),
         ]);
-    })->name('dashboard.admin.users.index');
+    })->name('dashboard.admin.users.index')
+    ->can('viewAny', User::class);
 });
