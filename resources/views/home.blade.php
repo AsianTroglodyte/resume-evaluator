@@ -29,7 +29,7 @@
 
                 <footer class="border-t border-base-300 pt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                     @auth
-                        <a href="{{route('dashboard.resumes.index')}}"class="btn btn-outline">go back to dashboard</a>
+                        <a href="{{ route('dashboard.workspaces.index') }}" class="btn btn-outline">go back to dashboard</a>
                     @endauth
 
                     @guest

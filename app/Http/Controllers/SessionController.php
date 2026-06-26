@@ -17,19 +17,19 @@ class SessionController extends Controller
     public function store()
     {
         $validated = request()->validate([
-            'email' =>  ['required', 'email', 'max:254'],
+            'email' => ['required', 'email', 'max:254'],
             'password' => ['required',  Password::min(6)],
         ]);
 
-        if (!Auth::attempt($validated)) {
+        if (! Auth::attempt($validated)) {
             throw ValidationException::withMessages([
-                'email' => 'Sorry, those credential do not match.'
+                'email' => 'Sorry, those credential do not match.',
             ]);
         }
 
         request()->session()->regenerate();
 
-        return redirect()->route('dashboard.resumes.index');
+        return redirect()->route('dashboard.workspaces.index');
     }
 
     public function destroy()

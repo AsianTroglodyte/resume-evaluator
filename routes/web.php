@@ -14,6 +14,112 @@ use App\Models\Module;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
+/**
+ * @return list<array<string, mixed>>
+ */
+function mockWorkspaces(): array
+{
+    return [
+        [
+            'id' => 1,
+            'name' => 'Summer Internship Prep',
+            'updated_at' => '2 hours ago',
+            'versions' => [
+                [
+                    'id' => 11,
+                    'original_name' => 'resume_v1.pdf',
+                    'uploaded_at' => 'Mar 12, 2026',
+                    'is_latest' => false,
+                ],
+                [
+                    'id' => 12,
+                    'original_name' => 'resume_v2.pdf',
+                    'uploaded_at' => 'Mar 18, 2026',
+                    'is_latest' => false,
+                ],
+                [
+                    'id' => 13,
+                    'original_name' => 'resume_v3.pdf',
+                    'uploaded_at' => 'Mar 22, 2026',
+                    'is_latest' => true,
+                ],
+            ],
+            'scans' => [
+                [
+                    'id' => 101,
+                    'version_name' => 'resume_v3.pdf',
+                    'job_context_label' => 'General scan (no job description)',
+                    'label' => 'General scan',
+                    'ats_score' => 82,
+                    'keyword_match' => null,
+                    'created_at' => 'Mar 22, 2026',
+                    'feedback_preview' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
+                ],
+            ],
+        ],
+        [
+            'id' => 2,
+            'name' => 'Distributed Systems Roles',
+            'updated_at' => 'Yesterday',
+            'versions' => [
+                [
+                    'id' => 21,
+                    'original_name' => 'backend_resume.pdf',
+                    'uploaded_at' => 'Mar 10, 2026',
+                    'is_latest' => true,
+                ],
+            ],
+            'scans' => [
+                [
+                    'id' => 201,
+                    'version_name' => 'backend_resume.pdf',
+                    'job_context_label' => 'General scan (no job description)',
+                    'label' => 'General scan',
+                    'ats_score' => 71,
+                    'keyword_match' => null,
+                    'created_at' => 'Mar 10, 2026',
+                    'feedback_preview' => 'Readable layout, but some bullets are long single-line paragraphs.',
+                ],
+                [
+                    'id' => 202,
+                    'version_name' => 'backend_resume.pdf',
+                    'job_context_label' => 'Senior Backend Engineer (Distributed Systems)',
+                    'label' => 'Senior Backend Engineer',
+                    'ats_score' => 67,
+                    'keyword_match' => 69,
+                    'created_at' => 'Mar 19, 2026',
+                    'feedback_preview' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work.',
+                ],
+            ],
+        ],
+        [
+            'id' => 3,
+            'name' => 'Frontend Portfolio Refresh',
+            'updated_at' => 'Mar 5, 2026',
+            'versions' => [
+                [
+                    'id' => 31,
+                    'original_name' => 'frontend_dev_resume.docx',
+                    'uploaded_at' => 'Mar 4, 2026',
+                    'is_latest' => true,
+                ],
+            ],
+            'scans' => [
+                [
+                    'id' => 301,
+                    'version_name' => 'frontend_dev_resume.docx',
+                    'job_context_label' => 'Frontend Developer — BlueWave Analytics',
+                    'label' => 'BlueWave Analytics',
+                    'ats_score' => 50,
+                    'keyword_match' => 50,
+                    'created_at' => 'Mar 5, 2026',
+                    'feedback_preview' => 'Several required stack keywords are absent. Skills section could mirror the posting language more closely.',
+                ],
+            ],
+        ],
+    ];
+}
+
 Route::get('/', function () {
     return view('home');
 });
@@ -121,84 +227,39 @@ Route::middleware('auth')->group(function () {
             ->can('view', 'user');
     });
 
+    Route::redirect('/dashboard/resumes', '/dashboard/workspaces');
+    Route::redirect('/dashboard/resumes/{id}', '/dashboard/workspaces/{id}');
 
-    Route::get('/dashboard/resumes', function () {
-        $evaluations = [
-            [
-                'id' => 101,
-                'name' => 'Resume 1',
-                'ats_friendliness' => 90,
-                'keyword_match' => null,
-                'modules' => [
-                    ['id' => 1, 'name' => 'Module 1'],
-                ],
-            ],
-            [
-                'id' => 102,
-                'name' => 'Senior Backend Engineer (Distributed Systems)',
-                'ats_friendliness' => 67,
-                'keyword_match' => 69,
-                'modules' => [
-                    ['id' => 2, 'name' => 'Senior Seminar W25'],
-                    ['id' => 4, 'name' => 'Distributed Systems Cohort'],
-                ],
-            ],
-            [
-                'id' => 103,
-                'name' => 'Frontend Developer - BlueWave Analytics',
-                'ats_friendliness' => 50,
-                'keyword_match' => 50,
-                'modules' => [
-                    ['id' => 3, 'name' => 'Senior Seminar W24'],
-                ],
-            ],
-        ];
+    Route::get('/dashboard/workspaces', function () {
+        $workspaces = collect(mockWorkspaces())
+            ->map(fn (array $workspace): array => [
+                'id' => $workspace['id'],
+                'name' => $workspace['name'],
+                'version_count' => count($workspace['versions']),
+                'scan_count' => count($workspace['scans']),
+                'latest_version' => collect($workspace['versions'])->last(),
+                'latest_scan' => collect($workspace['scans'])->last(),
+                'updated_at' => $workspace['updated_at'],
+            ])
+            ->values()
+            ->all();
 
-        return view('dashboard.resumes.index', [
-            'evaluations' => $evaluations,
+        return view('dashboard.workspaces.index', [
+            'workspaces' => $workspaces,
         ]);
-    })->name('dashboard.resumes.index');
+    })->name('dashboard.workspaces.index');
 
-    Route::get('/dashboard/resumes/{id}', function ($id) {
-        $evaluations = [
-            [
-                'id' => 101,
-                'name' => 'Resume 1',
-                'ats_friendliness' => 90,
-                'keyword_match' => null,
-                'modules' => [
-                    ['id' => 1, 'name' => 'Module 1'],
-                ],
-            ],
-            [
-                'id' => 102,
-                'name' => 'Senior Backend Engineer (Distributed Systems)',
-                'ats_friendliness' => 67,
-                'keyword_match' => 69,
-                'modules' => [
-                    ['id' => 2, 'name' => 'Senior Seminar W25'],
-                    ['id' => 4, 'name' => 'Distributed Systems Cohort'],
-                ],
-            ],
-            [
-                'id' => 103,
-                'name' => 'Frontend Developer - BlueWave Analytics',
-                'ats_friendliness' => 50,
-                'keyword_match' => 50,
-                'modules' => [
-                    ['id' => 3, 'name' => 'Senior Seminar W24'],
-                ],
-            ],
-        ];
-        $evaluation = collect($evaluations)->firstWhere('id', $id);
+    Route::get('/dashboard/workspaces/{id}', function (int $id) {
+        $workspace = collect(mockWorkspaces())->firstWhere('id', $id);
 
-        return view('dashboard.resumes.show', [
-            'title' => $evaluation['name'],
-            'evaluation' => $evaluation['ats_friendliness'],
-            'keyword_match' => $evaluation['keyword_match'],
-            'modules' => $evaluation['modules'],
+        if ($workspace === null) {
+            abort(404);
+        }
+
+        return view('dashboard.workspaces.show', [
+            'workspace' => $workspace,
         ]);
-    })->name('dashboard.resumes.show');
+    })->name('dashboard.workspaces.show');
 
     // Route::get('/testdb', function () {
     //     $modules = Module::all();
@@ -213,5 +274,5 @@ Route::middleware('auth')->group(function () {
             'users' => User::query()->orderBy('last_name', 'asc')->orderBy('first_name', 'asc')->get(),
         ]);
     })->name('dashboard.admin.users.index')
-    ->can('viewAny', User::class);
+        ->can('viewAny', User::class);
 });
