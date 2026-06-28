@@ -12,6 +12,7 @@ use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -24,36 +25,39 @@ function mockWorkspaces(): array
             'id' => 1,
             'name' => 'Summer Internship Prep',
             'updated_at' => '2 hours ago',
-            'versions' => [
-                [
-                    'id' => 11,
-                    'original_name' => 'resume_v1.pdf',
-                    'uploaded_at' => 'Mar 12, 2026',
-                    'is_latest' => false,
-                ],
-                [
-                    'id' => 12,
-                    'original_name' => 'resume_v2.pdf',
-                    'uploaded_at' => 'Mar 18, 2026',
-                    'is_latest' => false,
-                ],
-                [
-                    'id' => 13,
-                    'original_name' => 'resume_v3.pdf',
-                    'uploaded_at' => 'Mar 22, 2026',
-                    'is_latest' => true,
-                ],
-            ],
             'scans' => [
                 [
-                    'id' => 101,
-                    'version_name' => 'resume_v3.pdf',
-                    'job_context_label' => 'General scan (no job description)',
-                    'label' => 'General scan',
-                    'ats_score' => 82,
+                    'id' => 103,
+                    'status' => 'pending',
+                    'job_description_label' => null,
+                    'match_percent' => null,
                     'keyword_match' => null,
-                    'created_at' => 'Mar 22, 2026',
-                    'feedback_preview' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
+                    'quality_eval' => null,
+                    'created_at' => 'Mar 23, 2026 · 9:14 AM',
+                    'resume_text_preview' => null,
+                    'job_description_preview' => null,
+                ],
+                [
+                    'id' => 102,
+                    'status' => 'completed',
+                    'job_description_label' => 'Software Engineering Intern — RiverTech',
+                    'match_percent' => 74,
+                    'keyword_match' => 68,
+                    'quality_eval' => 'Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting\'s language around REST APIs and Git workflows.',
+                    'created_at' => 'Mar 22, 2026 · 4:30 PM',
+                    'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Teaching Assistant, Data Structures...",
+                    'job_description_preview' => 'We are looking for a Software Engineering Intern with experience in Python, REST APIs, and collaborative development using Git...',
+                ],
+                [
+                    'id' => 101,
+                    'status' => 'completed',
+                    'job_description_label' => null,
+                    'match_percent' => 82,
+                    'keyword_match' => null,
+                    'quality_eval' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
+                    'created_at' => 'Mar 20, 2026 · 11:02 AM',
+                    'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Campus IT Support (earlier draft)...",
+                    'job_description_preview' => null,
                 ],
             ],
         ],
@@ -61,34 +65,28 @@ function mockWorkspaces(): array
             'id' => 2,
             'name' => 'Distributed Systems Roles',
             'updated_at' => 'Yesterday',
-            'versions' => [
-                [
-                    'id' => 21,
-                    'original_name' => 'backend_resume.pdf',
-                    'uploaded_at' => 'Mar 10, 2026',
-                    'is_latest' => true,
-                ],
-            ],
             'scans' => [
                 [
-                    'id' => 201,
-                    'version_name' => 'backend_resume.pdf',
-                    'job_context_label' => 'General scan (no job description)',
-                    'label' => 'General scan',
-                    'ats_score' => 71,
-                    'keyword_match' => null,
-                    'created_at' => 'Mar 10, 2026',
-                    'feedback_preview' => 'Readable layout, but some bullets are long single-line paragraphs.',
+                    'id' => 202,
+                    'status' => 'completed',
+                    'job_description_label' => 'Senior Backend Engineer (Distributed Systems)',
+                    'match_percent' => 67,
+                    'keyword_match' => 69,
+                    'quality_eval' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work. Experience bullets are strong but could better highlight scale and reliability themes from the posting.',
+                    'created_at' => 'Mar 19, 2026 · 2:15 PM',
+                    'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nBuilt microservices handling 10k req/s at...",
+                    'job_description_preview' => 'Senior Backend Engineer to design distributed systems using Kafka, gRPC, and consensus protocols...',
                 ],
                 [
-                    'id' => 202,
-                    'version_name' => 'backend_resume.pdf',
-                    'job_context_label' => 'Senior Backend Engineer (Distributed Systems)',
-                    'label' => 'Senior Backend Engineer',
-                    'ats_score' => 67,
-                    'keyword_match' => 69,
-                    'created_at' => 'Mar 19, 2026',
-                    'feedback_preview' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work.',
+                    'id' => 201,
+                    'status' => 'completed',
+                    'job_description_label' => null,
+                    'match_percent' => 71,
+                    'keyword_match' => null,
+                    'quality_eval' => 'Readable layout, but some bullets are long single-line paragraphs. Break complex achievements into shorter, scannable lines.',
+                    'created_at' => 'Mar 10, 2026 · 10:48 AM',
+                    'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nExperience\n— Platform team, API development...",
+                    'job_description_preview' => null,
                 ],
             ],
         ],
@@ -96,24 +94,18 @@ function mockWorkspaces(): array
             'id' => 3,
             'name' => 'Frontend Portfolio Refresh',
             'updated_at' => 'Mar 5, 2026',
-            'versions' => [
-                [
-                    'id' => 31,
-                    'original_name' => 'frontend_dev_resume.docx',
-                    'uploaded_at' => 'Mar 4, 2026',
-                    'is_latest' => true,
-                ],
-            ],
             'scans' => [
                 [
                     'id' => 301,
-                    'version_name' => 'frontend_dev_resume.docx',
-                    'job_context_label' => 'Frontend Developer — BlueWave Analytics',
-                    'label' => 'BlueWave Analytics',
-                    'ats_score' => 50,
-                    'keyword_match' => 50,
-                    'created_at' => 'Mar 5, 2026',
-                    'feedback_preview' => 'Several required stack keywords are absent. Skills section could mirror the posting language more closely.',
+                    'status' => 'failed',
+                    'job_description_label' => 'Frontend Developer — BlueWave Analytics',
+                    'match_percent' => null,
+                    'keyword_match' => null,
+                    'quality_eval' => null,
+                    'error_message' => 'Evaluation timed out. Try again with a shorter resume or job description.',
+                    'created_at' => 'Mar 5, 2026 · 3:22 PM',
+                    'resume_text_preview' => "Sam Rivera\nFrontend Developer...",
+                    'job_description_preview' => 'Frontend Developer with React, TypeScript, and data visualization experience...',
                 ],
             ],
         ],
@@ -232,15 +224,17 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/workspaces', function () {
         $workspaces = collect(mockWorkspaces())
-            ->map(fn (array $workspace): array => [
-                'id' => $workspace['id'],
-                'name' => $workspace['name'],
-                'version_count' => count($workspace['versions']),
-                'scan_count' => count($workspace['scans']),
-                'latest_version' => collect($workspace['versions'])->last(),
-                'latest_scan' => collect($workspace['scans'])->last(),
-                'updated_at' => $workspace['updated_at'],
-            ])
+            ->map(function (array $workspace): array {
+                $latestScan = $workspace['scans'][0] ?? null;
+
+                return [
+                    'id' => $workspace['id'],
+                    'name' => $workspace['name'],
+                    'scan_count' => count($workspace['scans']),
+                    'latest_scan' => $latestScan,
+                    'updated_at' => $workspace['updated_at'],
+                ];
+            })
             ->values()
             ->all();
 
@@ -259,15 +253,36 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
         ]);
-    })
-    ->whereNumber('id')
-    ->name('dashboard.workspaces.show');
+    })->whereNumber('id')
+      ->name('dashboard.workspaces.show');
 
-    // Route::get('/testdb', function () {
-    //     $modules = Module::all();
-    //     $users = User::all();
-    //     dd($modules, $users);
-    // });
+
+    Route::post('/dashboard/workspaces/{id}', function (int $id) {
+        $workspace = collect(mockWorkspaces())->firstWhere('id', $id);
+
+        if ($workspace === null) {
+            abort(404);
+        }
+
+        $response = Http::baseUrl(config('services.eval.url'))
+            ->timeout(config('services.eval.timeout'))
+            ->acceptJson()
+            ->post('/evaluate', [
+                'resume_text' => request()->resume_text,
+                'job_description' => request()->job_description
+            ]);
+        
+        if ($response->failed()) {
+            return redirect()
+                ->route('dashboard.workspaces.show', $id)
+                ->with('evaluation_error', 'Evaluation service could not complete the request.');
+        }
+
+        return redirect()
+            ->route('dashboard.workspaces.show', $id)
+            ->with('evaluation', $response->json());
+    })->name('dashboard.workspaces.scans.store');
+  
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');
 

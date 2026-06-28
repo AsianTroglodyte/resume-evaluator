@@ -6,7 +6,7 @@
             <div>
                 <h2 class="text-2xl font-semibold">Your Workspaces</h2>
                 <p class="mt-1 text-sm text-base-content/70">
-                    Draft resume versions, run scans, and review feedback. Submit snapshots to assignments from module pages when you are ready.
+                    Run resume evaluations and review scan history. Each scan stores the resume and job context you used.
                 </p>
             </div>
             <button type="button" class="btn btn-primary btn-sm" onclick="new_workspace_modal.showModal()">
@@ -18,11 +18,11 @@
                     <div class="border-b border-base-300 px-6 py-4">
                         <h3 class="text-lg font-bold">New Workspace</h3>
                         <p class="mt-1 text-sm text-base-content/70">
-                            Create a drafting area for resume versions and scans. Job context is added when you run a scan.
+                            Create a place to run evaluations and keep a history of scans.
                         </p>
                     </div>
 
-                    <form class="flex flex-col gap-4 px-6 py-5" method="POST" action="#" enctype="multipart/form-data">
+                    <form class="flex flex-col gap-4 px-6 py-5" method="POST" action="#">
                         @csrf
                         <label class="form-control w-full">
                             <span class="label-text mb-1 font-medium">Workspace Name</span>
@@ -31,14 +31,6 @@
                                 class="input input-bordered w-full"
                                 placeholder="e.g. Summer Internship Prep"
                             />
-                        </label>
-
-                        <label class="form-control w-full">
-                            <span class="label-text mb-1 font-medium">Initial Resume (optional)</span>
-                            <input type="file" class="file-input file-input-bordered w-full" accept=".pdf,.doc,.docx" />
-                            <span class="label-text-alt text-sm text-base-content/60">
-                                Accepted: PDF, DOC, DOCX. You can upload more versions later.
-                            </span>
                         </label>
 
                         <div class="modal-action mt-2">
@@ -58,10 +50,9 @@
                 <thead>
                     <tr>
                         <th>Workspace</th>
-                        <th>Latest Version</th>
-                        <th>Latest Scan</th>
-                        <th>ATS Score</th>
-                        <th>Keyword Match</th>
+                        <th>Latest scan</th>
+                        <th>Match</th>
+                        <th>Keywords</th>
                         <th>Updated</th>
                         <th class="text-right">Actions</th>
                     </tr>
@@ -77,35 +68,38 @@
                                 ></a>
                                 <div class="font-semibold">{{ $workspace['name'] }}</div>
                                 <div class="text-xs text-base-content/60">
-                                    {{ $workspace['version_count'] }} {{ Str::plural('version', $workspace['version_count']) }},
                                     {{ $workspace['scan_count'] }} {{ Str::plural('scan', $workspace['scan_count']) }}
                                 </div>
                             </td>
                             <td>
-                                @if ($workspace['latest_version'])
-                                    <div class="text-sm">{{ $workspace['latest_version']['original_name'] }}</div>
-                                @else
-                                    <span class="text-sm text-base-content/50">No uploads yet</span>
-                                @endif
-                            </td>
-                            <td>
                                 @if ($workspace['latest_scan'])
-                                    <div class="text-sm">{{ $workspace['latest_scan']['label'] }}</div>
+                                    <div class="text-sm">
+                                        @if ($workspace['latest_scan']['job_description_label'])
+                                            {{ $workspace['latest_scan']['job_description_label'] }}
+                                        @else
+                                            General evaluation
+                                        @endif
+                                    </div>
+                                    @if ($workspace['latest_scan']['status'] === 'pending')
+                                        <span class="badge badge-warning badge-xs mt-1">Pending</span>
+                                    @elseif ($workspace['latest_scan']['status'] === 'failed')
+                                        <span class="badge badge-error badge-xs mt-1">Failed</span>
+                                    @endif
                                 @else
                                     <span class="text-sm text-base-content/50">No scans yet</span>
                                 @endif
                             </td>
                             <td>
-                                @if ($workspace['latest_scan'] && isset($workspace['latest_scan']['ats_score']))
+                                @if ($workspace['latest_scan'] && $workspace['latest_scan']['status'] === 'completed' && isset($workspace['latest_scan']['match_percent']))
                                     <span class="badge badge-primary badge-outline">
-                                        {{ $workspace['latest_scan']['ats_score'] }}%
+                                        {{ $workspace['latest_scan']['match_percent'] }}%
                                     </span>
                                 @else
                                     <span class="text-sm text-base-content/50">—</span>
                                 @endif
                             </td>
                             <td>
-                                @if ($workspace['latest_scan'] && isset($workspace['latest_scan']['keyword_match']))
+                                @if ($workspace['latest_scan'] && $workspace['latest_scan']['status'] === 'completed' && isset($workspace['latest_scan']['keyword_match']))
                                     <span class="badge badge-secondary badge-outline">
                                         {{ $workspace['latest_scan']['keyword_match'] }}%
                                     </span>
@@ -131,8 +125,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-10 text-center text-base-content/60">
-                                No workspaces yet. Create one to start uploading resume versions and running scans.
+                            <td colspan="6" class="py-10 text-center text-base-content/60">
+                                No workspaces yet. Create one to start running evaluations.
                             </td>
                         </tr>
                     @endforelse
