@@ -54,19 +54,25 @@
             @if (session('evaluation_error'))
                 <p class="text-sm text-error">{{ session('evaluation_error') }}</p>
             @elseif (session('evaluation'))
-                <h2 class="font-semibold">Latest evaluation result</h2>
-                <dl class="mt-3 space-y-3 text-sm">
-                    <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-base-content/50">Resume text</dt>
-                        <dd class="mt-1 whitespace-pre-wrap font-mono text-base-content/80">{{ session('evaluation.resume_text') }}</dd>
+                @php($evaluation = session('evaluation'))
+
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <h2 class="font-semibold">Latest evaluation result</h2>
+                    <div class="flex flex-wrap gap-2">
+                        @if (isset($evaluation['match_percent']))
+                            <span class="badge badge-primary badge-outline">Match {{ $evaluation['match_percent'] }}%</span>
+                        @endif
+                        @if (isset($evaluation['keyword_match']))
+                            <span class="badge badge-secondary badge-outline">Keywords {{ $evaluation['keyword_match'] }}%</span>
+                        @endif
                     </div>
-                    @if (session('evaluation.job_description'))
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wide text-base-content/50">Job description</dt>
-                            <dd class="mt-1 whitespace-pre-wrap text-base-content/80">{{ session('evaluation.job_description') }}</dd>
-                        </div>
-                    @endif
-                </dl>
+                </div>
+
+                @if (! empty($evaluation['quality_eval']))
+                    <p class="mt-4 text-sm leading-relaxed text-base-content/80 whitespace-pre-wrap">{{ $evaluation['quality_eval'] }}</p>
+                @else
+                    <p class="mt-4 text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
+                @endif
             @else
                 <p class="text-sm text-base-content/60">No evaluation run yet. Submit the form above to see results here.</p>
             @endif
