@@ -73,6 +73,15 @@
                 @else
                     <p class="mt-4 text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
                 @endif
+
+                {{-- @if (! empty($evaluation['jd_keywords']))
+                    <p class="mt-4 text-sm leading-relaxed text-base-content/80 whitespace-pre-wrap">
+                        {{
+                        json_encode($evaluation['jd_keywords'])}}
+                    </p>
+                @else
+                    <p class="mt-4 text-sm leading-relaxed text-base-content/80 whitespace-pre-wrap">no jd provided</p>
+                @endif --}}
             @else
                 <p class="text-sm text-base-content/60">No evaluation run yet. Submit the form above to see results here.</p>
             @endif
