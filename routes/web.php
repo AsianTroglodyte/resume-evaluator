@@ -32,7 +32,7 @@ function mockWorkspaces(): array
                     'job_description_label' => null,
                     'match_percent' => null,
                     'keyword_match' => null,
-                    'quality_eval' => null,
+                    'enrichment' => null,
                     'created_at' => 'Mar 23, 2026 · 9:14 AM',
                     'resume_text_preview' => null,
                     'job_description_preview' => null,
@@ -43,7 +43,9 @@ function mockWorkspaces(): array
                     'job_description_label' => 'Software Engineering Intern — RiverTech',
                     'match_percent' => 74,
                     'keyword_match' => 68,
-                    'quality_eval' => 'Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting\'s language around REST APIs and Git workflows.',
+                    'enrichment' => [
+                        'analysis_summary' => 'Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting\'s language around REST APIs and Git workflows.',
+                    ],
                     'created_at' => 'Mar 22, 2026 · 4:30 PM',
                     'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Teaching Assistant, Data Structures...",
                     'job_description_preview' => 'We are looking for a Software Engineering Intern with experience in Python, REST APIs, and collaborative development using Git...',
@@ -54,7 +56,9 @@ function mockWorkspaces(): array
                     'job_description_label' => null,
                     'match_percent' => 82,
                     'keyword_match' => null,
-                    'quality_eval' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
+                    'enrichment' => [
+                        'analysis_summary' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
+                    ],
                     'created_at' => 'Mar 20, 2026 · 11:02 AM',
                     'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Campus IT Support (earlier draft)...",
                     'job_description_preview' => null,
@@ -72,7 +76,9 @@ function mockWorkspaces(): array
                     'job_description_label' => 'Senior Backend Engineer (Distributed Systems)',
                     'match_percent' => 67,
                     'keyword_match' => 69,
-                    'quality_eval' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work. Experience bullets are strong but could better highlight scale and reliability themes from the posting.',
+                    'enrichment' => [
+                        'analysis_summary' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work. Experience bullets are strong but could better highlight scale and reliability themes from the posting.',
+                    ],
                     'created_at' => 'Mar 19, 2026 · 2:15 PM',
                     'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nBuilt microservices handling 10k req/s at...",
                     'job_description_preview' => 'Senior Backend Engineer to design distributed systems using Kafka, gRPC, and consensus protocols...',
@@ -83,7 +89,9 @@ function mockWorkspaces(): array
                     'job_description_label' => null,
                     'match_percent' => 71,
                     'keyword_match' => null,
-                    'quality_eval' => 'Readable layout, but some bullets are long single-line paragraphs. Break complex achievements into shorter, scannable lines.',
+                    'enrichment' => [
+                        'analysis_summary' => 'Readable layout, but some bullets are long single-line paragraphs. Break complex achievements into shorter, scannable lines.',
+                    ],
                     'created_at' => 'Mar 10, 2026 · 10:48 AM',
                     'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nExperience\n— Platform team, API development...",
                     'job_description_preview' => null,
@@ -101,13 +109,92 @@ function mockWorkspaces(): array
                     'job_description_label' => 'Frontend Developer — BlueWave Analytics',
                     'match_percent' => null,
                     'keyword_match' => null,
-                    'quality_eval' => null,
+                    'enrichment' => null,
                     'error_message' => 'Evaluation timed out. Try again with a shorter resume or job description.',
                     'created_at' => 'Mar 5, 2026 · 3:22 PM',
                     'resume_text_preview' => "Sam Rivera\nFrontend Developer...",
                     'job_description_preview' => 'Frontend Developer with React, TypeScript, and data visualization experience...',
                 ],
             ],
+        ],
+    ];
+}
+
+/**
+ * Sample evaluation payload for local UI development (replaced by session flash after a real run).
+ *
+ * @return array<string, mixed>
+ */
+function mockEvaluation(): array
+{
+    return [
+        'keyword_match' => 62.5,
+        'matched_keywords' => [
+            'Python',
+            'FastAPI',
+            'PostgreSQL',
+            'Git',
+            'REST APIs',
+            'Linux',
+        ],
+        'missing_keywords' => [
+            'Docker',
+            'Kubernetes',
+            'AWS',
+            'CI/CD',
+            'microservices',
+            'agile',
+            'Redis',
+            'unit testing',
+            'code review',
+            'pair programming',
+            'Terraform',
+        ],
+        'jd_keywords' => [
+            'role' => 'Software Engineering Intern',
+            'company' => 'RiverTech',
+            'required_skills' => ['Python', 'FastAPI', 'Git', 'REST APIs'],
+            'preferred_skills' => ['Docker', 'PostgreSQL', 'Linux'],
+            'keywords' => ['Kubernetes', 'AWS', 'CI/CD', 'microservices', 'agile', 'Redis', 'unit testing', 'code review', 'pair programming', 'Terraform'],
+        ],
+        'ai_phrases' => [
+            ['phrase' => 'leveraged', 'suggestion' => 'used'],
+            ['phrase' => 'spearheaded', 'suggestion' => 'led'],
+            ['phrase' => 'synergy', 'suggestion' => 'collaboration'],
+            ['phrase' => 'in order to', 'suggestion' => 'to'],
+        ],
+        'enrichment' => [
+            'analysis_summary' => 'Projects are described clearly, but internship experience bullets are vague and lack metrics or specific technologies.',
+            'items_to_enrich' => [
+                [
+                    'item_id' => 'exp_0',
+                    'item_type' => 'experience',
+                    'title' => 'Software Engineering Intern',
+                    'subtitle' => 'RiverTech',
+                    'current_description' => [
+                        'Worked on backend features for the customer portal',
+                        'Helped with API development and bug fixes',
+                    ],
+                    'weakness_reason' => 'Generic phrasing with no measurable impact or tech stack named.',
+                ],
+            ],
+            'questions' => [
+                [
+                    'question_id' => 'q_0',
+                    'item_id' => 'exp_0',
+                    'question' => 'What specific metrics or outcomes improved from your work at RiverTech?',
+                    'placeholder' => 'e.g., Reduced API response time by 35%, fixed 12 production bugs',
+                ],
+                [
+                    'question_id' => 'q_1',
+                    'item_id' => 'exp_0',
+                    'question' => 'Which languages, frameworks, and tools did you use in this internship?',
+                    'placeholder' => 'e.g., Python, FastAPI, PostgreSQL, Git, Docker',
+                ],
+            ],
+        ],
+        'warnings' => [
+            'Education is empty — skip only if that\'s intentional.',
         ],
     ];
 }
@@ -252,10 +339,10 @@ Route::middleware('auth')->group(function () {
 
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
+            'previewEvaluation' => mockEvaluation(),
         ]);
     })->whereNumber('id')
-      ->name('dashboard.workspaces.show');
-
+        ->name('dashboard.workspaces.show');
 
     Route::post('/dashboard/workspaces/{id}', function (int $id) {
         $workspace = collect(mockWorkspaces())->firstWhere('id', $id);
@@ -269,9 +356,9 @@ Route::middleware('auth')->group(function () {
             ->acceptJson()
             ->post('/evaluate', [
                 'resume_text' => request()->resume_text,
-                'job_description' => request()->job_description
+                'job_description' => request()->job_description,
             ]);
-        
+
         if ($response->failed()) {
             return redirect()
                 ->route('dashboard.workspaces.show', $id)
@@ -280,9 +367,11 @@ Route::middleware('auth')->group(function () {
 
         return redirect()
             ->route('dashboard.workspaces.show', $id)
-            ->with('evaluation', $response->json());
+            ->with([
+                'evaluation' => $response->json(), 
+                'job_description' => request()->job_description
+            ]);
     })->name('dashboard.workspaces.scans.store');
-  
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');
 

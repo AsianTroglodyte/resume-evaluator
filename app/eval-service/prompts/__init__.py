@@ -1,0 +1,11 @@
+from prompts.templates import (
+    EXTRACT_KEYWORDS_PROMPT,
+    PARSE_RESUME_PROMPT,
+    RESUME_SCHEMA_EXAMPLE,
+)
+
+__all__ = [
+    "EXTRACT_KEYWORDS_PROMPT",
+    "PARSE_RESUME_PROMPT",
+    "RESUME_SCHEMA_EXAMPLE",
+]

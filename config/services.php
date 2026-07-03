@@ -37,6 +37,6 @@ return [
 
     'eval' => [
         'url' => env('EVAL_SERVICE_URL', 'http://127.0.0.1:8001'),
-        'timeout' => env('EVAL_SERVICE_TIMEOUT', 3),
+        'timeout' => env('EVAL_SERVICE_TIMEOUT', 180),
     ],
 ];
