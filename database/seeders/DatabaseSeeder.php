@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
     private array $modulesConfig = [
         [
             'name' => 'Resume Workshop 2025',
-            'status' => 'Archived',
+            'status' => 'archived',
             'lone_members' => 9,
             'lone_job_listings' => 3,
             'assignments' => [
