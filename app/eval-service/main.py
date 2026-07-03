@@ -12,8 +12,10 @@ from keyword_match import (
     extract_job_keywords,
     resume_from_plain_text,
 )
+from parser import parse_resume_to_json
 from pydantic import BaseModel
-from review_warnings import build_review_warnings_from_text
+from review_warnings import build_review_warnings
+from schemas import ResumeData
 
 load_dotenv()
 
@@ -62,13 +64,12 @@ async def post_item(payload: EvaluateRequest):
     enrichment_task = asyncio.create_task(
         analyze_resume_enrichment(payload.resume_text)
     )
+    parse_task = asyncio.create_task(parse_resume_to_json(payload.resume_text))
 
-    quality_eval = ""
-    enrichment = None
-
-    quality_result, enrichment_result = await asyncio.gather(
+    quality_result, enrichment_result, parse_result = await asyncio.gather(
         quality_task,
         enrichment_task,
+        parse_task,
         return_exceptions=True,
     )
 
@@ -78,10 +79,19 @@ async def post_item(payload: EvaluateRequest):
 
     quality_eval = quality_result
 
+    enrichment = None
     if isinstance(enrichment_result, Exception):
         logger.exception("Enrichment analysis failed", exc_info=enrichment_result)
     else:
         enrichment = enrichment_result
+
+    parsed_resume = None
+    warnings: list[str] = []
+    if isinstance(parse_result, Exception):
+        logger.exception("Resume parse failed", exc_info=parse_result)
+    else:
+        parsed_resume = parse_result
+        warnings = build_review_warnings(ResumeData.model_validate(parsed_resume))
 
     keyword_match = None
     matched_keywords = None
@@ -89,10 +99,8 @@ async def post_item(payload: EvaluateRequest):
     jd_keywords = None
     if payload.job_description:
         jd_keywords = await extract_job_keywords(payload.job_description)
-        gaps = analyze_keyword_gaps(
-            resume_from_plain_text(payload.resume_text),
-            jd_keywords,
-        )
+        resume_for_match = parsed_resume or resume_from_plain_text(payload.resume_text)
+        gaps = analyze_keyword_gaps(resume_for_match, jd_keywords)
         keyword_match = gaps["match_percent"]
         matched_keywords = gaps["matched_keywords"]
         missing_keywords = gaps["missing_keywords"]
@@ -101,8 +109,6 @@ async def post_item(payload: EvaluateRequest):
         payload.resume_text,
         payload.job_description or "",
     )
-
-    warnings = build_review_warnings_from_text(payload.resume_text)
 
     return {
         "quality_eval": quality_eval,

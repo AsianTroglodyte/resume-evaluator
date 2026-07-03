@@ -58,7 +58,7 @@ Features worth borrowing from [Resume-Matcher](https://github.com/srbhr/Resume-M
 | **Status** | `done` |
 | **RM source** | `app/services/resume_wizard.py` (`build_review_warnings`) |
 | **What** | Rule-based gaps: no name, no contact, no experience/projects, empty education, empty skills. No LLM. |
-| **Needs** | Parsed `ResumeData` easiest; could approximate from text/heuristics later. |
+| **Needs** | `parse_resume_to_json()` → `build_review_warnings(ResumeData)` (RM parity). |
 | **Evaluate output** | `warnings[]` strings. |
 
 ### 5. Improver utilities (mostly done)
@@ -78,9 +78,9 @@ Features worth borrowing from [Resume-Matcher](https://github.com/srbhr/Resume-M
 
 | | |
 |---|---|
-| **Status** | `todo` |
+| **Status** | `done` |
 | **RM source** | `refiner.py` (`_extract_all_text`) — already in `keyword_match.py` |
-| **What** | Stop using `resume_from_plain_text()` stub; pass full resume text or structured dict through `_extract_all_text`. |
+| **What** | Use parsed resume dict for keyword match when parse succeeds (fallback: plain-text stub). |
 
 ### 7. JD truncation helper
 
