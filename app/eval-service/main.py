@@ -13,6 +13,7 @@ from keyword_match import (
     resume_from_plain_text,
 )
 from pydantic import BaseModel
+from review_warnings import build_review_warnings_from_text
 
 load_dotenv()
 
@@ -101,6 +102,8 @@ async def post_item(payload: EvaluateRequest):
         payload.job_description or "",
     )
 
+    warnings = build_review_warnings_from_text(payload.resume_text)
+
     return {
         "quality_eval": quality_eval,
         "enrichment": enrichment,
@@ -108,5 +111,6 @@ async def post_item(payload: EvaluateRequest):
         "matched_keywords": matched_keywords,
         "missing_keywords": missing_keywords,
         "ai_phrases": ai_phrases,
+        "warnings": warnings,
         "jd_keywords": jd_keywords,
     }

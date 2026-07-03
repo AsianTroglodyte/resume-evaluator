@@ -186,6 +186,9 @@ function mockEvaluation(): array
                 ],
             ],
         ],
+        'warnings' => [
+            'Education is empty — skip only if that\'s intentional.',
+        ],
     ];
 }
 
@@ -357,7 +360,10 @@ Route::middleware('auth')->group(function () {
 
         return redirect()
             ->route('dashboard.workspaces.show', $id)
-            ->with('evaluation', $response->json());
+            ->with([
+                'evaluation' => $response->json(), 
+                'job_description' => request()->job_description
+            ]);
     })->name('dashboard.workspaces.scans.store');
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');

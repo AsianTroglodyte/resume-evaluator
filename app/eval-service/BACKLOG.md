@@ -55,7 +55,7 @@ Features worth borrowing from [Resume-Matcher](https://github.com/srbhr/Resume-M
 
 | | |
 |---|---|
-| **Status** | `todo` |
+| **Status** | `done` |
 | **RM source** | `app/services/resume_wizard.py` (`build_review_warnings`) |
 | **What** | Rule-based gaps: no name, no contact, no experience/projects, empty education, empty skills. No LLM. |
 | **Needs** | Parsed `ResumeData` easiest; could approximate from text/heuristics later. |

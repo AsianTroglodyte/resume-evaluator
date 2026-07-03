@@ -64,6 +64,7 @@
                     $missingRest = array_slice($missingKeywords, 8);
                     $aiPhrases = $evaluation['ai_phrases'] ?? [];
                     $enrichment = $evaluation['enrichment'] ?? null;
+                    $warnings = $evaluation['warnings'] ?? [];
                 @endphp
 
                 @if ($evaluation)
@@ -80,6 +81,22 @@
                         </span>
                     @endif
                 </div>
+
+                @if (! empty($warnings))
+                    <div class="mt-4 rounded-box border border-base-300 bg-base-200/40 p-4">
+                        <p class="text-sm font-semibold text-base-content">
+                            Completeness checks ({{ count($warnings) }})
+                        </p>
+                        <p class="mt-1 text-xs text-base-content/60">
+                            Quick checks for common gaps — no AI, same rules every time.
+                        </p>
+                        <ul class="mt-3 list-disc space-y-1 pl-5 text-sm text-base-content/90">
+                            @foreach ($warnings as $warning)
+                                <li>{{ $warning }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 @if (! empty($evaluation['quality_eval']))
                     <div class="mt-4">
