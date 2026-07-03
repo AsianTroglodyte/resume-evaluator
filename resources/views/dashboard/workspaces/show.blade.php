@@ -70,9 +70,11 @@
                 @if ($evaluation)
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div class="flex flex-wrap items-center gap-2">
-                        <h2 class="font-semibold">Latest evaluation result</h2>
+                        <h2 class="font-semibold">
+                            {{ $evaluationIsPreview ? 'Example evaluation' : 'Latest evaluation result' }}
+                        </h2>
                         @if ($evaluationIsPreview)
-                            <span class="badge badge-ghost badge-sm">Example evaluation</span>
+                            <span class="badge badge-ghost badge-sm">Sample data</span>
                         @endif
                     </div>
                     @if ($keywordMatchPercent !== null)
