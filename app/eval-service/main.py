@@ -1,10 +1,14 @@
 import os
-from keyword_match import calculate_keyword_match
 import litellm
+from ai_phrases import detect_ai_phrases
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
-from keyword_match import extract_job_keywords, resume_from_plain_text
+from keyword_match import (
+    analyze_keyword_gaps,
+    extract_job_keywords,
+    resume_from_plain_text,
+)
 
 load_dotenv()
 
@@ -44,20 +48,32 @@ async def post_item(payload: EvaluateRequest):
     )
 
     keyword_match = None
+    matched_keywords = None
+    missing_keywords = None
     jd_keywords = None
     if payload.job_description:
         jd_keywords = await extract_job_keywords(payload.job_description)
-        keyword_match = calculate_keyword_match(
+        gaps = analyze_keyword_gaps(
             resume_from_plain_text(payload.resume_text),
-            jd_keywords
+            jd_keywords,
         )
+        keyword_match = gaps["match_percent"]
+        matched_keywords = gaps["matched_keywords"]
+        missing_keywords = gaps["missing_keywords"]
 
     llm_response = response.choices[0].message.content
 
+    ai_phrases = detect_ai_phrases(
+        payload.resume_text,
+        payload.job_description or "",
+    )
 
     return {
         "quality_eval": llm_response,
         "keyword_match": keyword_match,
-        "jd_keywords": jd_keywords
+        "matched_keywords": matched_keywords,
+        "missing_keywords": missing_keywords,
+        "ai_phrases": ai_phrases,
+        "jd_keywords": jd_keywords,
     }
 

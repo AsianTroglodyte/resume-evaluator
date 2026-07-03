@@ -24,6 +24,62 @@ def resume_from_plain_text(text: str) -> dict:
     return {"summary": text}
 
 
+def _collect_jd_keywords(jd_keywords: dict[str, Any]) -> list[str]:
+    """Collect unique JD keywords in stable order (required, preferred, general)."""
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for field in ("required_skills", "preferred_skills", "keywords"):
+        values = jd_keywords.get(field, [])
+        if not isinstance(values, list):
+            continue
+        for keyword in values:
+            if not isinstance(keyword, str):
+                continue
+            cleaned = keyword.strip()
+            if not cleaned:
+                continue
+            fold = cleaned.casefold()
+            if fold in seen:
+                continue
+            seen.add(fold)
+            ordered.append(cleaned)
+    return ordered
+
+
+def analyze_keyword_gaps(
+    resume: dict[str, Any],
+    jd_keywords: dict[str, Any],
+) -> dict[str, Any]:
+    """Analyze which JD keywords appear in the resume.
+
+    Adapted from Resume-Matcher refiner.analyze_keyword_gaps (single resume,
+    no master/tailored injectable split).
+
+    Returns:
+        match_percent, matched_keywords, missing_keywords
+    """
+    resume_text = _extract_all_text(resume).lower()
+    all_keywords = _collect_jd_keywords(jd_keywords)
+
+    if not all_keywords:
+        logger.warning("No keywords found in job description")
+        return {
+            "match_percent": 0.0,
+            "matched_keywords": [],
+            "missing_keywords": [],
+        }
+
+    matched = [kw for kw in all_keywords if _keyword_in_text(kw, resume_text)]
+    missing = [kw for kw in all_keywords if not _keyword_in_text(kw, resume_text)]
+    match_percent = (len(matched) / len(all_keywords)) * 100
+
+    return {
+        "match_percent": match_percent,
+        "matched_keywords": matched,
+        "missing_keywords": missing,
+    }
+
+
 def calculate_keyword_match(
     resume: dict[str, Any],
     jd_keywords: dict[str, Any],
@@ -37,21 +93,7 @@ def calculate_keyword_match(
     Returns:
         Match percentage (0.0 to 100.0)
     """
-    resume_text = _extract_all_text(resume).lower()
-
-    all_keywords: set[str] = set()
-    all_keywords.update(jd_keywords.get("required_skills", []))
-    all_keywords.update(jd_keywords.get("preferred_skills", []))
-    all_keywords.update(jd_keywords.get("keywords", []))
-
-    # SVC-009: Return 0% if no keywords (not 100% - that's misleading)
-    if not all_keywords:
-        logger.warning("No keywords found in job description")
-        return 0.0
-
-    # SVC-010: Use word boundary matching instead of substring
-    matched = sum(1 for kw in all_keywords if _keyword_in_text(kw, resume_text))
-    return (matched / len(all_keywords)) * 100
+    return analyze_keyword_gaps(resume, jd_keywords)["match_percent"]
 
 
 def _keyword_in_text(keyword: str, text: str) -> bool:

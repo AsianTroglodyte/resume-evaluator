@@ -53,19 +53,31 @@
         <section class="rounded-box border border-base-300 bg-base-100 px-4 py-5 sm:px-6">
             @if (session('evaluation_error'))
                 <p class="text-sm text-error">{{ session('evaluation_error') }}</p>
-            @elseif (session('evaluation'))
-                @php($evaluation = session('evaluation'))
+            @else
+                @php
+                    $evaluationIsPreview = ! session()->has('evaluation');
+                    $evaluation = session('evaluation', $previewEvaluation ?? null);
+                    $keywordMatchPercent = $evaluation['keyword_match'] ?? $evaluation['match_percent'] ?? null;
+                    $matchedKeywords = $evaluation['matched_keywords'] ?? [];
+                    $missingKeywords = $evaluation['missing_keywords'] ?? [];
+                    $missingVisible = array_slice($missingKeywords, 0, 8);
+                    $missingRest = array_slice($missingKeywords, 8);
+                    $aiPhrases = $evaluation['ai_phrases'] ?? [];
+                @endphp
 
+                @if ($evaluation)
                 <div class="flex flex-wrap items-start justify-between gap-3">
-                    <h2 class="font-semibold">Latest evaluation result</h2>
-                    <div class="flex flex-wrap gap-2">
-                        @if (isset($evaluation['match_percent']))
-                            <span class="badge badge-primary badge-outline">Match {{ $evaluation['match_percent'] }}%</span>
-                        @endif
-                        @if (isset($evaluation['keyword_match']))
-                            <span class="badge badge-secondary badge-outline">Keywords {{ $evaluation['keyword_match'] }}%</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h2 class="font-semibold">Latest evaluation result</h2>
+                        @if ($evaluationIsPreview)
+                            <span class="badge badge-ghost badge-sm">Sample data</span>
                         @endif
                     </div>
+                    @if ($keywordMatchPercent !== null)
+                        <span class="badge badge-primary badge-outline">
+                            Keyword match {{ is_numeric($keywordMatchPercent) ? (int) round($keywordMatchPercent) : $keywordMatchPercent }}%
+                        </span>
+                    @endif
                 </div>
 
                 @if (! empty($evaluation['quality_eval']))
@@ -74,16 +86,72 @@
                     <p class="mt-4 text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
                 @endif
 
-                {{-- @if (! empty($evaluation['jd_keywords']))
-                    <p class="mt-4 text-sm leading-relaxed text-base-content/80 whitespace-pre-wrap">
-                        {{
-                        json_encode($evaluation['jd_keywords'])}}
-                    </p>
+                @if (! empty($matchedKeywords) || ! empty($missingKeywords))
+                    <div class="mt-6 grid gap-4 md:grid-cols-2">
+                        @if (! empty($matchedKeywords))
+                            <div class="rounded-box border border-success/30 bg-success/5 p-4">
+                                <p class="text-sm font-semibold text-success">
+                                    Matched ({{ count($matchedKeywords) }})
+                                </p>
+                                <p class="mt-1 text-xs text-base-content/60">
+                                    Terms from the job description found in your resume.
+                                </p>
+                                <p class="mt-3 text-sm leading-relaxed text-base-content/90">
+                                    {{ implode(', ', $matchedKeywords) }}
+                                </p>
+                            </div>
+                        @endif
+
+                        @if (! empty($missingKeywords))
+                            <div class="rounded-box border border-warning/30 bg-warning/5 p-4">
+                                <p class="text-sm font-semibold text-warning">
+                                    Missing ({{ count($missingKeywords) }})
+                                </p>
+                                <p class="mt-1 text-xs text-base-content/60">
+                                    Consider adding these if you have relevant experience.
+                                </p>
+                                <p class="mt-3 text-sm leading-relaxed text-base-content/90">
+                                    {{ implode(', ', $missingVisible) }}
+                                </p>
+                                @if (! empty($missingRest))
+                                    <details class="mt-2">
+                                        <summary class="cursor-pointer text-sm text-primary hover:underline">
+                                            Show {{ count($missingRest) }} more
+                                        </summary>
+                                        <p class="mt-2 text-sm leading-relaxed text-base-content/90">
+                                            {{ implode(', ', $missingRest) }}
+                                        </p>
+                                    </details>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
+                @if (! empty($aiPhrases))
+                    <div class="mt-6 rounded-box border border-base-300 bg-base-200/40 p-4">
+                        <p class="text-sm font-semibold text-base-content">
+                            AI-sounding phrases ({{ count($aiPhrases) }})
+                        </p>
+                        <p class="mt-1 text-xs text-base-content/60">
+                            These words often read as generic or machine-written. Consider simpler alternatives where noted.
+                        </p>
+                        <ul class="mt-3 space-y-2 text-sm text-base-content/90">
+                            @foreach ($aiPhrases as $hit)
+                                <li>
+                                    <span class="font-medium">{{ $hit['phrase'] }}</span>
+                                    @if (! empty($hit['suggestion']))
+                                        <span class="text-base-content/60">→ try</span>
+                                        <span class="italic">{{ $hit['suggestion'] }}</span>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 @else
-                    <p class="mt-4 text-sm leading-relaxed text-base-content/80 whitespace-pre-wrap">no jd provided</p>
-                @endif --}}
-            @else
                 <p class="text-sm text-base-content/60">No evaluation run yet. Submit the form above to see results here.</p>
+                @endif
             @endif
         </section>
 
@@ -116,11 +184,11 @@
                                     <p class="mt-1 text-xs text-base-content/60">{{ $scan['created_at'] }}</p>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
-                                    @if ($scan['status'] === 'completed' && isset($scan['match_percent']))
-                                        <span class="badge badge-primary badge-outline">Match {{ $scan['match_percent'] }}%</span>
-                                    @endif
-                                    @if ($scan['status'] === 'completed' && isset($scan['keyword_match']))
-                                        <span class="badge badge-secondary badge-outline">Keywords {{ $scan['keyword_match'] }}%</span>
+                                    @if ($scan['status'] === 'completed' && (isset($scan['keyword_match']) || isset($scan['match_percent'])))
+                                        @php($scanMatch = $scan['keyword_match'] ?? $scan['match_percent'])
+                                        <span class="badge badge-primary badge-outline">
+                                            Keyword match {{ is_numeric($scanMatch) ? (int) round($scanMatch) : $scanMatch }}%
+                                        </span>
                                     @endif
                                 </div>
                             </div>

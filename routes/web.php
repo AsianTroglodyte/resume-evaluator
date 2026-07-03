@@ -112,6 +112,53 @@ function mockWorkspaces(): array
     ];
 }
 
+/**
+ * Sample evaluation payload for local UI development (replaced by session flash after a real run).
+ *
+ * @return array<string, mixed>
+ */
+function mockEvaluation(): array
+{
+    return [
+        'quality_eval' => "Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting's language around REST APIs and Git workflows.\n\n• Lead with impact in your top experience bullet.\n• Your projects section could name specific frameworks from the job description.",
+        'keyword_match' => 62.5,
+        'matched_keywords' => [
+            'Python',
+            'FastAPI',
+            'PostgreSQL',
+            'Git',
+            'REST APIs',
+            'Linux',
+        ],
+        'missing_keywords' => [
+            'Docker',
+            'Kubernetes',
+            'AWS',
+            'CI/CD',
+            'microservices',
+            'agile',
+            'Redis',
+            'unit testing',
+            'code review',
+            'pair programming',
+            'Terraform',
+        ],
+        'jd_keywords' => [
+            'role' => 'Software Engineering Intern',
+            'company' => 'RiverTech',
+            'required_skills' => ['Python', 'FastAPI', 'Git', 'REST APIs'],
+            'preferred_skills' => ['Docker', 'PostgreSQL', 'Linux'],
+            'keywords' => ['Kubernetes', 'AWS', 'CI/CD', 'microservices', 'agile', 'Redis', 'unit testing', 'code review', 'pair programming', 'Terraform'],
+        ],
+        'ai_phrases' => [
+            ['phrase' => 'leveraged', 'suggestion' => 'used'],
+            ['phrase' => 'spearheaded', 'suggestion' => 'led'],
+            ['phrase' => 'synergy', 'suggestion' => 'collaboration'],
+            ['phrase' => 'in order to', 'suggestion' => 'to'],
+        ],
+    ];
+}
+
 Route::get('/', function () {
     return view('home');
 });
@@ -252,10 +299,10 @@ Route::middleware('auth')->group(function () {
 
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
+            'previewEvaluation' => mockEvaluation(),
         ]);
     })->whereNumber('id')
-      ->name('dashboard.workspaces.show');
-
+        ->name('dashboard.workspaces.show');
 
     Route::post('/dashboard/workspaces/{id}', function (int $id) {
         $workspace = collect(mockWorkspaces())->firstWhere('id', $id);
@@ -269,9 +316,9 @@ Route::middleware('auth')->group(function () {
             ->acceptJson()
             ->post('/evaluate', [
                 'resume_text' => request()->resume_text,
-                'job_description' => request()->job_description
+                'job_description' => request()->job_description,
             ]);
-        
+
         if ($response->failed()) {
             return redirect()
                 ->route('dashboard.workspaces.show', $id)
@@ -282,7 +329,6 @@ Route::middleware('auth')->group(function () {
             ->route('dashboard.workspaces.show', $id)
             ->with('evaluation', $response->json());
     })->name('dashboard.workspaces.scans.store');
-  
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');
 
