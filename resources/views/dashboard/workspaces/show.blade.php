@@ -63,6 +63,7 @@
                     $missingVisible = array_slice($missingKeywords, 0, 8);
                     $missingRest = array_slice($missingKeywords, 8);
                     $aiPhrases = $evaluation['ai_phrases'] ?? [];
+                    $enrichment = $evaluation['enrichment'] ?? null;
                 @endphp
 
                 @if ($evaluation)
@@ -81,9 +82,67 @@
                 </div>
 
                 @if (! empty($evaluation['quality_eval']))
-                    <p class="mt-4 text-sm leading-relaxed text-base-content/80 whitespace-pre-wrap">{{ $evaluation['quality_eval'] }}</p>
-                @else
+                    <div class="mt-4">
+                        <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">Coach feedback</p>
+                        <p class="mt-2 text-sm leading-relaxed text-base-content/80 whitespace-pre-wrap">{{ $evaluation['quality_eval'] }}</p>
+                    </div>
+                @elseif (empty($enrichment))
                     <p class="mt-4 text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
+                @endif
+
+                @if (! empty($enrichment))
+                    <div class="mt-6 rounded-box border border-primary/20 bg-primary/5 p-4">
+                        <p class="text-sm font-semibold text-primary">Resume analysis</p>
+                        @if (! empty($enrichment['analysis_summary']))
+                            <p class="mt-2 text-sm leading-relaxed text-base-content/90">{{ $enrichment['analysis_summary'] }}</p>
+                        @endif
+
+                        @if (! empty($enrichment['items_to_enrich']))
+                            <div class="mt-4 space-y-3">
+                                <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
+                                    Items to strengthen ({{ count($enrichment['items_to_enrich']) }})
+                                </p>
+                                @foreach ($enrichment['items_to_enrich'] as $item)
+                                    <div class="rounded-box border border-base-300/60 bg-base-100/80 p-3">
+                                        <p class="text-sm font-medium text-base-content">
+                                            {{ $item['title'] }}
+                                            @if (! empty($item['subtitle']))
+                                                <span class="font-normal text-base-content/60">· {{ $item['subtitle'] }}</span>
+                                            @endif
+                                        </p>
+                                        @if (! empty($item['current_description']))
+                                            <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-base-content/80">
+                                                @foreach ($item['current_description'] as $bullet)
+                                                    <li>{{ $bullet }}</li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                        @if (! empty($item['weakness_reason']))
+                                            <p class="mt-2 text-sm text-warning">{{ $item['weakness_reason'] }}</p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if (! empty($enrichment['questions']))
+                            <div class="mt-4">
+                                <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
+                                    Questions to consider ({{ count($enrichment['questions']) }})
+                                </p>
+                                <ul class="mt-2 space-y-3">
+                                    @foreach ($enrichment['questions'] as $question)
+                                        <li class="text-sm text-base-content/90">
+                                            <p>{{ $question['question'] }}</p>
+                                            @if (! empty($question['placeholder']))
+                                                <p class="mt-1 text-xs text-base-content/60">e.g. {{ $question['placeholder'] }}</p>
+                                            @endif
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
                 @endif
 
                 @if (! empty($matchedKeywords) || ! empty($missingKeywords))

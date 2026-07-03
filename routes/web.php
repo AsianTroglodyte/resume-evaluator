@@ -156,6 +156,36 @@ function mockEvaluation(): array
             ['phrase' => 'synergy', 'suggestion' => 'collaboration'],
             ['phrase' => 'in order to', 'suggestion' => 'to'],
         ],
+        'enrichment' => [
+            'analysis_summary' => 'Projects are described clearly, but internship experience bullets are vague and lack metrics or specific technologies.',
+            'items_to_enrich' => [
+                [
+                    'item_id' => 'exp_0',
+                    'item_type' => 'experience',
+                    'title' => 'Software Engineering Intern',
+                    'subtitle' => 'RiverTech',
+                    'current_description' => [
+                        'Worked on backend features for the customer portal',
+                        'Helped with API development and bug fixes',
+                    ],
+                    'weakness_reason' => 'Generic phrasing with no measurable impact or tech stack named.',
+                ],
+            ],
+            'questions' => [
+                [
+                    'question_id' => 'q_0',
+                    'item_id' => 'exp_0',
+                    'question' => 'What specific metrics or outcomes improved from your work at RiverTech?',
+                    'placeholder' => 'e.g., Reduced API response time by 35%, fixed 12 production bugs',
+                ],
+                [
+                    'question_id' => 'q_1',
+                    'item_id' => 'exp_0',
+                    'question' => 'Which languages, frameworks, and tools did you use in this internship?',
+                    'placeholder' => 'e.g., Python, FastAPI, PostgreSQL, Git, Docker',
+                ],
+            ],
+        ],
     ];
 }
 

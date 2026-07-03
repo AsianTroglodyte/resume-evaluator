@@ -44,7 +44,7 @@ Features worth borrowing from [Resume-Matcher](https://github.com/srbhr/Resume-M
 
 | | |
 |---|---|
-| **Status** | `todo` |
+| **Status** | `done` |
 | **RM source** | `app/prompts/enrichment.py` (`ANALYZE_RESUME_PROMPT`, `WEAK DESCRIPTION INDICATORS`), `app/schemas/enrichment.py` (`AnalysisResponse`, `EnrichmentItem`, `EnrichmentQuestion`), `app/routers/enrichment.py` (`analyze_resume` — analyze path only) |
 | **What** | RM’s main coaching flow: weak bullets on experience/projects, up to 6 clarifying questions, `analysis_summary`. |
 | **Needs** | Resume text or `json.dumps(resume)`; small enrichment schema (not full `ResumeData`). |
