@@ -4,9 +4,6 @@ from typing import Any
 
 from prompts.refinement import AI_PHRASE_BLACKLIST, AI_PHRASE_REPLACEMENTS
 
-# Longer phrases first so "paradigm shift" wins over "paradigm".
-_SORTED_PHRASES = sorted(AI_PHRASE_BLACKLIST, key=len, reverse=True)
-
 
 def detect_ai_phrases(
     text: str,
@@ -16,6 +13,9 @@ def detect_ai_phrases(
 
     Phrases that also appear in the job description are skipped (RM parity:
     the JD may legitimately use terms like "stakeholder" or "scalable").
+
+    Overlapping phrases (e.g. "paradigm" and "paradigm shift") are both
+    reported when present — intentional for a lightweight heuristic.
 
     Returns:
         List of {"phrase": str, "suggestion": str} dicts. suggestion may be empty.
@@ -32,7 +32,7 @@ def detect_ai_phrases(
     found: list[dict[str, Any]] = []
     seen: set[str] = set()
 
-    for phrase in _SORTED_PHRASES:
+    for phrase in AI_PHRASE_BLACKLIST:
         phrase_lower = phrase.lower()
         if phrase_lower in jd_protected:
             continue
