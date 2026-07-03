@@ -39,7 +39,7 @@
                         name="job_description"
                         class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
                         placeholder="Paste a role description for keyword matching and targeted feedback."
-                    ></textarea>
+                    >{{session('job_description')}}</textarea>
                     <span class="label-text-alt text-sm text-base-content/60">
                         Leave blank for a general quality evaluation without keyword match.
                     </span>
@@ -72,7 +72,7 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <h2 class="font-semibold">Latest evaluation result</h2>
                         @if ($evaluationIsPreview)
-                            <span class="badge badge-ghost badge-sm">Sample data</span>
+                            <span class="badge badge-ghost badge-sm">Example evaluation</span>
                         @endif
                     </div>
                     @if ($keywordMatchPercent !== null)
@@ -98,12 +98,7 @@
                     </div>
                 @endif
 
-                @if (! empty($evaluation['quality_eval']))
-                    <div class="mt-4">
-                        <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">Coach feedback</p>
-                        <p class="mt-2 text-sm leading-relaxed text-base-content/80 whitespace-pre-wrap">{{ $evaluation['quality_eval'] }}</p>
-                    </div>
-                @elseif (empty($enrichment))
+                @if (empty($enrichment) && empty($warnings) && empty($aiPhrases) && $keywordMatchPercent === null)
                     <p class="mt-4 text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
                 @endif
 
@@ -166,8 +161,8 @@
                     <div class="mt-6 grid gap-4 md:grid-cols-2">
                         @if (! empty($matchedKeywords))
                             <div class="rounded-box border border-success/30 bg-success/5 p-4">
-                                <p class="text-sm font-semibold text-success">
-                                    Matched ({{ count($matchedKeywords) }})
+                                <p class="text-sm font-semibold">
+                                    Matched keywords ({{ count($matchedKeywords) }})
                                 </p>
                                 <p class="mt-1 text-xs text-base-content/60">
                                     Terms from the job description found in your resume.
@@ -180,7 +175,7 @@
 
                         @if (! empty($missingKeywords))
                             <div class="rounded-box border border-warning/30 bg-warning/5 p-4">
-                                <p class="text-sm font-semibold text-warning">
+                                <p class="text-sm font-semibold">
                                     Missing ({{ count($missingKeywords) }})
                                 </p>
                                 <p class="mt-1 text-xs text-base-content/60">
@@ -276,7 +271,11 @@
                             @elseif ($scan['status'] === 'failed')
                                 <p class="text-sm text-error">{{ $scan['error_message'] ?? 'Evaluation could not be completed.' }}</p>
                             @else
-                                <p class="text-sm leading-relaxed text-base-content/80">{{ $scan['quality_eval'] }}</p>
+                                @if (! empty($scan['enrichment']['analysis_summary']))
+                                    <p class="text-sm leading-relaxed text-base-content/80">{{ $scan['enrichment']['analysis_summary'] }}</p>
+                                @else
+                                    <p class="text-sm text-base-content/60">Evaluation completed.</p>
+                                @endif
                             @endif
 
                             @if ($scan['status'] === 'completed')

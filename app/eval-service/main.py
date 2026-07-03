@@ -1,8 +1,6 @@
 import asyncio
 import logging
-import os
 
-import litellm
 from ai_phrases import detect_ai_phrases
 from dotenv import load_dotenv
 from enrichment_analyze import analyze_resume_enrichment
@@ -39,45 +37,18 @@ class EvaluateRequest(BaseModel):
     job_description: str | None = None
 
 
-async def _quality_eval(resume_text: str, job_description: str | None) -> str:
-    system = "You are a resume coach, Give concise, actionable feedback."
-    user = f"Resume:\n{resume_text}\n\nJob description:\n{job_description or '(none)'}"
-
-    response = await litellm.acompletion(
-        model=os.getenv("LLM_MODEL", "gpt-4o-mini"),
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-        api_key=os.getenv("OPENAI_API_KEY"),
-        max_tokens=1024,
-        temperature=0.1,
-    )
-    return response.choices[0].message.content or ""
-
-
 @app.post("/evaluate")
 async def post_item(payload: EvaluateRequest):
-    quality_task = asyncio.create_task(
-        _quality_eval(payload.resume_text, payload.job_description)
-    )
     enrichment_task = asyncio.create_task(
         analyze_resume_enrichment(payload.resume_text)
     )
     parse_task = asyncio.create_task(parse_resume_to_json(payload.resume_text))
 
-    quality_result, enrichment_result, parse_result = await asyncio.gather(
-        quality_task,
+    enrichment_result, parse_result = await asyncio.gather(
         enrichment_task,
         parse_task,
         return_exceptions=True,
     )
-
-    if isinstance(quality_result, Exception):
-        logger.exception("Quality evaluation failed", exc_info=quality_result)
-        raise quality_result
-
-    quality_eval = quality_result
 
     enrichment = None
     if isinstance(enrichment_result, Exception):
@@ -111,7 +82,6 @@ async def post_item(payload: EvaluateRequest):
     )
 
     return {
-        "quality_eval": quality_eval,
         "enrichment": enrichment,
         "keyword_match": keyword_match,
         "matched_keywords": matched_keywords,

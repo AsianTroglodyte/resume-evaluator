@@ -32,7 +32,7 @@ function mockWorkspaces(): array
                     'job_description_label' => null,
                     'match_percent' => null,
                     'keyword_match' => null,
-                    'quality_eval' => null,
+                    'enrichment' => null,
                     'created_at' => 'Mar 23, 2026 · 9:14 AM',
                     'resume_text_preview' => null,
                     'job_description_preview' => null,
@@ -43,7 +43,9 @@ function mockWorkspaces(): array
                     'job_description_label' => 'Software Engineering Intern — RiverTech',
                     'match_percent' => 74,
                     'keyword_match' => 68,
-                    'quality_eval' => 'Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting\'s language around REST APIs and Git workflows.',
+                    'enrichment' => [
+                        'analysis_summary' => 'Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting\'s language around REST APIs and Git workflows.',
+                    ],
                     'created_at' => 'Mar 22, 2026 · 4:30 PM',
                     'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Teaching Assistant, Data Structures...",
                     'job_description_preview' => 'We are looking for a Software Engineering Intern with experience in Python, REST APIs, and collaborative development using Git...',
@@ -54,7 +56,9 @@ function mockWorkspaces(): array
                     'job_description_label' => null,
                     'match_percent' => 82,
                     'keyword_match' => null,
-                    'quality_eval' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
+                    'enrichment' => [
+                        'analysis_summary' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
+                    ],
                     'created_at' => 'Mar 20, 2026 · 11:02 AM',
                     'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Campus IT Support (earlier draft)...",
                     'job_description_preview' => null,
@@ -72,7 +76,9 @@ function mockWorkspaces(): array
                     'job_description_label' => 'Senior Backend Engineer (Distributed Systems)',
                     'match_percent' => 67,
                     'keyword_match' => 69,
-                    'quality_eval' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work. Experience bullets are strong but could better highlight scale and reliability themes from the posting.',
+                    'enrichment' => [
+                        'analysis_summary' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work. Experience bullets are strong but could better highlight scale and reliability themes from the posting.',
+                    ],
                     'created_at' => 'Mar 19, 2026 · 2:15 PM',
                     'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nBuilt microservices handling 10k req/s at...",
                     'job_description_preview' => 'Senior Backend Engineer to design distributed systems using Kafka, gRPC, and consensus protocols...',
@@ -83,7 +89,9 @@ function mockWorkspaces(): array
                     'job_description_label' => null,
                     'match_percent' => 71,
                     'keyword_match' => null,
-                    'quality_eval' => 'Readable layout, but some bullets are long single-line paragraphs. Break complex achievements into shorter, scannable lines.',
+                    'enrichment' => [
+                        'analysis_summary' => 'Readable layout, but some bullets are long single-line paragraphs. Break complex achievements into shorter, scannable lines.',
+                    ],
                     'created_at' => 'Mar 10, 2026 · 10:48 AM',
                     'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nExperience\n— Platform team, API development...",
                     'job_description_preview' => null,
@@ -101,7 +109,7 @@ function mockWorkspaces(): array
                     'job_description_label' => 'Frontend Developer — BlueWave Analytics',
                     'match_percent' => null,
                     'keyword_match' => null,
-                    'quality_eval' => null,
+                    'enrichment' => null,
                     'error_message' => 'Evaluation timed out. Try again with a shorter resume or job description.',
                     'created_at' => 'Mar 5, 2026 · 3:22 PM',
                     'resume_text_preview' => "Sam Rivera\nFrontend Developer...",
@@ -120,7 +128,6 @@ function mockWorkspaces(): array
 function mockEvaluation(): array
 {
     return [
-        'quality_eval' => "Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting's language around REST APIs and Git workflows.\n\n• Lead with impact in your top experience bullet.\n• Your projects section could name specific frameworks from the job description.",
         'keyword_match' => 62.5,
         'matched_keywords' => [
             'Python',
