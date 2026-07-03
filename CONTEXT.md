@@ -1,6 +1,6 @@
 # Resume Matcher LMS Context
 
-This system is an LMS-style platform for assignment-driven resume scanning. It models module-scoped teaching workflows with strict membership and submission invariants, alongside user-owned workspaces where students iterate on resumes and automated scans before submitting snapshots into assignments.
+This system is an LMS-style platform for assignment-driven resume evaluation. It models module-scoped teaching workflows with strict membership and submission invariants, alongside user-owned workspaces where students iterate on resumes and automated evaluations before submitting snapshots into assignments.
 
 ## Language
 
@@ -39,24 +39,24 @@ _Avoid_: Deleted module
 ### Workspace & Evaluation
 
 **Workspace**:
-A user-owned drafting area for resume versions and automated scans, independent of module membership.
+A user-owned drafting area for resume versions and automated evaluations, independent of module membership.
 _Avoid_: module workspace, assignment draft (unless explicitly assignment-linked)
 
 **Resume Version**:
 A single uploaded resume file revision within a workspace history.
-_Avoid_: Submission, scan
+_Avoid_: Submission, evaluation (as the document itself)
 
-**Resume Scan**:
-An automated evaluation of a resume version against job context, producing scores and feedback.
-_Avoid_: Submission, grading (manual)
+**Evaluation**:
+An automated assessment of a resume (version or paste) against optional job context, producing scores and feedback. Stored as history on a workspace.
+_Avoid_: Submission, grading (manual), scan
 
 **Workspace Snapshot**:
-A frozen workspace state (resume version, scan result, and job context) promoted into an assignment submission.
+A frozen workspace state (resume version, evaluation result, and job context) promoted into an assignment submission.
 _Avoid_: Live workspace reference (for submitted work)
 
 **Submit to Assignment**:
 The LMS action that attaches a workspace snapshot to an assignment, subject to assignment validity rules.
-_Avoid_: Upload (for assignment turn-in), scan (as the submitted object)
+_Avoid_: Upload (for assignment turn-in), evaluation (as the submitted object — the snapshot is submitted)
 
 ### Assignment & Submission
 

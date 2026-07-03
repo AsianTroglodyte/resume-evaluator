@@ -6,7 +6,7 @@
             <div>
                 <h2 class="text-2xl font-semibold">Your Workspaces</h2>
                 <p class="mt-1 text-sm text-base-content/70">
-                    Run resume evaluations and review scan history. Each scan stores the resume and job context you used.
+                    Run resume evaluations and review evaluation history. Each evaluation stores the resume and job context you used.
                 </p>
             </div>
             <button type="button" class="btn btn-primary btn-sm" onclick="new_workspace_modal.showModal()">
@@ -18,7 +18,7 @@
                     <div class="border-b border-base-300 px-6 py-4">
                         <h3 class="text-lg font-bold">New Workspace</h3>
                         <p class="mt-1 text-sm text-base-content/70">
-                            Create a place to run evaluations and keep a history of scans.
+                            Create a place to run evaluations and keep a history of results.
                         </p>
                     </div>
 
@@ -50,7 +50,7 @@
                 <thead>
                     <tr>
                         <th>Workspace</th>
-                        <th>Latest scan</th>
+                        <th>Latest evaluation</th>
                         <th>Match</th>
                         <th>Keywords</th>
                         <th>Updated</th>
@@ -68,40 +68,40 @@
                                 ></a>
                                 <div class="font-semibold">{{ $workspace['name'] }}</div>
                                 <div class="text-xs text-base-content/60">
-                                    {{ $workspace['scan_count'] }} {{ Str::plural('scan', $workspace['scan_count']) }}
+                                    {{ $workspace['evaluation_count'] }} {{ Str::plural('evaluation', $workspace['evaluation_count']) }}
                                 </div>
                             </td>
                             <td>
-                                @if ($workspace['latest_scan'])
+                                @if ($workspace['latest_evaluation'])
                                     <div class="text-sm">
-                                        @if ($workspace['latest_scan']['job_description_label'])
-                                            {{ $workspace['latest_scan']['job_description_label'] }}
+                                        @if ($workspace['latest_evaluation']['job_description_label'])
+                                            {{ $workspace['latest_evaluation']['job_description_label'] }}
                                         @else
                                             General evaluation
                                         @endif
                                     </div>
-                                    @if ($workspace['latest_scan']['status'] === 'pending')
+                                    @if ($workspace['latest_evaluation']['status'] === 'pending')
                                         <span class="badge badge-warning badge-xs mt-1">Pending</span>
-                                    @elseif ($workspace['latest_scan']['status'] === 'failed')
+                                    @elseif ($workspace['latest_evaluation']['status'] === 'failed')
                                         <span class="badge badge-error badge-xs mt-1">Failed</span>
                                     @endif
                                 @else
-                                    <span class="text-sm text-base-content/50">No scans yet</span>
+                                    <span class="text-sm text-base-content/50">No evaluations yet</span>
                                 @endif
                             </td>
                             <td>
-                                @if ($workspace['latest_scan'] && $workspace['latest_scan']['status'] === 'completed' && isset($workspace['latest_scan']['match_percent']))
+                                @if ($workspace['latest_evaluation'] && $workspace['latest_evaluation']['status'] === 'completed' && isset($workspace['latest_evaluation']['match_percent']))
                                     <span class="badge badge-primary badge-outline">
-                                        {{ $workspace['latest_scan']['match_percent'] }}%
+                                        {{ $workspace['latest_evaluation']['match_percent'] }}%
                                     </span>
                                 @else
                                     <span class="text-sm text-base-content/50">—</span>
                                 @endif
                             </td>
                             <td>
-                                @if ($workspace['latest_scan'] && $workspace['latest_scan']['status'] === 'completed' && isset($workspace['latest_scan']['keyword_match']))
+                                @if ($workspace['latest_evaluation'] && $workspace['latest_evaluation']['status'] === 'completed' && isset($workspace['latest_evaluation']['keyword_match']))
                                     <span class="badge badge-secondary badge-outline">
-                                        {{ $workspace['latest_scan']['keyword_match'] }}%
+                                        {{ $workspace['latest_evaluation']['keyword_match'] }}%
                                     </span>
                                 @else
                                     <span class="text-sm text-base-content/50">—</span>

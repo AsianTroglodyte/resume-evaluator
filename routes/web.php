@@ -25,7 +25,7 @@ function mockWorkspaces(): array
             'id' => 1,
             'name' => 'Summer Internship Prep',
             'updated_at' => '2 hours ago',
-            'scans' => [
+            'evaluations' => [
                 [
                     'id' => 103,
                     'status' => 'pending',
@@ -69,7 +69,7 @@ function mockWorkspaces(): array
             'id' => 2,
             'name' => 'Distributed Systems Roles',
             'updated_at' => 'Yesterday',
-            'scans' => [
+            'evaluations' => [
                 [
                     'id' => 202,
                     'status' => 'completed',
@@ -102,7 +102,7 @@ function mockWorkspaces(): array
             'id' => 3,
             'name' => 'Frontend Portfolio Refresh',
             'updated_at' => 'Mar 5, 2026',
-            'scans' => [
+            'evaluations' => [
                 [
                     'id' => 301,
                     'status' => 'failed',
@@ -312,13 +312,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/workspaces', function () {
         $workspaces = collect(mockWorkspaces())
             ->map(function (array $workspace): array {
-                $latestScan = $workspace['scans'][0] ?? null;
+                $latestEvaluation = $workspace['evaluations'][0] ?? null;
 
                 return [
                     'id' => $workspace['id'],
                     'name' => $workspace['name'],
-                    'scan_count' => count($workspace['scans']),
-                    'latest_scan' => $latestScan,
+                    'evaluation_count' => count($workspace['evaluations']),
+                    'latest_evaluation' => $latestEvaluation,
                     'updated_at' => $workspace['updated_at'],
                 ];
             })
@@ -371,7 +371,7 @@ Route::middleware('auth')->group(function () {
                 'evaluation' => $response->json(), 
                 'job_description' => request()->job_description
             ]);
-    })->name('dashboard.workspaces.scans.store');
+    })->name('dashboard.workspaces.evaluations.store');
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');
 

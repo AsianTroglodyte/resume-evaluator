@@ -11,7 +11,7 @@
             </a>
             <h1 class="mt-2 text-2xl font-semibold">{{ $workspace['name'] }}</h1>
             <p class="mt-1 text-sm text-base-content/70">
-                Paste resume text, optionally add a job description, and run an evaluation. Each run is saved in your scan history below.
+                Paste resume text, optionally add a job description, and run an evaluation. Each run is saved in your evaluation history below.
             </p>
         </header>
 
@@ -22,7 +22,7 @@
             </div>
             <form class="flex flex-col gap-4 px-4 py-5 sm:px-6" 
                 method="POST" 
-                action="{{ route('dashboard.workspaces.scans.store', $workspace['id']) }}">
+                action="{{ route('dashboard.workspaces.evaluations.store', $workspace['id']) }}">
                 @csrf
                 <label class="form-control w-full">
                     <span class="label-text mb-1 font-medium">Resume text</span>
@@ -230,37 +230,37 @@
 
         <section class="space-y-3">
             <div class="flex items-baseline justify-between gap-2">
-                <h2 class="text-lg font-semibold">Scan history</h2>
-                <span class="text-sm text-base-content/60">{{ count($workspace['scans']) }} {{ Str::plural('scan', count($workspace['scans'])) }}</span>
+                <h2 class="text-lg font-semibold">Evaluation history</h2>
+                <span class="text-sm text-base-content/60">{{ count($workspace['evaluations']) }} {{ Str::plural('evaluation', count($workspace['evaluations'])) }}</span>
             </div>
 
             <ul class="space-y-3">
-                @forelse ($workspace['scans'] as $scan)
+                @forelse ($workspace['evaluations'] as $evaluationRun)
                     <li class="rounded-box border border-base-300 bg-base-100">
                         <div class="border-b border-base-300 px-4 py-3 sm:px-5">
                             <div class="flex flex-wrap items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <div class="flex flex-wrap items-center gap-2">
-                                        @if ($scan['status'] === 'pending')
+                                        @if ($evaluationRun['status'] === 'pending')
                                             <span class="badge badge-warning badge-sm">Pending</span>
-                                        @elseif ($scan['status'] === 'failed')
+                                        @elseif ($evaluationRun['status'] === 'failed')
                                             <span class="badge badge-error badge-sm">Failed</span>
                                         @endif
                                         <span class="font-medium">
-                                            @if ($scan['job_description_label'])
-                                                {{ $scan['job_description_label'] }}
+                                            @if ($evaluationRun['job_description_label'])
+                                                {{ $evaluationRun['job_description_label'] }}
                                             @else
                                                 General evaluation
                                             @endif
                                         </span>
                                     </div>
-                                    <p class="mt-1 text-xs text-base-content/60">{{ $scan['created_at'] }}</p>
+                                    <p class="mt-1 text-xs text-base-content/60">{{ $evaluationRun['created_at'] }}</p>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
-                                    @if ($scan['status'] === 'completed' && (isset($scan['keyword_match']) || isset($scan['match_percent'])))
-                                        @php($scanMatch = $scan['keyword_match'] ?? $scan['match_percent'])
+                                    @if ($evaluationRun['status'] === 'completed' && (isset($evaluationRun['keyword_match']) || isset($evaluationRun['match_percent'])))
+                                        @php($evaluationMatch = $evaluationRun['keyword_match'] ?? $evaluationRun['match_percent'])
                                         <span class="badge badge-primary badge-outline">
-                                            Keyword match {{ is_numeric($scanMatch) ? (int) round($scanMatch) : $scanMatch }}%
+                                            Keyword match {{ is_numeric($evaluationMatch) ? (int) round($evaluationMatch) : $evaluationMatch }}%
                                         </span>
                                     @endif
                                 </div>
@@ -268,32 +268,32 @@
                         </div>
 
                         <div class="px-4 py-4 sm:px-5">
-                            @if ($scan['status'] === 'pending')
+                            @if ($evaluationRun['status'] === 'pending')
                                 <p class="text-sm text-base-content/70">Evaluation is running. Refresh to see results.</p>
-                            @elseif ($scan['status'] === 'failed')
-                                <p class="text-sm text-error">{{ $scan['error_message'] ?? 'Evaluation could not be completed.' }}</p>
+                            @elseif ($evaluationRun['status'] === 'failed')
+                                <p class="text-sm text-error">{{ $evaluationRun['error_message'] ?? 'Evaluation could not be completed.' }}</p>
                             @else
-                                @if (! empty($scan['enrichment']['analysis_summary']))
-                                    <p class="text-sm leading-relaxed text-base-content/80">{{ $scan['enrichment']['analysis_summary'] }}</p>
+                                @if (! empty($evaluationRun['enrichment']['analysis_summary']))
+                                    <p class="text-sm leading-relaxed text-base-content/80">{{ $evaluationRun['enrichment']['analysis_summary'] }}</p>
                                 @else
                                     <p class="text-sm text-base-content/60">Evaluation completed.</p>
                                 @endif
                             @endif
 
-                            @if ($scan['status'] === 'completed')
+                            @if ($evaluationRun['status'] === 'completed')
                                 <details class="mt-4 group">
                                     <summary class="cursor-pointer text-sm text-primary hover:underline">
-                                        View inputs used for this scan
+                                        View inputs used for this evaluation
                                     </summary>
                                     <div class="mt-3 space-y-3 rounded-box bg-base-200/50 p-3 text-sm">
                                         <div>
                                             <p class="mb-1 text-xs font-medium uppercase tracking-wide text-base-content/50">Resume text</p>
-                                            <p class="whitespace-pre-wrap font-mono text-xs text-base-content/80">{{ $scan['resume_text_preview'] }}</p>
+                                            <p class="whitespace-pre-wrap font-mono text-xs text-base-content/80">{{ $evaluationRun['resume_text_preview'] }}</p>
                                         </div>
-                                        @if ($scan['job_description_preview'])
+                                        @if ($evaluationRun['job_description_preview'])
                                             <div>
                                                 <p class="mb-1 text-xs font-medium uppercase tracking-wide text-base-content/50">Job description</p>
-                                                <p class="whitespace-pre-wrap text-xs text-base-content/80">{{ $scan['job_description_preview'] }}</p>
+                                                <p class="whitespace-pre-wrap text-xs text-base-content/80">{{ $evaluationRun['job_description_preview'] }}</p>
                                             </div>
                                         @endif
                                     </div>
@@ -303,7 +303,7 @@
                     </li>
                 @empty
                     <li class="rounded-box border border-dashed border-base-300 px-4 py-12 text-center text-sm text-base-content/60">
-                        No scans yet. Run your first evaluation above.
+                        No evaluations yet. Run your first evaluation above.
                     </li>
                 @endforelse
             </ul>

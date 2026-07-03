@@ -21,19 +21,19 @@ Decisions from architecture discussion (evaluate-only MVP, Resume-Matcher as lon
 
 | Decision | Choice |
 |----------|--------|
-| Primary container | **Workspace-centric** — versions and scans are children of a workspace. |
+| Primary container | **Workspace-centric** — versions and evaluations are children of a workspace. |
 | Module coupling | **Fully decoupled** until submit. Students create workspaces freely; submission is a separate LMS action. |
-| Submit unit | **Scan-first snapshot** — student picks a qualifying resume scan (implies version + job context + scores + feedback). |
+| Submit unit | **Evaluation-first snapshot** — student picks a qualifying evaluation (implies version + job context + scores + feedback). |
 
-### Job description sources (scanning vs submit)
+### Job description sources (evaluating vs submit)
 
 | Context | Rule |
 |---------|------|
-| Personal workspace scans | Paste external JD **or** pick an assignment-linked on-site listing (details TBD for paste UX). |
-| Assignment submit | Must use an **on-site allowed job listing** selected in the submit UI — **no paste**, no fuzzy matching pasted text to listings. **Exception:** external assignments (Assignment 1) — paste-backed scan; snapshot **denormalizes** scan payload on submit. |
-| General scan (no JD) | One pipeline, JD optional; keyword fields null/omitted. Cannot satisfy assignments that require a listing-backed scan. |
+| Personal workspace evaluations | Paste external JD **or** pick an assignment-linked on-site listing (details TBD for paste UX). |
+| Assignment submit | Must use an **on-site allowed job listing** selected in the submit UI — **no paste**, no fuzzy matching pasted text to listings. **Exception:** external assignments (Assignment 1) — paste-backed evaluation; snapshot **denormalizes** evaluation payload on submit. |
+| General evaluation (no JD) | One pipeline, JD optional; keyword fields null/omitted. Cannot satisfy assignments that require a listing-backed evaluation. |
 
-### Scan output (MVP)
+### Evaluation output (MVP)
 
 | Field / behavior | Choice |
 |------------------|--------|
@@ -46,9 +46,9 @@ Decisions from architecture discussion (evaluate-only MVP, Resume-Matcher as lon
 | Step | Choice |
 |------|--------|
 | Upload | **Parse on upload** — store structured resume JSON per version (queued job, status on version row). |
-| Scan execution | **Async queued job**; status on workspace show page (`pending` → `processing` → `completed` \| `failed`). |
+| Evaluation execution | **Async queued job**; status on workspace show page (`pending` → `processing` → `completed` \| `failed`). |
 | Integration | Laravel = system of record; **Python eval service** for parse (if not done in Laravel job calling Python) + evaluate endpoints. |
-| `evaluator_version` | Tracks Python service + prompt/schema version for audit and re-scan. |
+| `evaluator_version` | Tracks Python service + prompt/schema version for audit and re-evaluation. |
 
 ### Open (not decided)
 
@@ -75,8 +75,8 @@ Decisions from LMS workflow discussion. **Tentative** — author expressed uncer
 | Decision | Choice |
 |----------|--------|
 | Claim scope | **One active claim per (student, assignment)** — Option C. Each assignment with on-site listings has its own FCFS pick. Options A/B (one claim per module/group) are special cases. |
-| Change claim | Student may **change claim at any time**. Existing submissions remain valid under **freeze-history**; new/resubmit uses new claim + new qualifying scan. |
-| Submit validation | Submission must use student's **current claim** for that assignment, and claim must be an **allowed listing** on that assignment. Scan must have been run against that **exact listing** (not paste). |
+| Change claim | Student may **change claim at any time**. Existing submissions remain valid under **freeze-history**; new/resubmit uses new claim + new qualifying evaluation. |
+| Submit validation | Submission must use student's **current claim** for that assignment, and claim must be an **allowed listing** on that assignment. Evaluation must have been run against that **exact listing** (not paste). |
 
 ### Modules vs groups
 
@@ -139,13 +139,13 @@ Decisions from LMS workflow discussion. **Tentative** — author expressed uncer
 
 | Decision | Choice |
 |----------|--------|
-| Behavior | **Submission unchanged until resubmit** (Option A). Frozen submission stays on old listing/scan; new claim applies only to future resubmit. UI may show mismatch between current claim and submitted snapshot. |
+| Behavior | **Submission unchanged until resubmit** (Option A). Frozen submission stays on old listing/evaluation; new claim applies only to future resubmit. UI may show mismatch between current claim and submitted snapshot. |
 
 ### Claim UI placement (MVP)
 
 | Decision | Choice |
 |----------|--------|
-| Where students claim | **On the assignment page** (Option A). Claim, scan link-out, qualifying scan picker, and submit on one assignment-centric flow. Module job board deferred. |
+| Where students claim | **On the assignment page** (Option A). Claim, evaluation link-out, qualifying evaluation picker, and submit on one assignment-centric flow. Module job board deferred. |
 
 ### Assignee scope vs groups
 
@@ -160,7 +160,7 @@ Decisions from LMS workflow discussion. **Tentative** — author expressed uncer
 
 | Decision | Choice |
 |----------|--------|
-| Instructor moves student to another group | **Soft carry** (Option B). Update group membership only. Frozen submissions on old group’s assignments remain visible/auditable. Clear **active claims** on assignments the student no longer accesses; release those capacity slots. New group’s assignments unlock; student claims/scans/submits fresh there. |
+| Instructor moves student to another group | **Soft carry** (Option B). Update group membership only. Frozen submissions on old group’s assignments remain visible/auditable. Clear **active claims** on assignments the student no longer accesses; release those capacity slots. New group’s assignments unlock; student claims/evaluates/submits fresh there. |
 
 **Moodle analogy (for client discussion):** Moodle uses **Groups** (membership) + **Restrict access** on activities (limit who sees/submits). Optional **Groupings** bundle groups for targeting. There is no separate “pick students from checklist” parallel to groups — groups *are* the roster split. Individual **user overrides** handle exceptions. This design mirrors that: group on assignment ≈ Moodle restrict-by-group; overrides ≈ Moodle user overrides.
 
@@ -168,8 +168,8 @@ Decisions from LMS workflow discussion. **Tentative** — author expressed uncer
 
 | Decision | Choice |
 |----------|--------|
-| External submit freeze | **Denormalize on submit** (Option B). Submission/snapshot copies JD text, scores, and `feedback_json` from the qualifying scan — not only a FK. Audit trail survives workspace/scan lifecycle changes. Scan FK may still be stored for traceability. |
-| Validation | Assignment `job_listing_source = external`; qualifying scan has pasted JD (no `job_listing_id`); no claim check. |
+| External submit freeze | **Denormalize on submit** (Option B). Submission/snapshot copies JD text, scores, and `feedback_json` from the qualifying evaluation — not only a FK. Audit trail survives workspace/evaluation lifecycle changes. Evaluation FK may still be stored for traceability. |
+| Validation | Assignment `job_listing_source = external`; qualifying evaluation has pasted JD (no `job_listing_id`); no claim check. |
 
 ### Open (not decided)
 
