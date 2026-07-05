@@ -36,7 +36,7 @@
                             required
                         />
                         @error('new_member_email')
-                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                            <span class="label-text-alt mt-1 text-error">{{ $message }} </span>
                         @enderror
                     </label>
 

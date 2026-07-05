@@ -51,7 +51,6 @@
                     <tr>
                         <th>Workspace</th>
                         <th>Latest evaluation</th>
-                        <th>Match</th>
                         <th>Keywords</th>
                         <th>Updated</th>
                         <th class="text-right">Actions</th>
@@ -90,19 +89,15 @@
                                 @endif
                             </td>
                             <td>
-                                @if ($workspace['latest_evaluation'] && $workspace['latest_evaluation']['status'] === 'completed' && isset($workspace['latest_evaluation']['match_percent']))
-                                    <span class="badge badge-primary badge-outline">
-                                        {{ $workspace['latest_evaluation']['match_percent'] }}%
-                                    </span>
-                                @else
-                                    <span class="text-sm text-base-content/50">—</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if ($workspace['latest_evaluation'] && $workspace['latest_evaluation']['status'] === 'completed' && isset($workspace['latest_evaluation']['keyword_match']))
-                                    <span class="badge badge-secondary badge-outline">
-                                        {{ $workspace['latest_evaluation']['keyword_match'] }}%
-                                    </span>
+                                @if (
+                                    $workspace['latest_evaluation']
+                                    && $workspace['latest_evaluation']['status'] === 'completed'
+                                    && isset($workspace['latest_evaluation']['keyword_match'])
+                                )
+                                    @include('dashboard.workspaces._keyword-match-badge', [
+                                        'keywordMatch' => $workspace['latest_evaluation']['keyword_match'],
+                                        'compact' => true,
+                                    ])
                                 @else
                                     <span class="text-sm text-base-content/50">—</span>
                                 @endif
@@ -125,7 +120,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-10 text-center text-base-content/60">
+                            <td colspan="5" class="py-10 text-center text-base-content/60">
                                 No workspaces yet. Create one to start running evaluations.
                             </td>
                         </tr>

@@ -30,8 +30,6 @@ function mockWorkspaces(): array
                     'id' => 103,
                     'status' => 'pending',
                     'job_description_label' => null,
-                    'match_percent' => null,
-                    'keyword_match' => null,
                     'enrichment' => null,
                     'created_at' => 'Mar 23, 2026 · 9:14 AM',
                     'resume_text_preview' => null,
@@ -41,21 +39,20 @@ function mockWorkspaces(): array
                     'id' => 102,
                     'status' => 'completed',
                     'job_description_label' => 'Software Engineering Intern — RiverTech',
-                    'match_percent' => 74,
-                    'keyword_match' => 68,
                     'enrichment' => [
                         'analysis_summary' => 'Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting\'s language around REST APIs and Git workflows.',
                     ],
                     'created_at' => 'Mar 22, 2026 · 4:30 PM',
                     'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Teaching Assistant, Data Structures...",
                     'job_description_preview' => 'We are looking for a Software Engineering Intern with experience in Python, REST APIs, and collaborative development using Git...',
+                    'matched_keywords' => ['Python', 'REST APIs', 'Git', 'PostgreSQL'],
+                    'missing_keywords' => ['Docker', 'Kubernetes', 'CI/CD', 'microservices'],
+                    'keyword_match' => 68,
                 ],
                 [
                     'id' => 101,
                     'status' => 'completed',
                     'job_description_label' => null,
-                    'match_percent' => 82,
-                    'keyword_match' => null,
                     'enrichment' => [
                         'analysis_summary' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
                     ],
@@ -74,21 +71,20 @@ function mockWorkspaces(): array
                     'id' => 202,
                     'status' => 'completed',
                     'job_description_label' => 'Senior Backend Engineer (Distributed Systems)',
-                    'match_percent' => 67,
-                    'keyword_match' => 69,
                     'enrichment' => [
                         'analysis_summary' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work. Experience bullets are strong but could better highlight scale and reliability themes from the posting.',
                     ],
                     'created_at' => 'Mar 19, 2026 · 2:15 PM',
                     'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nBuilt microservices handling 10k req/s at...",
                     'job_description_preview' => 'Senior Backend Engineer to design distributed systems using Kafka, gRPC, and consensus protocols...',
+                    'matched_keywords' => ['gRPC', 'microservices', 'PostgreSQL'],
+                    'missing_keywords' => ['Kafka', 'consensus protocols', 'distributed systems'],
+                    'keyword_match' => 69,
                 ],
                 [
                     'id' => 201,
                     'status' => 'completed',
                     'job_description_label' => null,
-                    'match_percent' => 71,
-                    'keyword_match' => null,
                     'enrichment' => [
                         'analysis_summary' => 'Readable layout, but some bullets are long single-line paragraphs. Break complex achievements into shorter, scannable lines.',
                     ],
@@ -107,8 +103,6 @@ function mockWorkspaces(): array
                     'id' => 301,
                     'status' => 'failed',
                     'job_description_label' => 'Frontend Developer — BlueWave Analytics',
-                    'match_percent' => null,
-                    'keyword_match' => null,
                     'enrichment' => null,
                     'error_message' => 'Evaluation timed out. Try again with a shorter resume or job description.',
                     'created_at' => 'Mar 5, 2026 · 3:22 PM',
@@ -345,6 +339,13 @@ Route::middleware('auth')->group(function () {
         ->name('dashboard.workspaces.show');
 
     Route::post('/dashboard/workspaces/{id}', function (int $id) {
+
+        request()->validate([
+            'resume_file' => 'required|file|mimes:pdf,docx|max:20480'
+        ]);
+
+        dd(request()->resume_file);
+
         $workspace = collect(mockWorkspaces())->firstWhere('id', $id);
 
         if ($workspace === null) {
@@ -355,7 +356,7 @@ Route::middleware('auth')->group(function () {
             ->timeout(config('services.eval.timeout'))
             ->acceptJson()
             ->post('/evaluate', [
-                'resume_text' => request()->resume_text,
+                'resume_file' => request()->resume_file,
                 'job_description' => request()->job_description,
             ]);
 

@@ -22,26 +22,36 @@
             </div>
             <form class="flex flex-col gap-4 px-4 py-5 sm:px-6" 
                 method="POST" 
+                enctype="multipart/form-data"
+                {{-- accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" --}}
                 action="{{ route('dashboard.workspaces.evaluations.store', $workspace['id']) }}">
                 @csrf
                 <label class="form-control w-full">
-                    <span class="label-text mb-1 font-medium">Resume text</span>
-                    <textarea
+                    <div class="label-text mb-1 font-medium">Resume file</div>
+                    <input 
+                        type="file" 
+                        name="resume_file" 
+                        class="file-input">
+                    </input>
+                    @error('resume_file')
+                    <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                    @enderror
+                    {{-- <textarea
                         name="resume_text"
                         class="textarea textarea-bordered min-h-40 w-full font-mono text-sm"
                         placeholder="Paste your resume content here..."
                         required
-                    ></textarea>
+                    ></textarea> --}}
                 </label>
                 <label class="form-control w-full">
                     <span class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></span>
                     <textarea
                         name="job_description"
                         class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
-                        placeholder="Paste a role description for keyword matching and targeted feedback."
+                        placeholder="Paste a role description for targeted feedback and keyword analysis."
                     >{{session('job_description')}}</textarea>
                     <span class="label-text-alt text-sm text-base-content/60">
-                        Leave blank for a general quality evaluation without keyword match.
+                        Leave blank for a general quality evaluation without keyword analysis.
                     </span>
                 </label>
                 <div class="flex justify-end">
@@ -56,15 +66,13 @@
             @else
                 @php
                     $evaluationIsPreview = ! session()->has('evaluation');
-                    $evaluation = session('evaluation', $previewEvaluation ?? null);
-                    $keywordMatchPercent = $evaluation['keyword_match'] ?? $evaluation['match_percent'] ?? null;
-                    $matchedKeywords = $evaluation['matched_keywords'] ?? [];
-                    $missingKeywords = $evaluation['missing_keywords'] ?? [];
-                    $missingVisible = array_slice($missingKeywords, 0, 8);
-                    $missingRest = array_slice($missingKeywords, 8);
-                    $aiPhrases = $evaluation['ai_phrases'] ?? [];
-                    $enrichment = $evaluation['enrichment'] ?? null;
-                    $warnings = $evaluation['warnings'] ?? [];
+                    $evaluation = session('evaluation') ?? ($previewEvaluation ?? null);
+                    $matchedKeywords = is_array($evaluation) ? ($evaluation['matched_keywords'] ?? []) : [];
+                    $missingKeywords = is_array($evaluation) ? ($evaluation['missing_keywords'] ?? []) : [];
+                    $aiPhrases = is_array($evaluation) ? ($evaluation['ai_phrases'] ?? []) : [];
+                    $enrichment = is_array($evaluation) ? ($evaluation['enrichment'] ?? null) : null;
+                    $warnings = is_array($evaluation) ? ($evaluation['warnings'] ?? []) : [];
+                    $keywordMatch = is_array($evaluation) ? ($evaluation['keyword_match'] ?? null) : null;
                 @endphp
 
                 @if ($evaluation)
@@ -77,11 +85,7 @@
                             <span class="badge badge-ghost badge-sm">Sample data</span>
                         @endif
                     </div>
-                    @if ($keywordMatchPercent !== null)
-                        <span class="badge badge-primary badge-outline">
-                            Keyword match {{ is_numeric($keywordMatchPercent) ? (int) round($keywordMatchPercent) : $keywordMatchPercent }}%
-                        </span>
-                    @endif
+                    @include('dashboard.workspaces._keyword-match-badge', ['keywordMatch' => $keywordMatch])
                 </div>
 
                 @if (! empty($warnings))
@@ -100,7 +104,12 @@
                     </div>
                 @endif
 
-                @if (empty($enrichment) && empty($warnings) && empty($aiPhrases) && $keywordMatchPercent === null)
+                @php
+                    $hasKeywordFeedback = count(array_filter($matchedKeywords, 'is_string')) > 0
+                        || count(array_filter($missingKeywords, 'is_string')) > 0;
+                @endphp
+
+                @if (empty($enrichment) && empty($warnings) && empty($aiPhrases) && ! $hasKeywordFeedback)
                     <p class="mt-4 text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
                 @endif
 
@@ -159,47 +168,10 @@
                     </div>
                 @endif
 
-                @if (! empty($matchedKeywords) || ! empty($missingKeywords))
-                    <div class="mt-6 grid gap-4 md:grid-cols-2">
-                        @if (! empty($matchedKeywords))
-                            <div class="rounded-box border border-success/30 bg-success/5 p-4">
-                                <p class="text-sm font-semibold">
-                                    Matched keywords ({{ count($matchedKeywords) }})
-                                </p>
-                                <p class="mt-1 text-xs text-base-content/60">
-                                    Terms from the job description found in your resume.
-                                </p>
-                                <p class="mt-3 text-sm leading-relaxed text-base-content/90">
-                                    {{ implode(', ', $matchedKeywords) }}
-                                </p>
-                            </div>
-                        @endif
-
-                        @if (! empty($missingKeywords))
-                            <div class="rounded-box border border-warning/30 bg-warning/5 p-4">
-                                <p class="text-sm font-semibold">
-                                    Missing ({{ count($missingKeywords) }})
-                                </p>
-                                <p class="mt-1 text-xs text-base-content/60">
-                                    Consider adding these if you have relevant experience.
-                                </p>
-                                <p class="mt-3 text-sm leading-relaxed text-base-content/90">
-                                    {{ implode(', ', $missingVisible) }}
-                                </p>
-                                @if (! empty($missingRest))
-                                    <details class="mt-2">
-                                        <summary class="cursor-pointer text-sm text-primary hover:underline">
-                                            Show {{ count($missingRest) }} more
-                                        </summary>
-                                        <p class="mt-2 text-sm leading-relaxed text-base-content/90">
-                                            {{ implode(', ', $missingRest) }}
-                                        </p>
-                                    </details>
-                                @endif
-                            </div>
-                        @endif
-                    </div>
-                @endif
+                @include('dashboard.workspaces._keyword-analysis', [
+                    'matchedKeywords' => $matchedKeywords,
+                    'missingKeywords' => $missingKeywords,
+                ])
 
                 @if (! empty($aiPhrases))
                     <div class="mt-6 rounded-box border border-base-300 bg-base-200/40 p-4">
@@ -256,14 +228,11 @@
                                     </div>
                                     <p class="mt-1 text-xs text-base-content/60">{{ $evaluationRun['created_at'] }}</p>
                                 </div>
-                                <div class="flex flex-wrap gap-2">
-                                    @if ($evaluationRun['status'] === 'completed' && (isset($evaluationRun['keyword_match']) || isset($evaluationRun['match_percent'])))
-                                        @php($evaluationMatch = $evaluationRun['keyword_match'] ?? $evaluationRun['match_percent'])
-                                        <span class="badge badge-primary badge-outline">
-                                            Keyword match {{ is_numeric($evaluationMatch) ? (int) round($evaluationMatch) : $evaluationMatch }}%
-                                        </span>
-                                    @endif
-                                </div>
+                                @if ($evaluationRun['status'] === 'completed')
+                                    @include('dashboard.workspaces._keyword-match-badge', [
+                                        'keywordMatch' => $evaluationRun['keyword_match'] ?? null,
+                                    ])
+                                @endif
                             </div>
                         </div>
 
@@ -278,6 +247,12 @@
                                 @else
                                     <p class="text-sm text-base-content/60">Evaluation completed.</p>
                                 @endif
+
+                                @include('dashboard.workspaces._keyword-analysis', [
+                                    'matchedKeywords' => $evaluationRun['matched_keywords'] ?? [],
+                                    'missingKeywords' => $evaluationRun['missing_keywords'] ?? [],
+                                    'class' => 'mt-4',
+                                ])
                             @endif
 
                             @if ($evaluationRun['status'] === 'completed')
