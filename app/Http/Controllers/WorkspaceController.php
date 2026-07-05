@@ -36,6 +36,9 @@ class WorkspaceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // dd($request->workspace_name);
+        // $workspace->validated([
+        //     'workspace_name' => ['required', 'min:3']
+        // ]);
 
         $request->user()->workspaces()->create([
             'name' => $request->workspace_name
@@ -60,9 +63,14 @@ class WorkspaceController extends Controller
     public function update(Workspace $workspace): RedirectResponse
     {
         // dd(request()->new_workspace_name);
-        $workspace->update([
-            'name' => request()->new_workspace_name
+        $validated = request()->validate([
+            'workspace_name' => ['required', 'min:3']
         ]);
-        return redirect()->route('dashboard.workspaces.index');
+
+        $workspace->update([
+            'name' => request()->workspace_name
+        ]);
+
+        return redirect()->route('dashboard.workspaces.show', $workspace);
     }
 }

@@ -35,11 +35,13 @@
                     <input
                         type="text"
                         class="input input-bordered w-full"
-                        name="new_workspace_name"
+                        name="workspace_name"
                         data-rename-input
                         value="{{ old('name', $workspace->name) }}"
                         placeholder="Workspace name"
                         autocomplete="off"
+                        required
+                        minlength="3"
                     />
                 </label>
                 <div class="flex flex-wrap gap-2 mt-2">
@@ -52,6 +54,10 @@
                     </button>
                 </div>
             </form>
+
+            @error('workspace_name')
+                <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+            @enderror
 
             <p class="mt-1 text-sm text-base-content/70">
                 Upload a resume and optionally add a job description to run a practice evaluation.
