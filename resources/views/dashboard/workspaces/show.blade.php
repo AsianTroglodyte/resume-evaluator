@@ -2,24 +2,57 @@
     <x-slot:title>{{ $workspace->name }}</x-slot:title>
 
     <section class="space-y-6">
-        <header>
+        <header data-workspace-rename data-original-name="{{ $workspace->name }}">
             <a
                 href="{{ route('dashboard.workspaces.index') }}"
                 class="text-sm text-base-content/60 hover:text-base-content"
             >
                 ← Back to workspaces
             </a>
-            <label class="form-control mt-2 w-full max-w-xl">
-                <span class="sr-only">Workspace name</span>
-                <input
-                    type="text"
-                    name="name"
-                    value="{{ old('name', $workspace->name) }}"
-                    class="input input-ghost input-lg w-full px-0 text-2xl font-semibold focus:outline-none"
-                    placeholder="Workspace name"
-                    aria-label="Workspace name"
-                />
-            </label>
+
+            <div data-rename-view class="mt-2 flex max-w-xl items-center gap-2">
+                <h1 data-rename-display class="text-2xl font-semibold">{{ $workspace->name }}</h1>
+                <button
+                    type="button"
+                    class="btn btn-ghost btn-sm btn-square shrink-0"
+                    data-rename-start
+                    aria-label="Rename workspace"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                </button>
+            </div>
+
+            <form data-rename-edit class="mt-2 hidden max-w-xl space-y-2"
+                method="POST"
+                action="{{ route('dashboard.workspaces.update', $workspace) }}"
+                >
+                @csrf
+                @method('PATCH')
+                <label class="form-control w-full">
+                    <span class="label-text mb-1 font-medium">Workspace name</span>
+                    <input
+                        type="text"
+                        class="input input-bordered w-full"
+                        name="new_workspace_name"
+                        data-rename-input
+                        value="{{ old('name', $workspace->name) }}"
+                        placeholder="Workspace name"
+                        autocomplete="off"
+                    />
+                </label>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    {{-- Wire to PATCH route when rename is implemented --}}
+                    <button type="submit" class="btn btn-primary btn-sm" data-rename-save>
+                        Save
+                    </button>
+                    <button type="cancel" class="btn btn-outline btn-sm" data-rename-cancel>
+                        Cancel
+                    </button>
+                </div>
+            </form>
+
             <p class="mt-1 text-sm text-base-content/70">
                 Upload a resume and optionally add a job description to run a practice evaluation.
             </p>
@@ -271,4 +304,34 @@
             </dialog>
         </section>
     </section>
+
+    <script>
+        document.querySelectorAll('[data-workspace-rename]').forEach((root) => {
+            const viewBlock = root.querySelector('[data-rename-view]');
+            const editBlock = root.querySelector('[data-rename-edit]');
+            const display = root.querySelector('[data-rename-display]');
+            const input = root.querySelector('[data-rename-input]');
+            const originalName = root.dataset.originalName;
+
+            root.querySelector('[data-rename-start]').addEventListener('click', () => {
+                viewBlock.classList.add('hidden');
+                editBlock.classList.remove('hidden');
+                input.value = display.textContent.trim();
+                input.focus();
+                input.select();
+            });
+
+            root.querySelector('[data-rename-cancel]').addEventListener('click', () => {
+                input.value = originalName;
+                editBlock.classList.add('hidden');
+                viewBlock.classList.remove('hidden');
+            });
+
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    root.querySelector('[data-rename-cancel]').click();
+                }
+            });
+        });
+    </script>
 </x-dashboard-layout>

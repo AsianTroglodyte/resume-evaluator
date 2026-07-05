@@ -314,6 +314,8 @@ Route::middleware('auth')->group(function () {
             ->name('dashboard.workspaces.show');
         Route::delete('/dashboard/workspaces/{workspace}', 'delete')
             ->name('dashboard.workspaces.delete');
+        Route::patch('/dashboard/workspaces/{workspace}', 'update')
+            ->name('dashboard.workspaces.update');
     });
 
     Route::post('/dashboard/workspaces/{workspace}', function (Workspace $workspace) {

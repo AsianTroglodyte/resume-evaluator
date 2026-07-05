@@ -56,4 +56,13 @@ class WorkspaceController extends Controller
 
         return redirect()->route('dashboard.workspaces.index');
     }
+
+    public function update(Workspace $workspace): RedirectResponse
+    {
+        // dd(request()->new_workspace_name);
+        $workspace->update([
+            'name' => request()->new_workspace_name
+        ]);
+        return redirect()->route('dashboard.workspaces.index');
+    }
 }
