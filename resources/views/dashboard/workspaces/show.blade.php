@@ -9,39 +9,44 @@
             >
                 ← Back to workspaces
             </a>
-            <h1 class="mt-2 text-2xl font-semibold">{{ $workspace->name }}</h1>
+            <label class="form-control mt-2 w-full max-w-xl">
+                <span class="sr-only">Workspace name</span>
+                <input
+                    type="text"
+                    name="name"
+                    value="{{ old('name', $workspace->name) }}"
+                    class="input input-ghost input-lg w-full px-0 text-2xl font-semibold focus:outline-none"
+                    placeholder="Workspace name"
+                    aria-label="Workspace name"
+                />
+            </label>
             <p class="mt-1 text-sm text-base-content/70">
-                Paste resume text, optionally add a job description, and run an evaluation. Each run is saved in your evaluation history below.
+                Upload a resume and optionally add a job description to run a practice evaluation.
             </p>
         </header>
 
         <section class="rounded-box border border-base-300 bg-base-100">
             <div class="border-b border-base-300 px-4 py-3 sm:px-6">
                 <h2 class="font-semibold">New evaluation</h2>
-                <p class="text-sm text-base-content/60">Resume text is required. Job description is optional.</p>
+                <p class="text-sm text-base-content/60">Resume file is required. Job description is optional.</p>
             </div>
-            <form class="flex flex-col gap-4 px-4 py-5 sm:px-6" 
-                method="POST" 
+            <form
+                class="flex flex-col gap-4 px-4 py-5 sm:px-6"
+                method="POST"
                 enctype="multipart/form-data"
-                {{-- accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" --}}
-                action="{{ route('dashboard.workspaces.evaluations.store', $workspace) }}">
+                action="{{ route('dashboard.workspaces.evaluations.store', $workspace) }}"
+            >
                 @csrf
                 <label class="form-control w-full">
                     <div class="label-text mb-1 font-medium">Resume file</div>
-                    <input 
-                        type="file" 
-                        name="resume_file" 
-                        class="file-input">
-                    </input>
+                    <input
+                        type="file"
+                        name="resume_file"
+                        class="file-input"
+                    />
                     @error('resume_file')
-                    <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                     @enderror
-                    {{-- <textarea
-                        name="resume_text"
-                        class="textarea textarea-bordered min-h-40 w-full font-mono text-sm"
-                        placeholder="Paste your resume content here..."
-                        required
-                    ></textarea> --}}
                 </label>
                 <label class="form-control w-full">
                     <span class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></span>
@@ -49,7 +54,7 @@
                         name="job_description"
                         class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
                         placeholder="Paste a role description for targeted feedback and keyword analysis."
-                    >{{session('job_description')}}</textarea>
+                    >{{ session('job_description') }}</textarea>
                     <span class="label-text-alt text-sm text-base-content/60">
                         Leave blank for a general quality evaluation without keyword analysis.
                     </span>
@@ -76,212 +81,194 @@
                 @endphp
 
                 @if ($evaluation)
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <h2 class="font-semibold">
-                            {{ $evaluationIsPreview ? 'Example evaluation' : 'Latest evaluation result' }}
-                        </h2>
-                        @if ($evaluationIsPreview)
-                            <span class="badge badge-ghost badge-sm">Sample data</span>
-                        @endif
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h2 class="font-semibold">
+                                {{ $evaluationIsPreview ? 'Example evaluation' : 'Latest evaluation result' }}
+                            </h2>
+                            @if ($evaluationIsPreview)
+                                <span class="badge badge-ghost badge-sm">Sample data</span>
+                            @endif
+                        </div>
+                        @include('dashboard.workspaces._keyword-match-badge', ['keywordMatch' => $keywordMatch])
                     </div>
-                    @include('dashboard.workspaces._keyword-match-badge', ['keywordMatch' => $keywordMatch])
-                </div>
 
-                @if (! empty($warnings))
-                    <div class="mt-4 rounded-box border border-base-300 bg-base-200/40 p-4">
-                        <p class="text-sm font-semibold text-base-content">
-                            Completeness checks ({{ count($warnings) }})
-                        </p>
-                        <p class="mt-1 text-xs text-base-content/60">
-                            Quick checks for common gaps — no AI, same rules every time.
-                        </p>
-                        <ul class="mt-3 list-disc space-y-1 pl-5 text-sm text-base-content/90">
-                            @foreach ($warnings as $warning)
-                                <li>{{ $warning }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                @php
-                    $hasKeywordFeedback = count(array_filter($matchedKeywords, 'is_string')) > 0
-                        || count(array_filter($missingKeywords, 'is_string')) > 0;
-                @endphp
-
-                @if (empty($enrichment) && empty($warnings) && empty($aiPhrases) && ! $hasKeywordFeedback)
-                    <p class="mt-4 text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
-                @endif
-
-                @if (! empty($enrichment))
-                    <div class="mt-6 rounded-box border border-primary/20 bg-primary/5 p-4">
-                        <p class="text-sm font-semibold text-primary">Resume analysis</p>
-                        @if (! empty($enrichment['analysis_summary']))
-                            <p class="mt-2 text-sm leading-relaxed text-base-content/90">{{ $enrichment['analysis_summary'] }}</p>
-                        @endif
-
-                        @if (! empty($enrichment['items_to_enrich']))
-                            <div class="mt-4 space-y-3">
-                                <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
-                                    Items to strengthen ({{ count($enrichment['items_to_enrich']) }})
-                                </p>
-                                @foreach ($enrichment['items_to_enrich'] as $item)
-                                    <div class="rounded-box border border-base-300/60 bg-base-100/80 p-3">
-                                        <p class="text-sm font-medium text-base-content">
-                                            {{ $item['title'] }}
-                                            @if (! empty($item['subtitle']))
-                                                <span class="font-normal text-base-content/60">· {{ $item['subtitle'] }}</span>
-                                            @endif
-                                        </p>
-                                        @if (! empty($item['current_description']))
-                                            <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-base-content/80">
-                                                @foreach ($item['current_description'] as $bullet)
-                                                    <li>{{ $bullet }}</li>
-                                                @endforeach
-                                            </ul>
-                                        @endif
-                                        @if (! empty($item['weakness_reason']))
-                                            <p class="mt-2 text-sm text-warning">{{ $item['weakness_reason'] }}</p>
-                                        @endif
-                                    </div>
+                    @if (! empty($warnings))
+                        <div class="mt-4 rounded-box border border-base-300 bg-base-200/40 p-4">
+                            <p class="text-sm font-semibold text-base-content">
+                                Completeness checks ({{ count($warnings) }})
+                            </p>
+                            <p class="mt-1 text-xs text-base-content/60">
+                                Quick checks for common gaps — no AI, same rules every time.
+                            </p>
+                            <ul class="mt-3 list-disc space-y-1 pl-5 text-sm text-base-content/90">
+                                @foreach ($warnings as $warning)
+                                    <li>{{ $warning }}</li>
                                 @endforeach
-                            </div>
-                        @endif
+                            </ul>
+                        </div>
+                    @endif
 
-                        @if (! empty($enrichment['questions']))
-                            <div class="mt-4">
-                                <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
-                                    Questions to consider ({{ count($enrichment['questions']) }})
-                                </p>
-                                <ul class="mt-2 space-y-3">
-                                    @foreach ($enrichment['questions'] as $question)
-                                        <li class="text-sm text-base-content/90">
-                                            <p>{{ $question['question'] }}</p>
-                                            @if (! empty($question['placeholder']))
-                                                <p class="mt-1 text-xs text-base-content/60">e.g. {{ $question['placeholder'] }}</p>
+                    @php
+                        $hasKeywordFeedback = count(array_filter($matchedKeywords, 'is_string')) > 0
+                            || count(array_filter($missingKeywords, 'is_string')) > 0;
+                    @endphp
+
+                    @if (empty($enrichment) && empty($warnings) && empty($aiPhrases) && ! $hasKeywordFeedback)
+                        <p class="mt-4 text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
+                    @endif
+
+                    @if (! empty($enrichment))
+                        <div class="mt-6 rounded-box border border-primary/20 bg-primary/5 p-4">
+                            <p class="text-sm font-semibold text-primary">Resume analysis</p>
+                            @if (! empty($enrichment['analysis_summary']))
+                                <p class="mt-2 text-sm leading-relaxed text-base-content/90">{{ $enrichment['analysis_summary'] }}</p>
+                            @endif
+
+                            @if (! empty($enrichment['items_to_enrich']))
+                                <div class="mt-4 space-y-3">
+                                    <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
+                                        Items to strengthen ({{ count($enrichment['items_to_enrich']) }})
+                                    </p>
+                                    @foreach ($enrichment['items_to_enrich'] as $item)
+                                        <div class="rounded-box border border-base-300/60 bg-base-100/80 p-3">
+                                            <p class="text-sm font-medium text-base-content">
+                                                {{ $item['title'] }}
+                                                @if (! empty($item['subtitle']))
+                                                    <span class="font-normal text-base-content/60">· {{ $item['subtitle'] }}</span>
+                                                @endif
+                                            </p>
+                                            @if (! empty($item['current_description']))
+                                                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-base-content/80">
+                                                    @foreach ($item['current_description'] as $bullet)
+                                                        <li>{{ $bullet }}</li>
+                                                    @endforeach
+                                                </ul>
                                             @endif
-                                        </li>
+                                            @if (! empty($item['weakness_reason']))
+                                                <p class="mt-2 text-sm text-warning">{{ $item['weakness_reason'] }}</p>
+                                            @endif
+                                        </div>
                                     @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                    </div>
-                @endif
+                                </div>
+                            @endif
 
-                @include('dashboard.workspaces._keyword-analysis', [
-                    'matchedKeywords' => $matchedKeywords,
-                    'missingKeywords' => $missingKeywords,
-                ])
+                            @if (! empty($enrichment['questions']))
+                                <div class="mt-4">
+                                    <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
+                                        Questions to consider ({{ count($enrichment['questions']) }})
+                                    </p>
+                                    <ul class="mt-2 space-y-3">
+                                        @foreach ($enrichment['questions'] as $question)
+                                            <li class="text-sm text-base-content/90">
+                                                <p>{{ $question['question'] }}</p>
+                                                @if (! empty($question['placeholder']))
+                                                    <p class="mt-1 text-xs text-base-content/60">e.g. {{ $question['placeholder'] }}</p>
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
 
-                @if (! empty($aiPhrases))
-                    <div class="mt-6 rounded-box border border-base-300 bg-base-200/40 p-4">
-                        <p class="text-sm font-semibold text-base-content">
-                            AI-sounding phrases ({{ count($aiPhrases) }})
-                        </p>
-                        <p class="mt-1 text-xs text-base-content/60">
-                            These words often read as generic or machine-written. Consider simpler alternatives where noted.
-                        </p>
-                        <ul class="mt-3 space-y-2 text-sm text-base-content/90">
-                            @foreach ($aiPhrases as $hit)
-                                <li>
-                                    <span class="font-medium">{{ $hit['phrase'] }}</span>
-                                    @if (! empty($hit['suggestion']))
-                                        <span class="text-base-content/60">→ try</span>
-                                        <span class="italic">{{ $hit['suggestion'] }}</span>
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                    @include('dashboard.workspaces._keyword-analysis', [
+                        'matchedKeywords' => $matchedKeywords,
+                        'missingKeywords' => $missingKeywords,
+                    ])
+
+                    @if (! empty($aiPhrases))
+                        <div class="mt-6 rounded-box border border-base-300 bg-base-200/40 p-4">
+                            <p class="text-sm font-semibold text-base-content">
+                                AI-sounding phrases ({{ count($aiPhrases) }})
+                            </p>
+                            <p class="mt-1 text-xs text-base-content/60">
+                                These words often read as generic or machine-written. Consider simpler alternatives where noted.
+                            </p>
+                            <ul class="mt-3 space-y-2 text-sm text-base-content/90">
+                                @foreach ($aiPhrases as $hit)
+                                    <li>
+                                        <span class="font-medium">{{ $hit['phrase'] }}</span>
+                                        @if (! empty($hit['suggestion']))
+                                            <span class="text-base-content/60">→ try</span>
+                                            <span class="italic">{{ $hit['suggestion'] }}</span>
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 @else
-                <p class="text-sm text-base-content/60">No evaluation run yet. Submit the form above to see results here.</p>
+                    <p class="text-sm text-base-content/60">No evaluation run yet. Submit the form above to see results here.</p>
                 @endif
             @endif
         </section>
 
-        <section class="space-y-3">
-            <div class="flex items-baseline justify-between gap-2">
-                <h2 class="text-lg font-semibold">Evaluation history</h2>
-                <span class="text-sm text-base-content/60">{{ count($evaluations) }} {{ Str::plural('evaluation', count($evaluations)) }}</span>
+        <section class="rounded-box border border-error/40 bg-error/5 p-4">
+            <div class="flex flex-col items-start gap-4">
+                <div class="space-y-1">
+                    <h2 class="font-medium text-error">Danger zone</h2>
+                    <p class="text-sm text-base-content/70">
+                        Deleting this workspace removes it and any practice evaluations stored in it. This cannot be undone.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    class="btn btn-error btn-outline btn-sm shrink-0"
+                    onclick="delete_workspace_{{ $workspace->id }}.showModal()"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Delete workspace
+                </button>
             </div>
 
-            <ul class="space-y-3">
-                @forelse ($evaluations as $evaluationRun)
-                    <li class="rounded-box border border-base-300 bg-base-100">
-                        <div class="border-b border-base-300 px-4 py-3 sm:px-5">
-                            <div class="flex flex-wrap items-start justify-between gap-3">
-                                <div class="min-w-0">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        @if ($evaluationRun['status'] === 'pending')
-                                            <span class="badge badge-warning badge-sm">Pending</span>
-                                        @elseif ($evaluationRun['status'] === 'failed')
-                                            <span class="badge badge-error badge-sm">Failed</span>
-                                        @endif
-                                        <span class="font-medium">
-                                            @if ($evaluationRun['job_description_label'])
-                                                {{ $evaluationRun['job_description_label'] }}
-                                            @else
-                                                General evaluation
-                                            @endif
-                                        </span>
-                                    </div>
-                                    <p class="mt-1 text-xs text-base-content/60">{{ $evaluationRun['created_at'] }}</p>
-                                </div>
-                                @if ($evaluationRun['status'] === 'completed')
-                                    @include('dashboard.workspaces._keyword-match-badge', [
-                                        'keywordMatch' => $evaluationRun['keyword_match'] ?? null,
-                                    ])
-                                @endif
-                            </div>
-                        </div>
+            <dialog id="delete_workspace_{{ $workspace->id }}" class="modal">
+                <div class="modal-box w-[92vw] max-w-lg">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
+                        onclick="delete_workspace_{{ $workspace->id }}.close()"
+                        aria-label="Close"
+                    >
+                        ×
+                    </button>
 
-                        <div class="px-4 py-4 sm:px-5">
-                            @if ($evaluationRun['status'] === 'pending')
-                                <p class="text-sm text-base-content/70">Evaluation is running. Refresh to see results.</p>
-                            @elseif ($evaluationRun['status'] === 'failed')
-                                <p class="text-sm text-error">{{ $evaluationRun['error_message'] ?? 'Evaluation could not be completed.' }}</p>
-                            @else
-                                @if (! empty($evaluationRun['enrichment']['analysis_summary']))
-                                    <p class="text-sm leading-relaxed text-base-content/80">{{ $evaluationRun['enrichment']['analysis_summary'] }}</p>
-                                @else
-                                    <p class="text-sm text-base-content/60">Evaluation completed.</p>
-                                @endif
+                    <header class="space-y-1">
+                        <h3 class="text-2xl font-bold text-primary">Delete workspace</h3>
+                    </header>
+                    <p class="mt-4 text-sm text-base-content/80">
+                        Are you sure you want to delete <strong>{{ $workspace->name }}</strong>?
+                        All practice evaluations in this workspace will be removed permanently.
+                    </p>
 
-                                @include('dashboard.workspaces._keyword-analysis', [
-                                    'matchedKeywords' => $evaluationRun['matched_keywords'] ?? [],
-                                    'missingKeywords' => $evaluationRun['missing_keywords'] ?? [],
-                                    'class' => 'mt-4',
-                                ])
-                            @endif
-
-                            @if ($evaluationRun['status'] === 'completed')
-                                <details class="mt-4 group">
-                                    <summary class="cursor-pointer text-sm text-primary hover:underline">
-                                        View inputs used for this evaluation
-                                    </summary>
-                                    <div class="mt-3 space-y-3 rounded-box bg-base-200/50 p-3 text-sm">
-                                        <div>
-                                            <p class="mb-1 text-xs font-medium uppercase tracking-wide text-base-content/50">Resume text</p>
-                                            <p class="whitespace-pre-wrap font-mono text-xs text-base-content/80">{{ $evaluationRun['resume_text_preview'] }}</p>
-                                        </div>
-                                        @if ($evaluationRun['job_description_preview'])
-                                            <div>
-                                                <p class="mb-1 text-xs font-medium uppercase tracking-wide text-base-content/50">Job description</p>
-                                                <p class="whitespace-pre-wrap text-xs text-base-content/80">{{ $evaluationRun['job_description_preview'] }}</p>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </details>
-                            @endif
-                        </div>
-                    </li>
-                @empty
-                    <li class="rounded-box border border-dashed border-base-300 px-4 py-12 text-center text-sm text-base-content/60">
-                        No evaluations yet. Run your first evaluation above.
-                    </li>
-                @endforelse
-            </ul>
+                    <form 
+                        class="modal-action mt-6"
+                        method="POST" 
+                        action="{{route('dashboard.workspaces.delete', $workspace)}}">
+                        @csrf
+                        @method('DELETE')
+                        <input name='workspace' />
+                        <button
+                            type="button"
+                            class="btn btn-outline"
+                            onclick="delete_workspace_{{ $workspace->id }}.close()"
+                        >
+                            Cancel
+                        </button>
+                        {{-- Wire to DELETE route when destroy is implemented --}}
+                        <button type="submit" class="btn btn-error" >
+                            Delete workspace
+                        </button>
+                    </form>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button type="submit">close</button>
+                </form>
+            </dialog>
         </section>
     </section>
 </x-dashboard-layout>

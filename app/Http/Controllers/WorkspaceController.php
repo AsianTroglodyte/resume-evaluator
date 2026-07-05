@@ -29,7 +29,6 @@ class WorkspaceController extends Controller
 
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
-            'evaluations' => [],
             'previewEvaluation' => mockEvaluation(),
         ]);
     }
@@ -51,5 +50,10 @@ class WorkspaceController extends Controller
         return redirect()->route('dashboard.workspaces.index');
     }
 
-    // public function :view
+    public function delete(Request $request,Workspace $workspace): RedirectResponse
+    {
+        $workspace->delete();
+
+        return redirect()->route('dashboard.workspaces.index');
+    }
 }

@@ -312,6 +312,8 @@ Route::middleware('auth')->group(function () {
             ->name('dashboard.workspaces.store');
         Route::get('/dashboard/workspaces/{workspace}', 'show')
             ->name('dashboard.workspaces.show');
+        Route::delete('/dashboard/workspaces/{workspace}', 'delete')
+            ->name('dashboard.workspaces.delete');
     });
 
     Route::post('/dashboard/workspaces/{workspace}', function (Workspace $workspace) {

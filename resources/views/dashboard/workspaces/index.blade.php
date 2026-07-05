@@ -47,7 +47,7 @@
         </header>
 
         <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
-            <table class="table table-zebra">
+            <table class="table">
                 <thead>
                     <tr>
                         <th>Name</th>
