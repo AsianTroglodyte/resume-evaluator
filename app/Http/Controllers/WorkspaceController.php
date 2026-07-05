@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Workspace;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -33,7 +34,7 @@ class WorkspaceController extends Controller
         ]);
     }
 
-    public function store(Request $request): View
+    public function store(Request $request): RedirectResponse
     {
         // dd($request->workspace_name);
 
@@ -46,8 +47,9 @@ class WorkspaceController extends Controller
             ->latest('updated_at')
             ->get();
 
-        return view('dashboard.workspaces.index', [
-            'workspaces' => $workspaces,
-        ]);
+        // return redirect()->route('dashboard.workspaces.index');
+        return redirect()->route('dashboard.workspaces.index');
     }
+
+    // public function :view
 }
