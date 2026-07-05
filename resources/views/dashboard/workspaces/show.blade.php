@@ -1,5 +1,5 @@
 <x-dashboard-layout>
-    <x-slot:title>{{ $workspace['name'] }}</x-slot:title>
+    <x-slot:title>{{ $workspace->name }}</x-slot:title>
 
     <section class="space-y-6">
         <header>
@@ -9,7 +9,7 @@
             >
                 ← Back to workspaces
             </a>
-            <h1 class="mt-2 text-2xl font-semibold">{{ $workspace['name'] }}</h1>
+            <h1 class="mt-2 text-2xl font-semibold">{{ $workspace->name }}</h1>
             <p class="mt-1 text-sm text-base-content/70">
                 Paste resume text, optionally add a job description, and run an evaluation. Each run is saved in your evaluation history below.
             </p>
@@ -24,7 +24,7 @@
                 method="POST" 
                 enctype="multipart/form-data"
                 {{-- accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" --}}
-                action="{{ route('dashboard.workspaces.evaluations.store', $workspace['id']) }}">
+                action="{{ route('dashboard.workspaces.evaluations.store', $workspace) }}">
                 @csrf
                 <label class="form-control w-full">
                     <div class="label-text mb-1 font-medium">Resume file</div>
@@ -203,11 +203,11 @@
         <section class="space-y-3">
             <div class="flex items-baseline justify-between gap-2">
                 <h2 class="text-lg font-semibold">Evaluation history</h2>
-                <span class="text-sm text-base-content/60">{{ count($workspace['evaluations']) }} {{ Str::plural('evaluation', count($workspace['evaluations'])) }}</span>
+                <span class="text-sm text-base-content/60">{{ count($evaluations) }} {{ Str::plural('evaluation', count($evaluations)) }}</span>
             </div>
 
             <ul class="space-y-3">
-                @forelse ($workspace['evaluations'] as $evaluationRun)
+                @forelse ($evaluations as $evaluationRun)
                     <li class="rounded-box border border-base-300 bg-base-100">
                         <div class="border-b border-base-300 px-4 py-3 sm:px-5">
                             <div class="flex flex-wrap items-start justify-between gap-3">

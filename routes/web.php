@@ -8,6 +8,7 @@ use App\Http\Controllers\ModuleSettingsController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkspaceController;
 use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
@@ -301,58 +302,29 @@ Route::middleware('auth')->group(function () {
             ->can('view', 'user');
     });
 
-    Route::redirect('/dashboard/resumes', '/dashboard/workspaces');
-    Route::redirect('/dashboard/resumes/{id}', '/dashboard/workspaces/{id}');
+    // Route::redirect('/dashboard/resumes', '/dashboard/workspaces');
+    // Route::redirect('/dashboard/resumes/{id}', '/dashboard/workspaces/{id}');
 
-    Route::get('/dashboard/workspaces', function () {
-        $workspaces = collect(mockWorkspaces())
-            ->map(function (array $workspace): array {
-                $latestEvaluation = $workspace['evaluations'][0] ?? null;
+    Route::controller(WorkspaceController::class)->group(function () {
+        Route::get('/dashboard/workspaces', 'index')
+            ->name('dashboard.workspaces.index');
+        Route::post('/dashboard/workspaces', 'store')
+            ->name('dashboard.workspaces.store');
+        Route::get('/dashboard/workspaces/{workspace}', 'show')
+            ->name('dashboard.workspaces.show');
+    });
 
-                return [
-                    'id' => $workspace['id'],
-                    'name' => $workspace['name'],
-                    'evaluation_count' => count($workspace['evaluations']),
-                    'latest_evaluation' => $latestEvaluation,
-                    'updated_at' => $workspace['updated_at'],
-                ];
-            })
-            ->values()
-            ->all();
+    Route::post('/dashboard/workspaces/{workspace}', function (Workspace $workspace) {
 
-        return view('dashboard.workspaces.index', [
-            'workspaces' => $workspaces,
-            'real_workspaces' => Workspace::query()->get(),
-        ]);
-    })->name('dashboard.workspaces.index');
-
-    Route::get('/dashboard/workspaces/{id}', function (int $id) {
-        $workspace = collect(mockWorkspaces())->firstWhere('id', $id);
-
-        if ($workspace === null) {
+        if ($workspace->user_id !== request()->user()->id) {
             abort(404);
         }
 
-        return view('dashboard.workspaces.show', [
-            'workspace' => $workspace,
-            'previewEvaluation' => mockEvaluation(),
-        ]);
-    })->whereNumber('id')
-        ->name('dashboard.workspaces.show');
-
-    Route::post('/dashboard/workspaces/{id}', function (int $id) {
-
         request()->validate([
-            'resume_file' => 'required|file|mimes:pdf,docx|max:20480'
+            'resume_file' => 'required|file|mimes:pdf,docx|max:20480',
         ]);
 
         dd(request()->resume_file);
-
-        $workspace = collect(mockWorkspaces())->firstWhere('id', $id);
-
-        if ($workspace === null) {
-            abort(404);
-        }
 
         $response = Http::baseUrl(config('services.eval.url'))
             ->timeout(config('services.eval.timeout'))
@@ -364,15 +336,15 @@ Route::middleware('auth')->group(function () {
 
         if ($response->failed()) {
             return redirect()
-                ->route('dashboard.workspaces.show', $id)
+                ->route('dashboard.workspaces.show', $workspace)
                 ->with('evaluation_error', 'Evaluation service could not complete the request.');
         }
 
         return redirect()
-            ->route('dashboard.workspaces.show', $id)
+            ->route('dashboard.workspaces.show', $workspace)
             ->with([
-                'evaluation' => $response->json(), 
-                'job_description' => request()->job_description
+                'evaluation' => $response->json(),
+                'job_description' => request()->job_description,
             ]);
     })->name('dashboard.workspaces.evaluations.store');
 
