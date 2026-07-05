@@ -36,9 +36,9 @@ class WorkspaceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // dd($request->workspace_name);
-        // $workspace->validated([
-        //     'workspace_name' => ['required', 'min:3']
-        // ]);
+        $request->validate([
+            'workspace_name' => ['required', 'min:3']
+        ]);
 
         $request->user()->workspaces()->create([
             'name' => $request->workspace_name

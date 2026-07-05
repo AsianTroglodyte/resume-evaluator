@@ -31,9 +31,14 @@
                                 class="input input-bordered w-full"
                                 name="workspace_name"
                                 placeholder="e.g. Summer Internship Prep"
+                                {{-- required
+                                minlength="3" --}}
                             />
                         </label>
 
+                        @error('workspace_name')
+                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @enderror
                         <div class="modal-action mt-2">
                             <button type="button" class="btn btn-outline" onclick="new_workspace_modal.close()">Cancel</button>
                             <button type="submit" class="btn btn-primary">Create Workspace</button>
