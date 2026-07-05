@@ -13,7 +13,8 @@
                 New Workspace
             </button>
 
-            <dialog id="new_workspace_modal" class="modal">
+            <dialog id="new_workspace_modal" 
+                class="modal">
                 <div class="modal-box max-w-lg border border-base-300 bg-base-100 p-0">
                     <div class="border-b border-base-300 px-6 py-4">
                         <h3 class="text-lg font-bold">New Workspace</h3>
@@ -31,11 +32,10 @@
                                 class="input input-bordered w-full"
                                 name="workspace_name"
                                 placeholder="e.g. Summer Internship Prep"
-                                {{-- required
-                                minlength="3" --}}
+                                required
+                                minlength="3"
                             />
                         </label>
-
                         @error('workspace_name')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
@@ -49,6 +49,11 @@
                     <button type="submit">close</button>
                 </form>
             </dialog>
+            @if ($errors->has('workspace_name'))
+                <script>
+                    document.getElementById('new_workspace_modal')?.showModal();
+                </script>
+            @endif
         </header>
 
         <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
