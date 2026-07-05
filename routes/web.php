@@ -12,6 +12,7 @@ use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
@@ -321,6 +322,7 @@ Route::middleware('auth')->group(function () {
 
         return view('dashboard.workspaces.index', [
             'workspaces' => $workspaces,
+            'real_workspaces' => Workspace::query()->get(),
         ]);
     })->name('dashboard.workspaces.index');
 

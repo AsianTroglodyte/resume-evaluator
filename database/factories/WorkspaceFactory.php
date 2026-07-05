@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,22 +20,21 @@ class WorkspaceFactory extends Factory
     {
         return [
             'name' => fake()->jobTitle(),
-            'user_id' => UserFactory::create()
-            //
+            'user_id' => User::factory()->create([])
         ];
     }
 
-    public function name(string $workspace_name): static
+    public function name(string $workspaceName): static
     {
-        return $this->state( fn (array $attributes) => [
-            'name' => $workspace_name
+        return $this->state(fn (array $attributes) => [
+            'name' => $workspaceName
         ]);
     }
 
-    public function user(): static 
+    public function user(string $userId): static 
     {
         return $this->state(fn (array $attributes) => [
-
+            'user_id' => $userId
         ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\ModuleMembership;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -71,14 +72,18 @@ class DatabaseSeeder extends Seeder
             'email' => 'kswansi@southern.edu',
         ]);
 
+        // Workspace::factory()->name('test workspace')->user($admin->id);
+        Workspace::factory()->user($admin->id)->create([]);
         User::factory(5)->create([]);
 
         // specific stable user to reference when we need to reference a user
-        User::factory(1)->admin()->password('password')->create([
+        $testUser = User::factory()->admin()->password('password')->create([
             'first_name' => 'Robert',
             'last_name' => 'Ordonez',
             'email' => 'rordonez@southern.edu',
         ]);
+
+        Workspace::factory()->name('test workspace')->user($testUser->id);
 
         foreach ($this->modulesConfig as $config) {
             $module = Module::factory()
@@ -89,6 +94,10 @@ class DatabaseSeeder extends Seeder
                 ]);
 
             $loneMembers = User::factory($config['lone_members'])->password('password')->create();
+
+            foreach ($loneMembers as $loneMember){
+                Workspace::factory()->user($loneMember->id);
+            }
 
             foreach ($loneMembers as $loneMember) {
                 ModuleMembership::factory()

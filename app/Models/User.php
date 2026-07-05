@@ -99,4 +99,9 @@ class User extends Authenticatable
         return $assignment->assignee_scope === AssigneeScope::Everyone
             || $assignment->assignees()->whereKey($this->id)->exists();
     }
+
+    public function workspaces(): HasMany
+    {
+        return $this->hasMany(Workspace::class);
+    }
 }

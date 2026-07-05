@@ -46,7 +46,13 @@
         </header>
 
         <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
-            <table class="table">
+            @php
+                $workspaces = Auth::user()->workspaces()->get();
+            @endphp
+            @foreach ($workspaces as $workspace)
+                {{ $workspace }}
+            @endforeach
+            {{-- <table class="table">
                 <thead>
                     <tr>
                         <th>Workspace</th>
@@ -126,7 +132,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </table> --}}
         </div>
     </section>
 </x-dashboard-layout>
