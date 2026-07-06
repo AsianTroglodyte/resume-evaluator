@@ -311,11 +311,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/dashboard/workspaces', 'store')
             ->name('dashboard.workspaces.store');
         Route::get('/dashboard/workspaces/{workspace}', 'show')
-            ->name('dashboard.workspaces.show');
+            ->name('dashboard.workspaces.show')
+            ->can('view', 'workspace');
         Route::delete('/dashboard/workspaces/{workspace}', 'delete')
-            ->name('dashboard.workspaces.delete');
+            ->name('dashboard.workspaces.delete')
+            ->can('delete', 'workspace');
         Route::patch('/dashboard/workspaces/{workspace}', 'update')
-            ->name('dashboard.workspaces.update');
+            ->name('dashboard.workspaces.update')
+            ->can('update', 'workspace');
     });
 
     Route::post('/dashboard/workspaces/{workspace}', function (Workspace $workspace) {

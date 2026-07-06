@@ -21,12 +21,8 @@ class WorkspaceController extends Controller
         ]);
     }
 
-    public function show(Request $request, Workspace $workspace): View
+    public function show(Workspace $workspace): View
     {
-        if ($workspace->user_id !== $request->user()->id) {
-            abort(404);
-        }
-
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
             'previewEvaluation' => mockEvaluation(),
