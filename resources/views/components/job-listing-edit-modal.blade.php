@@ -89,7 +89,7 @@
         </button>
         <form 
             method="POST" 
-            action="{{ route('dashboard.modules.job-listings.delete', [$module, $jobListing])}}">
+            action="{{ route('dashboard.modules.job-listings.destroy', [$module, $jobListing]) }}">
             @csrf
             @method("DELETE")
             <h4 class="text-lg font-semibold">

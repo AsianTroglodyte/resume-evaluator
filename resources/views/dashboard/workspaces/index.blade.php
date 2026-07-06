@@ -32,6 +32,7 @@
                                 class="input input-bordered w-full"
                                 name="workspace_name"
                                 placeholder="e.g. Summer Internship Prep"
+                                value="{{ old('workspace_name') }}"
                                 required
                                 minlength="3"
                             />
