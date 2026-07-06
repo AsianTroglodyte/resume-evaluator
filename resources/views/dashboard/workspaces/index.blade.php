@@ -38,7 +38,7 @@
                             />
                         </label>
                         @error('workspace_name')
-                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
                         <div class="modal-action mt-2">
                             <button type="button" class="btn btn-outline" onclick="new_workspace_modal.close()">Cancel</button>
