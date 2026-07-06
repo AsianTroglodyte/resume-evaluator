@@ -31,7 +31,7 @@ class WorkspaceFactory extends Factory
         ]);
     }
 
-    public function user(string $userId): static 
+    public function user(int $userId): static 
     {
         return $this->state(fn (array $attributes) => [
             'user_id' => $userId

@@ -92,7 +92,7 @@
                                 </button>
                                 <form 
                                     method="POST" 
-                                    action="{{ route('dashboard.modules.assignments.delete', [$module, $assignment]) }}"> 
+                                    action="{{ route('dashboard.modules.assignments.destroy', [$module, $assignment]) }}"> 
                                 @csrf
                                 @method("DELETE")
                                     <div class="flex flex-row justify-between">

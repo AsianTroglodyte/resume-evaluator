@@ -287,7 +287,7 @@
                     <form 
                         class="modal-action mt-6"
                         method="POST" 
-                        action="{{route('dashboard.workspaces.delete', $workspace)}}">
+                        action="{{ route('dashboard.workspaces.destroy', $workspace) }}">
                         @csrf
                         @method('DELETE')
                         <input name='workspace' />
@@ -298,8 +298,7 @@
                         >
                             Cancel
                         </button>
-                        {{-- Wire to DELETE route when destroy is implemented --}}
-                        <button type="submit" class="btn btn-error" >
+                        <button type="submit" class="btn btn-error">
                             Delete workspace
                         </button>
                     </form>

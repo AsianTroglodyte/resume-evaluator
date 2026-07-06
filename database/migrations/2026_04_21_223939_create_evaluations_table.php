@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('evaluations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('workspace_id');
+            $table->foreignId('workspace_id')->constrained()->cascadeOnDelete();
             $table->foreignId('resume_id')->constrained('resumes')->cascadeOnDelete();
             $table->text('resume_text')->nullable();
             $table->text('job_description_text')->nullable();

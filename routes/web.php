@@ -267,7 +267,7 @@ Route::middleware('auth')->group(function () {
             ->can('update', 'assignment');
         Route::delete('/dashboard/modules/{module}/assignment/{assignment}', 'destroy')
             ->scopeBindings()
-            ->name('dashboard.modules.assignments.delete')
+            ->name('dashboard.modules.assignments.destroy')
             ->can('delete', 'assignment');
     });
 
@@ -281,7 +281,7 @@ Route::middleware('auth')->group(function () {
             ->can('update', 'jobListing');
         Route::delete('/dashboard/modules/{module}/job-listings/{jobListing}', 'destroy')
             ->scopeBindings()
-            ->name('dashboard.modules.job-listings.delete')
+            ->name('dashboard.modules.job-listings.destroy')
             ->can('delete', 'jobListing');
     });
 
@@ -313,8 +313,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/workspaces/{workspace}', 'show')
             ->name('dashboard.workspaces.show')
             ->can('view', 'workspace');
-        Route::delete('/dashboard/workspaces/{workspace}', 'delete')
-            ->name('dashboard.workspaces.delete')
+        Route::delete('/dashboard/workspaces/{workspace}', 'destroy')
+            ->name('dashboard.workspaces.destroy')
             ->can('delete', 'workspace');
         Route::patch('/dashboard/workspaces/{workspace}', 'update')
             ->name('dashboard.workspaces.update')

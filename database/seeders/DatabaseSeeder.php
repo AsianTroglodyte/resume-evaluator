@@ -83,7 +83,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'rordonez@southern.edu',
         ]);
 
-        Workspace::factory()->name('test workspace')->user($testUser->id);
+        Workspace::factory()->name('test workspace')->user($testUser->id)->create();
 
         foreach ($this->modulesConfig as $config) {
             $module = Module::factory()
@@ -96,7 +96,7 @@ class DatabaseSeeder extends Seeder
             $loneMembers = User::factory($config['lone_members'])->password('password')->create();
 
             foreach ($loneMembers as $loneMember){
-                Workspace::factory()->user($loneMember->id);
+                Workspace::factory()->user($loneMember->id)->create();
             }
 
             foreach ($loneMembers as $loneMember) {

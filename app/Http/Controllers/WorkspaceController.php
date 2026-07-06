@@ -33,23 +33,18 @@ class WorkspaceController extends Controller
     {
         // dd($request->workspace_name);
         $request->validate([
-            'workspace_name' => ['required', 'min:3']
+            'workspace_name' => ['required', 'min:3'],
         ]);
 
         $request->user()->workspaces()->create([
-            'name' => $request->workspace_name
+            'name' => $request->workspace_name,
         ]);
-        
-        $workspaces = $request->user()
-            ->workspaces()
-            ->latest('updated_at')
-            ->get();
 
         // return redirect()->route('dashboard.workspaces.index');
         return redirect()->route('dashboard.workspaces.index');
     }
 
-    public function delete(Request $request,Workspace $workspace): RedirectResponse
+    public function destroy(Workspace $workspace): RedirectResponse
     {
         $workspace->delete();
 
@@ -60,11 +55,11 @@ class WorkspaceController extends Controller
     {
         // dd(request()->new_workspace_name);
         $validated = request()->validate([
-            'workspace_name' => ['required', 'min:3']
+            'workspace_name' => ['required', 'min:3'],
         ]);
 
         $workspace->update([
-            'name' => request()->workspace_name
+            'name' => $validated['workspace_name'],
         ]);
 
         return redirect()->route('dashboard.workspaces.show', $workspace);
