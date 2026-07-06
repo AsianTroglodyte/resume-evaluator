@@ -39,11 +39,6 @@ class WorkspaceController extends Controller
         $request->user()->workspaces()->create([
             'name' => $request->workspace_name
         ]);
-        
-        $workspaces = $request->user()
-            ->workspaces()
-            ->latest('updated_at')
-            ->get();
 
         // return redirect()->route('dashboard.workspaces.index');
         return redirect()->route('dashboard.workspaces.index');

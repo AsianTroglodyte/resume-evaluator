@@ -24,7 +24,7 @@ class WorkspaceFactory extends Factory
         ];
     }
 
-    public function name(string $workspaceName): static
+    public function name(int $workspaceName): static
     {
         return $this->state(fn (array $attributes) => [
             'name' => $workspaceName
