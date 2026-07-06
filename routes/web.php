@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ModuleJobListingController;
@@ -321,38 +322,9 @@ Route::middleware('auth')->group(function () {
             ->can('update', 'workspace');
     });
 
-    Route::post('/dashboard/workspaces/{workspace}', function (Workspace $workspace) {
-
-        if ($workspace->user_id !== request()->user()->id) {
-            abort(404);
-        }
-
-        request()->validate([
-            'resume_file' => 'required|file|mimes:pdf,docx|max:20480',
-        ]);
-
-        dd(request()->resume_file);
-
-        $response = Http::baseUrl(config('services.eval.url'))
-            ->timeout(config('services.eval.timeout'))
-            ->acceptJson()
-            ->post('/evaluate', [
-                'resume_file' => request()->resume_file,
-                'job_description' => request()->job_description,
-            ]);
-
-        if ($response->failed()) {
-            return redirect()
-                ->route('dashboard.workspaces.show', $workspace)
-                ->with('evaluation_error', 'Evaluation service could not complete the request.');
-        }
-
-        return redirect()
-            ->route('dashboard.workspaces.show', $workspace)
-            ->with([
-                'evaluation' => $response->json(),
-                'job_description' => request()->job_description,
-            ]);
+    Route::controller(EvaluationController::class)->group(function () {
+        Route::post('/dashboard/workspaces/{workspace}/evaluation', 'store')
+            ->name('dashboard.workspaces.evaluations.store');
     })->name('dashboard.workspaces.evaluations.store');
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');

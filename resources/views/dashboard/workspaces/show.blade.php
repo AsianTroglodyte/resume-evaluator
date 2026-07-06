@@ -69,7 +69,7 @@
                 <h2 class="font-semibold">New evaluation</h2>
                 <p class="text-sm text-base-content/60">Resume file is required. Job description is optional.</p>
             </div>
-            <form
+            {{-- <form
                 class="flex flex-col gap-4 px-4 py-5 sm:px-6"
                 method="POST"
                 enctype="multipart/form-data"
@@ -101,7 +101,42 @@
                 <div class="flex justify-end">
                     <button type="submit" class="btn btn-primary btn-sm">Run evaluation</button>
                 </div>
+            </form> --}}
+
+            <form
+                class="flex flex-col gap-4 px-4 py-5 sm:px-6"
+                method="POST"
+                enctype="multipart/form-data"
+                action="{{ route('dashboard.workspaces.evaluations.store', $workspace) }}"
+            >
+                @csrf
+                <label class="form-control w-full">
+                    <div class="label-text mb-1 font-medium">Resume file</div>
+                    <textarea
+                        name="resume_text"
+                        class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
+                        placeholder="Paste the text for you resume here."
+                    ></textarea>
+                    @error('resume_text')
+                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                    @enderror
+                </label>
+                <label class="form-control w-full">
+                    <span class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></span>
+                    <textarea
+                        name="job_description"
+                        class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
+                        placeholder="Paste a role description for targeted feedback and keyword analysis."
+                    >{{ session('job_description') }}</textarea>
+                    <span class="label-text-alt text-sm text-base-content/60">
+                        Leave blank for a general quality evaluation without keyword analysis.
+                    </span>
+                </label>
+                <div class="flex justify-end">
+                    <button type="submit" class="btn btn-primary btn-sm">Run evaluation</button>
+                </div>
             </form>
+            
         </section>
 
         <section class="rounded-box border border-base-300 bg-base-100 px-4 py-5 sm:px-6">
