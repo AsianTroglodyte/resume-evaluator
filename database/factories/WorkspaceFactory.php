@@ -24,14 +24,14 @@ class WorkspaceFactory extends Factory
         ];
     }
 
-    public function name(int $workspaceName): static
+    public function name(string $workspaceName): static
     {
         return $this->state(fn (array $attributes) => [
             'name' => $workspaceName
         ]);
     }
 
-    public function user(string $userId): static 
+    public function user(int $userId): static 
     {
         return $this->state(fn (array $attributes) => [
             'user_id' => $userId
