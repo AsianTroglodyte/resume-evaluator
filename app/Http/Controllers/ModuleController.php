@@ -11,8 +11,7 @@ class ModuleController extends Controller
     //
     public function index()
     {
-        // dd(request()->user()->isGlobalAdmin());
-        $modules = Module::all();
+        $modules = request()->user()->modulesPartOf()->get();
 
         return view('dashboard.modules.index', [
             'modules' => $modules,
