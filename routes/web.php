@@ -8,10 +8,12 @@ use App\Http\Controllers\ModuleSettingsController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkspaceController;
 use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
@@ -25,13 +27,11 @@ function mockWorkspaces(): array
             'id' => 1,
             'name' => 'Summer Internship Prep',
             'updated_at' => '2 hours ago',
-            'scans' => [
+            'evaluations' => [
                 [
                     'id' => 103,
                     'status' => 'pending',
                     'job_description_label' => null,
-                    'match_percent' => null,
-                    'keyword_match' => null,
                     'enrichment' => null,
                     'created_at' => 'Mar 23, 2026 · 9:14 AM',
                     'resume_text_preview' => null,
@@ -41,21 +41,20 @@ function mockWorkspaces(): array
                     'id' => 102,
                     'status' => 'completed',
                     'job_description_label' => 'Software Engineering Intern — RiverTech',
-                    'match_percent' => 74,
-                    'keyword_match' => 68,
                     'enrichment' => [
                         'analysis_summary' => 'Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting\'s language around REST APIs and Git workflows.',
                     ],
                     'created_at' => 'Mar 22, 2026 · 4:30 PM',
                     'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Teaching Assistant, Data Structures...",
                     'job_description_preview' => 'We are looking for a Software Engineering Intern with experience in Python, REST APIs, and collaborative development using Git...',
+                    'matched_keywords' => ['Python', 'REST APIs', 'Git', 'PostgreSQL'],
+                    'missing_keywords' => ['Docker', 'Kubernetes', 'CI/CD', 'microservices'],
+                    'keyword_match' => 68,
                 ],
                 [
                     'id' => 101,
                     'status' => 'completed',
                     'job_description_label' => null,
-                    'match_percent' => 82,
-                    'keyword_match' => null,
                     'enrichment' => [
                         'analysis_summary' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
                     ],
@@ -69,26 +68,25 @@ function mockWorkspaces(): array
             'id' => 2,
             'name' => 'Distributed Systems Roles',
             'updated_at' => 'Yesterday',
-            'scans' => [
+            'evaluations' => [
                 [
                     'id' => 202,
                     'status' => 'completed',
                     'job_description_label' => 'Senior Backend Engineer (Distributed Systems)',
-                    'match_percent' => 67,
-                    'keyword_match' => 69,
                     'enrichment' => [
                         'analysis_summary' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work. Experience bullets are strong but could better highlight scale and reliability themes from the posting.',
                     ],
                     'created_at' => 'Mar 19, 2026 · 2:15 PM',
                     'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nBuilt microservices handling 10k req/s at...",
                     'job_description_preview' => 'Senior Backend Engineer to design distributed systems using Kafka, gRPC, and consensus protocols...',
+                    'matched_keywords' => ['gRPC', 'microservices', 'PostgreSQL'],
+                    'missing_keywords' => ['Kafka', 'consensus protocols', 'distributed systems'],
+                    'keyword_match' => 69,
                 ],
                 [
                     'id' => 201,
                     'status' => 'completed',
                     'job_description_label' => null,
-                    'match_percent' => 71,
-                    'keyword_match' => null,
                     'enrichment' => [
                         'analysis_summary' => 'Readable layout, but some bullets are long single-line paragraphs. Break complex achievements into shorter, scannable lines.',
                     ],
@@ -102,13 +100,11 @@ function mockWorkspaces(): array
             'id' => 3,
             'name' => 'Frontend Portfolio Refresh',
             'updated_at' => 'Mar 5, 2026',
-            'scans' => [
+            'evaluations' => [
                 [
                     'id' => 301,
                     'status' => 'failed',
                     'job_description_label' => 'Frontend Developer — BlueWave Analytics',
-                    'match_percent' => null,
-                    'keyword_match' => null,
                     'enrichment' => null,
                     'error_message' => 'Evaluation timed out. Try again with a shorter resume or job description.',
                     'created_at' => 'Mar 5, 2026 · 3:22 PM',
@@ -306,72 +302,58 @@ Route::middleware('auth')->group(function () {
             ->can('view', 'user');
     });
 
-    Route::redirect('/dashboard/resumes', '/dashboard/workspaces');
-    Route::redirect('/dashboard/resumes/{id}', '/dashboard/workspaces/{id}');
+    // Route::redirect('/dashboard/resumes', '/dashboard/workspaces');
+    // Route::redirect('/dashboard/resumes/{id}', '/dashboard/workspaces/{id}');
 
-    Route::get('/dashboard/workspaces', function () {
-        $workspaces = collect(mockWorkspaces())
-            ->map(function (array $workspace): array {
-                $latestScan = $workspace['scans'][0] ?? null;
+    Route::controller(WorkspaceController::class)->group(function () {
+        Route::get('/dashboard/workspaces', 'index')
+            ->name('dashboard.workspaces.index');
+        Route::post('/dashboard/workspaces', 'store')
+            ->name('dashboard.workspaces.store');
+        Route::get('/dashboard/workspaces/{workspace}', 'show')
+            ->name('dashboard.workspaces.show')
+            ->can('view', 'workspace');
+        Route::delete('/dashboard/workspaces/{workspace}', 'delete')
+            ->name('dashboard.workspaces.delete')
+            ->can('delete', 'workspace');
+        Route::patch('/dashboard/workspaces/{workspace}', 'update')
+            ->name('dashboard.workspaces.update')
+            ->can('update', 'workspace');
+    });
 
-                return [
-                    'id' => $workspace['id'],
-                    'name' => $workspace['name'],
-                    'scan_count' => count($workspace['scans']),
-                    'latest_scan' => $latestScan,
-                    'updated_at' => $workspace['updated_at'],
-                ];
-            })
-            ->values()
-            ->all();
+    Route::post('/dashboard/workspaces/{workspace}', function (Workspace $workspace) {
 
-        return view('dashboard.workspaces.index', [
-            'workspaces' => $workspaces,
-        ]);
-    })->name('dashboard.workspaces.index');
-
-    Route::get('/dashboard/workspaces/{id}', function (int $id) {
-        $workspace = collect(mockWorkspaces())->firstWhere('id', $id);
-
-        if ($workspace === null) {
+        if ($workspace->user_id !== request()->user()->id) {
             abort(404);
         }
 
-        return view('dashboard.workspaces.show', [
-            'workspace' => $workspace,
-            'previewEvaluation' => mockEvaluation(),
+        request()->validate([
+            'resume_file' => 'required|file|mimes:pdf,docx|max:20480',
         ]);
-    })->whereNumber('id')
-        ->name('dashboard.workspaces.show');
 
-    Route::post('/dashboard/workspaces/{id}', function (int $id) {
-        $workspace = collect(mockWorkspaces())->firstWhere('id', $id);
-
-        if ($workspace === null) {
-            abort(404);
-        }
+        dd(request()->resume_file);
 
         $response = Http::baseUrl(config('services.eval.url'))
             ->timeout(config('services.eval.timeout'))
             ->acceptJson()
             ->post('/evaluate', [
-                'resume_text' => request()->resume_text,
+                'resume_file' => request()->resume_file,
                 'job_description' => request()->job_description,
             ]);
 
         if ($response->failed()) {
             return redirect()
-                ->route('dashboard.workspaces.show', $id)
+                ->route('dashboard.workspaces.show', $workspace)
                 ->with('evaluation_error', 'Evaluation service could not complete the request.');
         }
 
         return redirect()
-            ->route('dashboard.workspaces.show', $id)
+            ->route('dashboard.workspaces.show', $workspace)
             ->with([
-                'evaluation' => $response->json(), 
-                'job_description' => request()->job_description
+                'evaluation' => $response->json(),
+                'job_description' => request()->job_description,
             ]);
-    })->name('dashboard.workspaces.scans.store');
+    })->name('dashboard.workspaces.evaluations.store');
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');
 

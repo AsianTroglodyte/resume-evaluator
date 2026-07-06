@@ -148,8 +148,7 @@
                                     <fieldset class="mt-4 flex flex-col gap-5">
                                         <label class="form-control">
                                             <span class="label-text mb-1">Title</span>
-                                            <input
-                                                type="text"
+                                            <input                                                type="text"
                                                 name="name"
                                                 value="{{ old('name') }}"
                                                 placeholder="Job Title"
@@ -182,6 +181,11 @@
                                 <button type="submit">close</button>
                             </form>
                         </dialog>
+                        @if ($errors->has('description') || $errors->has('name'))
+                            <script>
+                                document.getElementById('create_job_listing_modal')?.showModal();
+                            </script>
+                        @endif
                     @endcan
                 </header>
 

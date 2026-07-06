@@ -31,7 +31,6 @@
                     @auth
                         <a href="{{ route('dashboard.workspaces.index') }}" class="btn btn-outline">go back to dashboard</a>
                     @endauth
-
                     @guest
                     <a href="{{route('login')}}"class="btn btn-outline">Login</a>
                     <a href="{{route('register')}}" class="btn btn-primary">Sign up</a>

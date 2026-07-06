@@ -41,7 +41,7 @@
                                     value="{{ old('new_member_email') }}"
                                     placeholder="new_participant@southern.edu"
                                     class="input input-bordered w-full @error('new_member_email') input-error @enderror"
-                                    required
+                                    required 
                                 />
                                 @error('new_member_email')
                                     <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
@@ -73,6 +73,11 @@
                     <button type="submit">close</button>
                 </form>
             </dialog>
+            @if ($errors->has('role_in_module') || $errors->has('new_member_email'))
+                <script>
+                    document.getElementById('add_new_member')?.showModal();
+                </script>
+            @endif
         </div>
         @if ($errors->any())
             <ul>
