@@ -26,7 +26,9 @@
                         </ul>
                     </article>
                 </div>
-
+                @if (session('status') === 'verification-link-sent')
+                    <span class="label-text-alt mt-1 text-success">success</span>
+                @endif
                 <footer class="border-t border-base-300 pt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                     @auth
                         <a href="{{ route('dashboard.workspaces.index') }}" class="btn btn-outline">go back to dashboard</a>

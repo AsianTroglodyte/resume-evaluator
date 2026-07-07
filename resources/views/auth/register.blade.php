@@ -11,7 +11,7 @@
                     <p class="text-sm text-base-content/70">Start evaluating resumes.</p>
                 </header>
 
-                <form method="POST" class="flex flex-col gap-5">
+                <form method="POST" action="{{ route('register.post') }}" class="flex flex-col gap-5">
                     @csrf
                     <x-form-input
                         label="First name"

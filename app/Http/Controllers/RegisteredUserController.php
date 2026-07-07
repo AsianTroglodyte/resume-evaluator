@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Enums\GlobalRole;
 use App\Models\User;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 
@@ -15,7 +17,7 @@ class RegisteredUserController extends Controller
         return view('auth.register');
     }
 
-    public function post()
+    public function post(Request $request)
     {
         $validated = request()->validate([
             'first_name' => ['required'],
@@ -29,8 +31,18 @@ class RegisteredUserController extends Controller
             'global_role' => GlobalRole::User,
         ]);
 
-        Auth::login($user);
 
-        return redirect()->route('dashboard.workspaces.index');
+        Auth::login($user);
+        
+        $user->sendEmailVerificationNotification();
+ 
+        return redirect()->route('verification.notice');
+    }
+
+    public function verify (EmailVerificationRequest $request)
+    {
+        $request->fulfill();
+ 
+        return redirect('/home');
     }
 }

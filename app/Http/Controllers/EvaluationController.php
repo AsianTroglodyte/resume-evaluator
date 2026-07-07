@@ -19,9 +19,9 @@ class EvaluationController extends Controller
         //     abort(404);
         // }
 
-        // request()->validate([
-        //     'resume_file' => 'required|file|mimes:pdf,docx|max:20480',
-        // ]);
+        request()->validate([
+            'resume_file' => 'required|file|mimes:pdf,docx|max:20480',
+        ]);
 
         // dd($workspace->id);
 
@@ -38,7 +38,7 @@ class EvaluationController extends Controller
             ->timeout(config('services.eval.timeout'))
             ->acceptJson()
             ->post('/evaluate', [
-                'resume_text' => request()->resume_text,
+                'resume_file' => request()->resume_file,
                 'job_description' => request()->job_description,
         ]);
 
