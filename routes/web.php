@@ -225,7 +225,7 @@ Route::get('/email/verify', function () {
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
  
-    return redirect('/')->with('message', 'Verification link sent!');
+    return redirect()->route('home')->with('message', 'Verification link sent!');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 Route::middleware('auth')->group(function () {

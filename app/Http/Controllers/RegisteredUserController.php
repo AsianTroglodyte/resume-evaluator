@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class RegisteredUserController extends Controller
@@ -22,7 +23,7 @@ class RegisteredUserController extends Controller
         $validated = request()->validate([
             'first_name' => ['required'],
             'last_name' => ['required'],
-            'email' => ['required', 'email', 'max:254'],
+            'email' => ['required', 'email', 'max:254', Rule::unique('users', 'email')],
             'password' => ['required',  Password::min(6), 'confirmed'],
         ]);
 
