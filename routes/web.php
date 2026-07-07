@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ModuleJobListingController;
@@ -14,6 +15,8 @@ use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\User;
 use App\Models\Workspace;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
@@ -197,7 +200,7 @@ function mockEvaluation(): array
 
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::controller(RegisteredUserController::class)->group(function () {
@@ -215,9 +218,27 @@ Route::middleware('guest')->group(function () {
     });
 });
 
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [SessionController::class, 'destroy'])->name('logout.destroy');
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
 
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+ 
+    return redirect('/')->with('message', 'Verification link sent!');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+    
+        return back()->with('message', 'Verification link sent!');
+    })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+    Route::post('/logout', [SessionController::class, 'destroy'])->name('logout.destroy');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::controller(ModuleController::class)->group(function () {
         Route::get('/dashboard/modules', 'index')
             ->name('dashboard.modules.index');
@@ -321,38 +342,9 @@ Route::middleware('auth')->group(function () {
             ->can('update', 'workspace');
     });
 
-    Route::post('/dashboard/workspaces/{workspace}', function (Workspace $workspace) {
-
-        if ($workspace->user_id !== request()->user()->id) {
-            abort(404);
-        }
-
-        request()->validate([
-            'resume_file' => 'required|file|mimes:pdf,docx|max:20480',
-        ]);
-
-        dd(request()->resume_file);
-
-        $response = Http::baseUrl(config('services.eval.url'))
-            ->timeout(config('services.eval.timeout'))
-            ->acceptJson()
-            ->post('/evaluate', [
-                'resume_file' => request()->resume_file,
-                'job_description' => request()->job_description,
-            ]);
-
-        if ($response->failed()) {
-            return redirect()
-                ->route('dashboard.workspaces.show', $workspace)
-                ->with('evaluation_error', 'Evaluation service could not complete the request.');
-        }
-
-        return redirect()
-            ->route('dashboard.workspaces.show', $workspace)
-            ->with([
-                'evaluation' => $response->json(),
-                'job_description' => request()->job_description,
-            ]);
+    Route::controller(EvaluationController::class)->group(function () {
+        Route::post('/dashboard/workspaces/{workspace}/evaluation', 'store')
+            ->name('dashboard.workspaces.evaluations.store');
     })->name('dashboard.workspaces.evaluations.store');
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');

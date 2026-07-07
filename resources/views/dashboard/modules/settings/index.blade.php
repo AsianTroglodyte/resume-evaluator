@@ -64,7 +64,6 @@
                         </div>
                     </div>
                 </section>
-
                 
                 <div class="flex flex-wrap items-center justify-end gap-3 border-t border-base-300 pt-4">
                     <button type="submit" class="btn btn-primary" >Save changes</button>
