@@ -10,6 +10,7 @@ use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
+use App\Jobs\EvaluateJob;
 use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
@@ -197,6 +198,13 @@ function mockEvaluation(): array
         ],
     ];
 }
+
+
+Route::get('test', function (){
+    EvaluateJob::dispatch();
+
+    return 'Done';
+});
 
 Route::get('/', function () {
     return view('home');

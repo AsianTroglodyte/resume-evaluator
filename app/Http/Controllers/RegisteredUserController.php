@@ -20,7 +20,7 @@ class RegisteredUserController extends Controller
 
     public function post(Request $request)
     {
-        $validated = request()->validate([
+        $validated = $request->validate([
             'first_name' => ['required'],
             'last_name' => ['required'],
             'email' => ['required', 'email', 'max:254', Rule::unique('users', 'email')],
@@ -31,7 +31,6 @@ class RegisteredUserController extends Controller
             ...$validated,
             'global_role' => GlobalRole::User,
         ]);
-
 
         Auth::login($user);
         

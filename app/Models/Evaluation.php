@@ -7,11 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 class Evaluation extends Model
 {
     //
-    // protected $fillable = [
-    //     'bruh' => 'bruh'
-    // ];
+    protected $fillable = [
+        'workspace_id',
+        'resume_text',
+        'job_listing_id',
+        'job_description_text',
+        'status',
+        'failure_reason',
+        'evaluation_data',
+        'evaluator_version'
+    ];
 
-
+    protected function casts(): array
+    {
+        return [
+            'evaluation_data' => 'array',
+        ];
+    }
 
     // ('evaluations', function (Blueprint $table) {
     //     $table->id();
