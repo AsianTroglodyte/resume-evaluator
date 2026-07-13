@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 /**
  * @return list<array<string, mixed>>
  */
+if (! function_exists('mockWorkspaces')) {
 function mockWorkspaces(): array
 {
     return [
@@ -119,12 +120,14 @@ function mockWorkspaces(): array
         ],
     ];
 }
+}
 
 /**
  * Sample evaluation payload for local UI development (replaced by session flash after a real run).
  *
  * @return array<string, mixed>
  */
+if (! function_exists('mockEvaluation')) {
 function mockEvaluation(): array
 {
     return [
@@ -197,6 +200,7 @@ function mockEvaluation(): array
             'Education is empty — skip only if that\'s intentional.',
         ],
     ];
+}
 }
 
 
