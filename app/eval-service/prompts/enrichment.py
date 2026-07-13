@@ -56,6 +56,13 @@ OUTPUT FORMAT (JSON only, no other text):
 IMPORTANT RULES:
 - MAXIMUM 6 QUESTIONS TOTAL - this is a hard limit, never exceed it
 - Only include items that genuinely need improvement
+- Judge each identified Experience or Project entry by the quality of its
+  description, not by the number of entries or the absence of work experience.
+- Missing detail within an identified entry is a weakness; missing entries
+  alone are not.
+- If no Experience or Project entry can be meaningfully assessed, return empty
+  arrays and state that there is insufficient resume content to assess overall
+  quality.
 - If the resume is already strong, return empty arrays with a positive summary
 - Use "exp_0", "exp_1" for experience items (reading order, first job = exp_0)
 - Use "proj_0", "proj_1" for project items (reading order)

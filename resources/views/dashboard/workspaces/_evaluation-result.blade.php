@@ -1,5 +1,6 @@
 @php
-    $data = is_array($evaluation->evaluation_data) ? $evaluation->evaluation_data : [];
+   use \App\Enums\EvaluationStatus;
+   $data = is_array($evaluation->evaluation_data) ? $evaluation->evaluation_data : [];
     $matchedKeywords = $data['matched_keywords'] ?? [];
     $missingKeywords = $data['missing_keywords'] ?? [];
     $aiPhrases = $data['ai_phrases'] ?? [];
@@ -13,8 +14,8 @@
     $statusBadgeClass = match ($evaluation->status) {
         \App\Enums\EvaluationStatus::Completed => 'badge-success',
         \App\Enums\EvaluationStatus::Failed => 'badge-error',
-        default => 'badge-ghost',
-    };
+        default => 'badge-ghost',};
+    $status = $evaluation->status
 @endphp
 
 <details
@@ -37,7 +38,7 @@
                     <p class="truncate text-sm font-normal text-base-content/60">
                         {{ $summary }}
                     </p>
-                @elseif ($evaluation->status === \App\Enums\EvaluationStatus::Failed)
+                @elseif ($evaluation->status === EvaluationStatus::Failed)
                     <p class="truncate text-sm font-normal text-error">
                         {{ $evaluation->failure_reason ?: 'Evaluation failed.' }}
                     </p>
@@ -69,7 +70,9 @@
                 </div>
             @endif
 
-            @if (empty($enrichment) && empty($warnings) && empty($aiPhrases) && ! $hasKeywordFeedback)
+            @if ($status === EvaluationStatus::Processing)
+                <p class="text-sm text-base-content/60">Pending.</p>
+            @elseif (empty($enrichment) && empty($warnings) && empty($aiPhrases) && ! $hasKeywordFeedback)
                 <p class="text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
             @endif
 

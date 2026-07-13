@@ -18,7 +18,7 @@ class EvaluateJob implements ShouldQueue
      */
     public function __construct(
         public string $resumeText,
-        public string $jobDescription,
+        public ?string $jobDescription,
         public Workspace $workspace)
     {
         //
@@ -30,7 +30,6 @@ class EvaluateJob implements ShouldQueue
     public function handle(): void
     {
         // Create evaluation and set status to processing
-        sprintf("before creating evaluation");
         $evaluation = Evaluation::create([
             'workspace_id' => $this->workspace->id,
             'resume_text' =>$this->resumeText,
@@ -48,6 +47,8 @@ class EvaluateJob implements ShouldQueue
             ]);
 
         // dd($response->json());
+        dump($response->json());
+
 
         if ($response->failed()) {
             $evaluation->update([
@@ -62,7 +63,6 @@ class EvaluateJob implements ShouldQueue
                 'status' => EvaluationStatus::Completed,
                 'evaluation_data' => $response->json(),
             ]);
-            dd("updated");
         }
     }
 }
