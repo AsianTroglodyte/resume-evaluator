@@ -28,8 +28,9 @@ class EvaluateRequest(BaseModel):
 
 @app.post("/evaluate")
 async def post_item(payload: EvaluateRequest):
-    print("bruhbruhbruhbruhbruhbruhbruhbruh")
-    raise SystemExit
+
+    # logging.error("bruh");
+    # print('bruh')
 
     enrichment_task = asyncio.create_task(
         analyze_resume_enrichment(payload.resume_text)

@@ -2,27 +2,32 @@
 
 namespace App\Models;
 
+use App\Enums\EvaluationStatus;
+use Database\Factories\EvaluationFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Evaluation extends Model
 {
-    //
-    // protected $fillable = [
-    //     'bruh' => 'bruh'
-    // ];
+    /** @use HasFactory<EvaluationFactory> */
+    use HasFactory;
 
+    protected $fillable = [
+        'workspace_id',
+        'resume_text',
+        'job_listing_id',
+        'job_description_text',
+        'status',
+        'failure_reason',
+        'evaluation_data',
+        'evaluator_version',
+    ];
 
-
-    // ('evaluations', function (Blueprint $table) {
-    //     $table->id();
-    //     $table->foreignId('workspace_id')->constrained()->cascadeOnDelete();
-    //     $table->text('resume_text');
-    //     $table->foreignId('job_listing_id')->nullable()->constrained('job_listings')->nullOnDelete();
-    //     $table->text('job_description_text')->nullable();
-    //     $table->string('status')->default(EvaluationStatus::Pending->value);
-    //     $table->text('failure_reason')->nullable();
-    //     $table->json('evaluation_data')->nullable();
-    //     $table->string('evaluator_version')->nullable();
-    //     $table->timestamps();
-    // });
+    protected function casts(): array
+    {
+        return [
+            'evaluation_data' => 'array',
+            'status' => EvaluationStatus::class,
+        ];
+    }
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
+use App\Jobs\EvaluateJob;
 use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 /**
  * @return list<array<string, mixed>>
  */
+if (! function_exists('mockWorkspaces')) {
 function mockWorkspaces(): array
 {
     return [
@@ -118,12 +120,14 @@ function mockWorkspaces(): array
         ],
     ];
 }
+}
 
 /**
  * Sample evaluation payload for local UI development (replaced by session flash after a real run).
  *
  * @return array<string, mixed>
  */
+if (! function_exists('mockEvaluation')) {
 function mockEvaluation(): array
 {
     return [
@@ -197,6 +201,14 @@ function mockEvaluation(): array
         ],
     ];
 }
+}
+
+
+Route::get('test', function (){
+    EvaluateJob::dispatch();
+
+    return 'Done';
+});
 
 Route::get('/', function () {
     return view('home');
