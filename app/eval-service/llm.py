@@ -41,7 +41,8 @@ class LLMConfig(BaseModel):
 def get_llm_config() -> LLMConfig:
     """Load LLM config from eval-service environment variables."""
     provider = os.getenv("LLM_PROVIDER", "openai")
-    model = os.getenv("LLM_MODEL", "gpt-4o-mini")
+    # model = os.getenv("LLM_MODEL", "gpt-4o-mini")
+    model = os.getenv("LLM_MODEL", "gpt-4.1")
     api_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY") or ""
     api_base = os.getenv("LLM_API_BASE") or None
     raw_re = os.getenv("REASONING_EFFORT", "")
@@ -180,7 +181,7 @@ def _extract_choice_text(choice: Any) -> str | None:
 
 def get_model_name(config: LLMConfig) -> str:
     provider_prefixes = {
-        "openai": "",
+        "openai": "openai/",
         "openai_compatible": "openai/",
         "anthropic": "anthropic/",
         "openrouter": "openrouter/",
@@ -335,10 +336,16 @@ def _supports_temperature(model_name: str, temperature: float | None = None) -> 
     if "kimi-k2.6" in model_name.lower() and temperature != 1.0:
         return False
 
+    if "gpt-5" in model_name.lower() and temperature != 1.0:
+        return False
+
     return True
 
 
-def _get_retry_temperature(model_name: str, attempt: int, base_temp: float = 0.1) -> float | None:
+def _get_retry_temperature(
+        model_name: str,
+        attempt: int,
+        base_temp: float = 0.1) -> float | None:
     if "kimi-k2.6" in model_name.lower():
         return 1.0
 

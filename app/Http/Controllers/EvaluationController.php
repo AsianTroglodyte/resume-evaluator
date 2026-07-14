@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EvaluationStatus;
 use App\Jobs\EvaluateJob;
+use App\Models\Evaluation;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
 
@@ -13,31 +15,28 @@ class EvaluationController extends Controller
      */
     public function store(Request $request, Workspace $workspace)
     {
-        // dd($request->resume_text, $request->resume_text, $workspace->id);
+        // dd($request->resume_text, $request->job_description, $workspace->id);
 
+        $request->validate([
+            "resume_text" => ['required'],
+        ]);
+
+
+
+        // Create evaluation and set status to processing
+        $evaluation = Evaluation::create([
+            'workspace_id' => $request->workspace->id,
+            'resume_text' =>$request->resume_text,
+            'job_description_text' => $request->job_description,
+            'status' => EvaluationStatus::Processing,
+        ]);
+        
         EvaluateJob::dispatch(
             $request->resume_text,
-            $request->resume_text,
-            $workspace
+            $request->job_description,
+            $workspace,
+            $evaluation
         );
-
-        // $response = Http::baseUrl(config('services.eval.url'))
-        //     ->timeout(config('services.eval.timeout'))
-        //     ->acceptJson()
-        //     ->post('/evaluate', [
-        //         'resume_file' => request()->resume_file,
-        //         'job_description' => request()->job_description,
-        // ]);
-
-        // $response = Http::baseUrl(config('services.eval.url'))
-        //     ->timeout(config('services.eval.timeout'))
-        //     ->acceptJson()
-        //     ->post('/evaluate', [
-        //         'resume_text' => $request->resume_text,
-        //         'job_description' => $request->job_description,
-        // ]);
-
-
 
         return redirect()
             ->route('dashboard.workspaces.show', $workspace)

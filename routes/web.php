@@ -200,15 +200,14 @@ function mockEvaluation(): array
             'Education is empty — skip only if that\'s intentional.',
         ],
     ];
-}
-}
+}}
 
 
-Route::get('test', function (){
-    EvaluateJob::dispatch();
-
-    return 'Done';
-});
+Route::get('/dashboard/workspaces/{workspace}/test', function (Workspace $workspace) {
+    return response()->json([
+        'hasPendingEvaluation' => $workspace->hasPendingEvaluation()
+    ]);
+})->name('test');
 
 Route::get('/', function () {
     return view('home');
