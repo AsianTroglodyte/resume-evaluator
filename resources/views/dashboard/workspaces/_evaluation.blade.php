@@ -19,8 +19,9 @@
         $status = $evaluation->status;
     @endphp
     <details
-        class="collapse collapse-arrow rounded-box border border-base-300 bg-base-100"
-        @if ($loop->first) open @endif
+        wire:key="evaluation-{{ $evaluation->id }}"
+        @if (in_array($evaluation->id, $expandedIds, true)) open @endif
+        wire:click="toggleExpanded({{ $evaluation->id }})"
     >
         <summary class="collapse-title min-h-0 py-4">
             <div class="flex flex-wrap items-center justify-between gap-3 pr-6">
