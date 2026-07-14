@@ -28,8 +28,6 @@ class WorkspaceController extends Controller
             ->limit(5)
             ->get();
 
-        // dd($evaluations->all()[0]->);
-
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
             'evaluations' => $evaluations,
