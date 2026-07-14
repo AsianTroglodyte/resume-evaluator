@@ -4,6 +4,7 @@
     use App\Enums\AssigneeScope;
 @endphp
 
+
 <x-dashboard-layout>
     <x-slot:title>Edit Assignment</x-slot:title>
 
@@ -39,7 +40,7 @@
                             name="title"
                             placeholder="Assignment title"
                             class="input input-bordered w-full"
-                            value="{{old('title',  $assignment->title)}}"
+                            value="{{old('title',  $assignment->title ?? "")}}"
                             required
                         />
                         @error('title')
@@ -54,7 +55,7 @@
                             name="allow_resubmission"
                             class="toggle"
                             value="1"
-                            @checked(old('allow_resubmission', $assignment->allow_resubmission))
+                            @checked(old('allow_resubmission', $assignment->allow_resubmission ?? ""))
                             {{-- checked --}}
                         />
                         <span class="label-text">Allow resubmissions</span>
@@ -72,7 +73,7 @@
                                 class="toggle"
                                 id="due-date-enabled"
                                 value="1"
-                                @checked(old('due_date_enabled', $assignment->due_date_enabled))
+                                @checked(old('due_date_enabled', $assignment->due_date_enabled ?? ""))
                             />
                             <span class="label-text">Enable due date</span>
                             @error('due_date_enabled')
@@ -100,7 +101,7 @@
                             name="description"
                             placeholder="Assignment details and instructions..."
                             class="textarea textarea-bordered min-h-32 w-full"
-                        >{{ @old( 'description', $assignment->description)}}</textarea>
+                        >{{ @old( 'description', $assignment->description ?? "")}}</textarea>
                         @error('description')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
@@ -128,7 +129,7 @@
                                 class="radio radio-primary"
                                 @checked(
                                 JoblistingSource::from(
-                                    old('job_listing_source', $assignment->job_listing_source->value))
+                                    old('job_listing_source', $assignment->job_listing_source->value ?? ""))
                                     === JobListingSource::External)
                                 required
                             />
@@ -142,7 +143,7 @@
                                 value="module"
                                 class="job-source-module radio radio-primary"
                                 @checked(
-                                JoblistingSource::from(old('job_listing_source', $assignment->job_listing_source->value))
+                                JoblistingSource::from(old('job_listing_source', $assignment->job_listing_source->value ?? ""))
                                     === JobListingSource::Module)
                             />
                             <span class="font-medium">Module job listings only</span>
@@ -155,7 +156,7 @@
                                 value="both"
                                 class="job-source-both radio radio-primary"
                                 @checked(
-                                    JoblistingSource::from(old('job_listing_source', $assignment->job_listing_source->value))
+                                    JoblistingSource::from(old('job_listing_source', $assignment->job_listing_source->value ?? ""))
                                     === JobListingSource::Both)
                             />
                             <span class="font-medium">Both external and module job listings</span>
@@ -176,7 +177,7 @@
                                     class="radio radio-primary"
                                     @checked(
                                     ModuleJoblistingScope::from(old('module_job_listing_scope', 
-                                    $assignment->module_job_listing_scope->value))
+                                    $assignment->module_job_listing_scope->value ?? ""))
                                     === ModuleJobListingScope::All)
                                     checked
                                 />
@@ -191,7 +192,7 @@
                                     class="job-listing-scope-selected radio radio-primary"
                                     @checked(
                                         ModuleJoblistingScope::from(old('module_job_listing_scope', 
-                                        $assignment->module_job_listing_scope->value))
+                                        $assignment->module_job_listing_scope->value ?? ""))
                                         === ModuleJobListingScope::Selected)
                                 />
                                 <span class="font-medium">Select job listings</span>
@@ -219,7 +220,7 @@
                                                 @checked(in_array( $job_listing->id, 
                                                     old(
                                                         'job_listing_ids', 
-                                                        $assignment->jobListings->pluck('id')->toArray())))
+                                                        $assignment->jobListings->pluck('id')->toArray() ?? "")))
                                                 value="{{ $job_listing->id }}"
                                             />
                                             <span class="min-w-0 font-medium">
@@ -259,7 +260,7 @@
                                 value="everyone"
                                 class="radio radio-primary"
                                 @checked(
-                                    AssigneeScope::from(old('assignee_scope', $assignment->assignee_scope->value))
+                                    AssigneeScope::from(old('assignee_scope', $assignment->assignee_scope->value ?? ""))
                                     === AssigneeScope::Everyone)
                             />
                             <span class="font-medium">Everyone in module</span>
@@ -272,7 +273,7 @@
                                 value="selected"
                                 class="assignment-scope-selected radio radio-primary"
                                 @checked(
-                                    AssigneeScope::from(old('assignee_scope', $assignment->assignee_scope->value))
+                                    AssigneeScope::from(old('assignee_scope', $assignment->assignee_scope->value ?? ""))
                                     === AssigneeScope::Selected)
                             />
                             <span class="font-medium">Select members</span>
@@ -297,7 +298,9 @@
                                             @checked(in_array( $user->id, 
                                             old(
                                                 'assignee_ids', 
-                                                $assignment->assignees->pluck('id')->toArray())))
+                                                $assignment->assignees->pluck('id')->toArray()
+                                                ?? 
+                                                "")))
                                         />
                                         <span class="min-w-0 font-medium">
                                             {{ $user->first_name }} {{ $user->last_name }} -
@@ -317,13 +320,6 @@
                     </fieldset>
                 </section>
 
-                {{-- @if($errors->any())
-                    <ul>
-                    @foreach($errors->all() as $error) 
-                        <li> {{$error}}</li>
-                    @endforeach
-                    </ul>
-                @endif --}}
 
                 <div class="flex flex-wrap justify-end gap-2 border-t border-base-300 pt-4">
                     <a href="{{ route('dashboard.modules.show', $module) }}" class="btn btn-outline">Cancel</a>
