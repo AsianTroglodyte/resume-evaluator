@@ -23,14 +23,8 @@ class WorkspaceController extends Controller
 
     public function show(Workspace $workspace): View
     {
-        $evaluations = $workspace->evaluations()
-            ->latest()
-            ->limit(5)
-            ->get();
-
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
-            'evaluations' => $evaluations,
         ]);
     }
 

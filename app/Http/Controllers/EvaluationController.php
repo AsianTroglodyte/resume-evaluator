@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EvaluationStatus;
 use App\Jobs\EvaluateJob;
+use App\Models\Evaluation;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
 
@@ -19,10 +21,21 @@ class EvaluationController extends Controller
             "resume_text" => ['required'],
         ]);
 
+
+
+        // Create evaluation and set status to processing
+        $evaluation = Evaluation::create([
+            'workspace_id' => $request->workspace->id,
+            'resume_text' =>$request->resume_text,
+            'job_description_text' => $request->job_description,
+            'status' => EvaluationStatus::Processing,
+        ]);
+        
         EvaluateJob::dispatch(
             $request->resume_text,
             $request->job_description,
-            $workspace
+            $workspace,
+            $evaluation
         );
 
         return redirect()

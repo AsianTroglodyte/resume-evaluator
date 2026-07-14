@@ -1,3 +1,4 @@
+
 <x-dashboard-layout>
     <x-slot:title>{{ $workspace->name }}</x-slot:title>
 
@@ -52,7 +53,7 @@
             </form>
 
             @error('workspace_name')
-            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
             @enderror
 
             <p class="mt-1 text-sm text-base-content/70">
@@ -143,13 +144,7 @@
             <p class="text-sm text-error">{{ session('evaluation_error') }}</p>
             @endif
 
-            @forelse ($evaluations as $evaluation)
-            @include('dashboard.workspaces._evaluation-result', ['evaluation' => $evaluation])
-            @empty
-            <div class="rounded-box border border-base-300 bg-base-100 px-4 py-5 sm:px-6">
-                <p class="text-sm text-base-content/60">No evaluation run yet. Submit the form above to see results here.</p>
-            </div>
-            @endforelse
+            <livewire:workspace-evaluations :workspace="$workspace" />
         </section>
 
         <section class="rounded-box border border-error/40 bg-error/5 p-4">
@@ -243,24 +238,5 @@
                 }
             });
         });
-
-        const poll = async () => {
-            try {
-                const response = await fetch("{{ route('test', $workspace->id) }}");
-                if (!response.ok) {
-                    throw new Error('Polling failed with ${response.status}');
-                }
-                const data = await response.json();
-
-                if (!data.hasPendingEvaluation) {
-                    return;
-                }
-                setTimeout(poll, 1000);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        poll();
     </script>
 </x-dashboard-layout>
