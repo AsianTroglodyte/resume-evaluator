@@ -35,7 +35,7 @@
                             value="{{ old('title') }}"
                             required
                         />
-                        @error('new_member_email')
+                        @error('title')
                             <span class="label-text-alt mt-1 text-error">{{ $message }} </span>
                         @enderror
                     </label>
@@ -50,7 +50,10 @@
                         />
                         <span class="label-text">Allow resubmissions</span>
                     </label>
-
+                    @error('allow_resubmission')
+                        <span class="label-text-alt mt-1 text-error">{{ $message }} </span>
+                    @enderror
+                    
 
                     <div class="mt-4 flex flex-col gap-2 [&:not(:has(#due-date-enabled:checked))_.due-date-input]:hidden">
                         <label class="flex w-fit cursor-pointer items-center gap-3">
@@ -64,6 +67,9 @@
                             />
                             <span class="label-text">Enable due date</span>
                         </label>
+                        @error('due_date_enabled')
+                            <span class="label-text-alt mt-1 text-error">{{ $message }} </span>
+                        @enderror
 
                         <label class="due-date-input form-control w-full max-w-xs">
                             <span class="label-text mb-1">Due date</span>
