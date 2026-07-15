@@ -44,7 +44,7 @@ class ModuleAssignmentsController extends Controller
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
             'due_date_enabled' => ['required', 'boolean'],
-            'due_at' => ['nullable', 'date',
+            'due_date' => ['nullable', 'date',
                 Rule::requiredIf(fn () => request()->boolean('due_date_enabled'))],
             'description' => ['nullable', 'string', 'max:500'],
             'job_listing_source' => ['required',
@@ -70,11 +70,11 @@ class ModuleAssignmentsController extends Controller
                     ->where('status', 'active')],
         ]);
 
-        $validated['due_at'] = $validated['due_date_enabled'] ? $validated['due_at'] : null;
+        $validated['due_date'] = $validated['due_date_enabled'] ? $validated['due_date'] : null;
 
         $assignmentInfo = SupportArr::only($validated, [
             'title',
-            'due_at',
+            'due_date',
             'description',
             'job_listing_source',
             'module_job_listing_scope',
@@ -87,7 +87,7 @@ class ModuleAssignmentsController extends Controller
             'module_id' => $module['id'],
             'title' => $assignmentInfo['title'],
             'description' => $assignmentInfo['description'],
-            'due_at' => $assignmentInfo['due_at'],
+            'due_date' => $assignmentInfo['due_date'],
             'assignee_scope' => AssigneeScope::from($assignmentInfo['assignee_scope']),
             'job_listing_source' => JobListingSource::from($assignmentInfo['job_listing_source']),
             'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
@@ -134,7 +134,7 @@ class ModuleAssignmentsController extends Controller
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
             'due_date_enabled' => ['required', 'boolean'],
-            'due_at' => ['nullable', 'date',
+            'due_date' => ['nullable', 'date',
                 Rule::requiredIf(fn () => request()->boolean('due_date_enabled'))],
             'description' => ['nullable', 'string', 'max:500'],
             'job_listing_source' => ['required', Rule::enum(JobListingSource::class)],
@@ -157,11 +157,11 @@ class ModuleAssignmentsController extends Controller
                     ->where('status', 'active')],
         ]);
 
-        $validated['due_at'] = $validated['due_date_enabled'] ? $validated['due_at'] : null;
+        $validated['due_date'] = $validated['due_date_enabled'] ? $validated['due_date'] : null;
 
         $assignmentInfo = SupportArr::only($validated, [
             'title',
-            'due_at',
+            'due_date',
             'description',
             'job_listing_source',
             'module_job_listing_scope',
@@ -174,7 +174,7 @@ class ModuleAssignmentsController extends Controller
             'module_id' => $module['id'],
             'title' => $assignmentInfo['title'],
             'description' => $assignmentInfo['description'],
-            'due_at' => $assignmentInfo['due_at'],
+            'due_date' => $assignmentInfo['due_date'],
             'assignee_scope' => AssigneeScope::from($assignmentInfo['assignee_scope']),
             'job_listing_source' => JobListingSource::from($assignmentInfo['job_listing_source']),
             'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),

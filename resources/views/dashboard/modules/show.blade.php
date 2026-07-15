@@ -39,7 +39,7 @@
                             <div class="flex flex-col justify-between">
                                 <h4 class="font-medium">{{ $assignment->title }}</h4>
                                 <p class="mt-2 text-sm text-base-content/70">
-                                    Due: {{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}
+                                    Due: {{ $assignment->due_date?->format('M j, Y g:i A') ?? 'No due date' }}
                                 </p>
                             </div>
 

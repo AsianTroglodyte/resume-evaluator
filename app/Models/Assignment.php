@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Assignment extends Model
 {
@@ -23,7 +22,7 @@ class Assignment extends Model
         'created_by_user_id',
         'title',
         'description',
-        'due_at',
+        'due_date',
         'assignee_scope',
         'job_listing_source',
         'module_job_listing_scope',
@@ -34,7 +33,7 @@ class Assignment extends Model
     protected function casts(): array
     {
         return [
-            'due_at' => 'datetime',
+            'due_date' => 'datetime',
             'allow_resubmission' => 'boolean',
             'assignee_scope' => AssigneeScope::class,
             'job_listing_source' => JobListingSource::class,
