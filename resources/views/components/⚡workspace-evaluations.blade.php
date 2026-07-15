@@ -10,6 +10,7 @@ new class extends Component
 
     /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Evaluation> */
     public $evaluations;
+    public array $expandedIds = [];
 
     public function mount(Workspace $workspace): void
     {
@@ -37,6 +38,15 @@ new class extends Component
             fn ($evaluation) => $evaluation->status === EvaluationStatus::Processing
         );
     }
+
+    public function toggleExpanded(int $id): void
+    {
+        if (in_array($id, $this->expandedIds, true)) {
+            $this->expandedIds = array_values(array_diff($this->expandedIds, [$id]));
+        } else {
+            $this->expandedIds[] = $id;
+        }
+    }
 };
 ?>
 
@@ -44,5 +54,5 @@ new class extends Component
     class="space-y-4"
     @if ($this->hasProcessing()) wire:poll.1s="refreshEvaluations" @endif
 >
-    @include('dashboard.workspaces._evaluations', ['evaluations' => $evaluations])
+    @include('dashboard.workspaces._evaluation', ['evaluations' => $evaluations])
 </div>
