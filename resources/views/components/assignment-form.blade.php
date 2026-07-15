@@ -90,7 +90,8 @@
                             class="toggle"
                             id="due-date-enabled"
                             value="1"
-                            @checked(old('due_date_enabled', $assignment?->due_date_enabled ))
+                            @checked(old('due_date_enabled', 
+                                $assignment?->due_at ?? ""))
                         />
                         <span class="label-text">Enable due date</span>
                         @error('due_date_enabled')
@@ -104,10 +105,10 @@
                             type="datetime-local"
                             name="due_at"
                             class="input input-bordered w-full"
-                            value="{{old('due_at', $assignment?->due_at?->format('Y-m-d\TH:i'))}}"
+                            value="{{old('due_at', $assignment?->due_at?->format('Y-m-d\TH:i') ?? "")}}"
                         />
                         @error('due_at')
-                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
                     </label>
                 </div>
@@ -352,7 +353,13 @@
             <div class="flex flex-wrap justify-end gap-2 border-t border-base-300 pt-4">
                 <a href="{{ route('dashboard.modules.show', $module) }}" class="btn btn-outline">Cancel</a>
                 <button type="reset" class="btn btn-outline">Reset</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
+                <button type="submit" class="btn btn-primary">
+                    @if ($method === "PATCH")
+                        Save changes
+                    @elseif ($method === "POST")
+                        Create
+                    @endif
+                </button>
             </div>
         </form>
     </article>
