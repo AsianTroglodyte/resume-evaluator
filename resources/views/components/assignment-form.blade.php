@@ -34,7 +34,7 @@
             @if ($method === "POST")
                 action="{{ 
                     route('dashboard.modules.assignments.store', 
-                    [$module]) }}"
+                    [$module])}}"
             @elseif ($method === "PATCH")
                 action="{{ 
                     route('dashboard.modules.assignments.update', 
