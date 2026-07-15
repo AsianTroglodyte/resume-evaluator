@@ -4,25 +4,25 @@
     'users',
     'job_listings',
     'assignment' => null,
-    'header',
-    'paragraph',
 ])
 
 @php
     use App\Enums\JobListingSource;
     use App\Enums\ModuleJobListingScope;
     use App\Enums\AssigneeScope;
-    // JobListingSource
 @endphp
-
-<x-slot:title>Edit Assignment</x-slot:title>
 
 <section class="space-y-4">
     <header class="space-y-1">
         <a href="{{ route('dashboard.modules.show', $module) }}" class="link link-primary text-sm">
             &larr; Back to {{ $module->name }}
         </a>
-        <h2 class="text-2xl font-semibold">Edit Assignment: {{ $assignment?->title }} </h2>
+        @if ($method === 'POST')
+            <h2 class="text-2xl font-semibold">Create Assignment</h2>
+        @elseif ($method === 'PATCH')
+            <h2 class="text-2xl font-semibold">Edit Assignment: {{ $assignment?->title }} </h2>
+        @endif
+        
         <p class="text-sm text-base-content/70">{{ $module->name }}.</p>
     </header>
 
@@ -42,7 +42,10 @@
             @endif
         >
             @csrf
-                @method($method)
+            
+            @if ($method === 'PATCH')
+                @method('PATCH')
+            @endif
 
             <section class="min-w-0 space-y-5" aria-labelledby="assignment-basics-heading">
                 <header class="space-y-1 border-b border-base-300 pb-4">
@@ -162,7 +165,7 @@
                             value="module"
                             class="job-source-module radio radio-primary"
                             @checked(
-                            JoblistingSource::from(
+                            JobListingSource::from(
                                 old('job_listing_source', 
                                 $assignment?->job_listing_source->value ?? JobListingSource::External->value))
                             === JobListingSource::Module)
@@ -177,7 +180,7 @@
                             value="both"
                             class="job-source-both radio radio-primary"
                             @checked(
-                                JoblistingSource::from(old('job_listing_source', 
+                                JobListingSource::from(old('job_listing_source', 
                                 $assignment?->job_listing_source->value ?? JobListingSource::External->value))
                                 === JobListingSource::Both)
                         />
@@ -201,7 +204,6 @@
                                     ModuleJobListingScope::from(old('module_job_listing_scope', 
                                     $assignment?->module_job_listing_scope->value ?? ModuleJobListingScope::All->value))
                                 === ModuleJobListingScope::All)
-                                checked
                             />
                             <span class="font-medium">All module job listings</span>
                         </label>
@@ -214,7 +216,7 @@
                                 class="job-listing-scope-selected radio radio-primary"
                                 @checked(
                                     ModuleJobListingScope::from(old('module_job_listing_scope', 
-                                    $assignment?->module_job_listing_scope->value ?? ModuleJobListingScope::Selected->value))
+                                    $assignment?->module_job_listing_scope->value ?? ModuleJobListingScope::All->value))
                                     === ModuleJobListingScope::Selected)
                             />
                             <span class="font-medium">Select job listings</span>
