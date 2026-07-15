@@ -16,7 +16,7 @@
                 <div>
                     <h2 class="text-2xl font-semibold">{{ $assignment->title }}</h2>
                     <p class="mt-1 text-sm text-base-content/70">
-                        Due: {{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}
+                        Due: {{ $assignment->due_date?->format('M j, Y g:i A') ?? 'No due date' }}
                     </p>
                 </div>
 
@@ -51,7 +51,7 @@
                     <div class="grid gap-4 sm:grid-cols-3">
                         <div>
                             <dt class="font-medium">Due date</dt>
-                            <dd class="mt-1">{{ $assignment->due_at?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
+                            <dd class="mt-1">{{ $assignment->due_date?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
                         </div>
                         <div>
                             <dt class="font-medium">Resubmission</dt>

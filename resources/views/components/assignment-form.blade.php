@@ -93,8 +93,8 @@
                             class="toggle"
                             id="due-date-enabled"
                             value="1"
-                            @checked((bool) old('due_date_enabled', 
-                                $assignment?->due_at !== null))
+                            @checked((bool) old('due_date_enabled',
+                                $assignment?->due_date !== null))
                         />
                         <span class="label-text">Enable due date</span>
                         @error('due_date_enabled')
@@ -106,12 +106,12 @@
                         <span class="label-text mb-1">Due date</span>
                         <input
                             type="datetime-local"
-                            name="due_at"
+                            name="due_date"
                             class="input input-bordered w-full"
-                            value="{{old('due_at', $assignment?->due_at?->format('Y-m-d\TH:i') ?? "")}}"
+                            value="{{old('due_date', $assignment?->due_date?->format('Y-m-d\TH:i') ?? "")}}"
                         />
-                        @error('due_at')
-                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @error('due_date')
+                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
                     </label>
                 </div>
