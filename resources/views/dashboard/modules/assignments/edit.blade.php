@@ -4,7 +4,7 @@
     use App\Enums\AssigneeScope;
 @endphp
 <x-dashboard-layout>
-    <x-slot:title>Create Assignment</x-slot:title>
+    <x-slot:title>Edit Assignment</x-slot:title>
 
 <x-assignment-form 
     method="PATCH" 
