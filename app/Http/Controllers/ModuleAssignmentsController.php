@@ -44,7 +44,7 @@ class ModuleAssignmentsController extends Controller
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
             'due_date_enabled' => ['required', 'boolean'],
-            'due_at' => ['nullable', 'date', 
+            'due_at' => ['nullable', 'date',
                 Rule::requiredIf(fn () => request()->boolean('due_date_enabled'))],
             'description' => ['nullable', 'string', 'max:500'],
             'job_listing_source' => ['required',
@@ -55,16 +55,13 @@ class ModuleAssignmentsController extends Controller
                 Rule::enum(AssigneeScope::class)],
             'allow_resubmission' => ['required', 'boolean'],
             'job_listing_ids' => ['array',
-                Rule::requiredIf(fn () => 
-                request('module_job_listing_scope') === ModuleJobListingScope::Selected->value)],
+                Rule::requiredIf(fn () => request('module_job_listing_scope') === ModuleJobListingScope::Selected->value)],
             'job_listing_ids.*' => [
                 'required',
                 'integer',
                 Rule::exists('job_listings', 'id')
                     ->where('module_id', $module->id)],
-            'assignee_ids' => ['array',
-                Rule::requiredIf(fn () => 
-                request('assignee_scope') === AssigneeScope::Selected->value)],
+            'assignee_ids' => ['array'],
             'assignee_ids.*' => [
                 'required',
                 'integer',
@@ -137,7 +134,7 @@ class ModuleAssignmentsController extends Controller
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
             'due_date_enabled' => ['required', 'boolean'],
-            'due_at' => ['nullable', 'date', 
+            'due_at' => ['nullable', 'date',
                 Rule::requiredIf(fn () => request()->boolean('due_date_enabled'))],
             'description' => ['nullable', 'string', 'max:500'],
             'job_listing_source' => ['required', Rule::enum(JobListingSource::class)],
@@ -145,16 +142,13 @@ class ModuleAssignmentsController extends Controller
             'assignee_scope' => ['required', Rule::enum(AssigneeScope::class)],
             'allow_resubmission' => ['required', 'boolean'],
             'job_listing_ids' => ['array',
-                Rule::requiredIf(fn () => 
-                request('module_job_listing_scope') === ModuleJobListingScope::Selected->value)],
+                Rule::requiredIf(fn () => request('module_job_listing_scope') === ModuleJobListingScope::Selected->value)],
             'job_listing_ids.*' => [
                 'required',
                 'integer',
                 Rule::exists('job_listings', 'id')
                     ->where('module_id', $module->id)],
-            'assignee_ids' => ['array',
-                Rule::requiredIf(fn () => 
-                request('assignee_scope') === AssigneeScope::Selected->value)],
+            'assignee_ids' => ['array'],
             'assignee_ids.*' => [
                 'required',
                 'integer',

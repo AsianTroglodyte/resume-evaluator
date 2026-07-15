@@ -226,6 +226,10 @@
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
 
+                        @error('job_listing_ids')
+                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @enderror
+
                         <fieldset id="job-listing-list" class="job-listing-list min-w-0 space-y-3">
                             <legend class="label-text font-medium">Select job listings</legend>
 
