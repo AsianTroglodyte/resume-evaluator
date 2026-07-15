@@ -93,8 +93,8 @@
                             class="toggle"
                             id="due-date-enabled"
                             value="1"
-                            @checked(old('due_date_enabled', 
-                                $assignment?->due_at ?? ""))
+                            @checked((bool) old('due_date_enabled', 
+                                $assignment?->due_at !== null))
                         />
                         <span class="label-text">Enable due date</span>
                         @error('due_date_enabled')
@@ -111,7 +111,7 @@
                             value="{{old('due_at', $assignment?->due_at?->format('Y-m-d\TH:i') ?? "")}}"
                         />
                         @error('due_at')
-                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
                     </label>
                 </div>
@@ -223,6 +223,10 @@
                         </label>
                         
                         @error('module_job_listing_scope')
+                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @enderror
+
+                        @error('job_listing_ids')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
 
