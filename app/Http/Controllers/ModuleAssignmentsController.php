@@ -12,19 +12,6 @@ use Illuminate\Validation\Rule;
 
 class ModuleAssignmentsController extends Controller
 {
-    //
-    public function index(Module $module)
-    {
-        $job_listings = $module->jobListings;
-        $users = $module->users;
-
-        return view('dashboard.modules.assignments.create', [
-            'module' => $module,
-            'job_listings' => $job_listings,
-            'users' => $users,
-        ]);
-    }
-
     public function create(Module $module)
     {
         $job_listings = $module->jobListings;
@@ -40,7 +27,7 @@ class ModuleAssignmentsController extends Controller
     public function show(Module $module, Assignment $assignment)
     {
         $users = $module->users;
-        $assignment->load('assignees', 'jobListings');
+        $assignment->load(['assignees', 'jobListings']);
 
         return view('dashboard.modules.assignments.show', [
             'module' => $module,
@@ -51,11 +38,14 @@ class ModuleAssignmentsController extends Controller
 
     public function store(Module $module)
     {
+
+        // dd(request()->due_date_enabled);
         $validated = request()->validate([
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
             'due_date_enabled' => ['required', 'boolean'],
-            'due_at' => ['nullable', 'date', 'after:now'],
+            'due_at' => ['nullable', 'date', 
+                Rule::requiredIf(fn () => request()->boolean('due_date_enabled'))],
             'description' => ['nullable', 'string', 'max:500'],
             'job_listing_source' => ['required',
                 Rule::enum(JobListingSource::class)],
@@ -64,13 +54,17 @@ class ModuleAssignmentsController extends Controller
             'assignee_scope' => ['required',
                 Rule::enum(AssigneeScope::class)],
             'allow_resubmission' => ['required', 'boolean'],
-            'job_listing_ids' => ['array'],
+            'job_listing_ids' => ['array',
+                Rule::requiredIf(fn () => 
+                request('module_job_listing_scope') === ModuleJobListingScope::Selected->value)],
             'job_listing_ids.*' => [
                 'required',
                 'integer',
                 Rule::exists('job_listings', 'id')
                     ->where('module_id', $module->id)],
-            'assignee_ids' => ['array'],
+            'assignee_ids' => ['array',
+                Rule::requiredIf(fn () => 
+                request('assignee_scope') === AssigneeScope::Selected->value)],
             'assignee_ids.*' => [
                 'required',
                 'integer',
@@ -126,7 +120,7 @@ class ModuleAssignmentsController extends Controller
     {
         $job_listings = $module->jobListings;
         $users = $module->users;
-        $assignment->load('assignees');
+        $assignment->load(['assignees', 'jobListings']);
 
         return view('dashboard.modules.assignments.edit', [
             'module' => $module,
@@ -143,19 +137,24 @@ class ModuleAssignmentsController extends Controller
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
             'due_date_enabled' => ['required', 'boolean'],
-            'due_at' => ['nullable', 'date', 'after:now'],
+            'due_at' => ['nullable', 'date', 
+                Rule::requiredIf(fn () => request()->boolean('due_date_enabled'))],
             'description' => ['nullable', 'string', 'max:500'],
             'job_listing_source' => ['required', Rule::enum(JobListingSource::class)],
             'module_job_listing_scope' => ['required', Rule::enum(ModuleJobListingScope::class)],
             'assignee_scope' => ['required', Rule::enum(AssigneeScope::class)],
             'allow_resubmission' => ['required', 'boolean'],
-            'job_listing_ids' => ['array'],
+            'job_listing_ids' => ['array',
+                Rule::requiredIf(fn () => 
+                request('module_job_listing_scope') === ModuleJobListingScope::Selected->value)],
             'job_listing_ids.*' => [
                 'required',
                 'integer',
                 Rule::exists('job_listings', 'id')
                     ->where('module_id', $module->id)],
-            'assignee_ids' => ['array'],
+            'assignee_ids' => ['array',
+                Rule::requiredIf(fn () => 
+                request('assignee_scope') === AssigneeScope::Selected->value)],
             'assignee_ids.*' => [
                 'required',
                 'integer',
