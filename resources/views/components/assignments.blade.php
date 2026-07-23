@@ -34,28 +34,27 @@
                 </svg>
             </button>
 
-                <ul
-                class="dropdown menu z-20 w-52 rounded-box bg-base-100 shadow-sm"
-                popover
-                id="popover-{{ $assignment->id }}"
-                style="position-anchor:--anchor-{{ $assignment->id }}"
-                >
+            <ul
+            class="dropdown menu z-20 w-52 rounded-box bg-base-100 shadow-sm"
+            popover
+            id="popover-{{ $assignment->id }}"
+            style="position-anchor:--anchor-{{ $assignment->id }}"
+            >
                 <li>
                     <a href="{{ route('dashboard.modules.assignments.edit', [$module, $assignment]) }}">
                         Edit
                     </a>
                 </li>
-                    <li>
-                        <button
+                <li>
+                    <button
                         type="button"
                         class="text-error"
-                        onclick="assignment_delete_modal_{{ $assignment->id }}.showModal()"
-                        >
+                        onclick="assignment_delete_modal_{{ $assignment->id }}.showModal()">
                         Delete
                     </button>
-                @endcan
-            </li>
-    </ul>
+                    @endcan
+                </li>
+            </ul>
         </div>
         <dialog id="assignment_delete_modal_{{$assignment->id}}" class="modal">
             <div class="modal-box">
