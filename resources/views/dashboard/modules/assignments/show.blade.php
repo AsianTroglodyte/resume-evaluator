@@ -94,8 +94,6 @@
                 <div class="collapse-content space-y-1">
                     <p class="text-sm text-base-content/70">Submit your resume against one of these postings.</p>
 
-                    {{-- {{ $assignment->module_job_listing_scope }}
-                    {{ ModuleJobListingScope::All->value}} --}}
                     @if ($assignment->module_job_listing_scope === ModuleJobListingScope::All)
                         @forelse ($module->jobListings as $jobListing)
                         
