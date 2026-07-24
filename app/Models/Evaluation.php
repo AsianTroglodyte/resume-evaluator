@@ -14,7 +14,7 @@ class Evaluation extends Model
 
     protected $fillable = [
         'workspace_id',
-        'resume_text',
+        'resume_file_path',
         'job_listing_id',
         'job_description_text',
         'status',

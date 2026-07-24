@@ -18,21 +18,25 @@ class EvaluationController extends Controller
         // dd($request->resume_text, $request->job_description, $workspace->id);
 
         $request->validate([
-            "resume_text" => ['required'],
+            'resume_file' => ['required'],
         ]);
 
+        $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
+        // dd($path);
 
         // Create evaluation and set status to processing
         $evaluation = Evaluation::create([
             'workspace_id' => $request->workspace->id,
-            'resume_text' =>$request->resume_text,
+            'resume_file_path' => $resumeFilePath,
             'job_description_text' => $request->job_description,
             'status' => EvaluationStatus::Processing,
         ]);
-        
+
+        // dd($path);
+
         EvaluateJob::dispatch(
-            $request->resume_text,
+            $resumeFilePath,
             $request->job_description,
             $workspace,
             $evaluation

@@ -118,8 +118,10 @@ async def parse_document(content: bytes, filename: str) -> str:
     Returns:
         Markdown text content
     """
+
     suffix = Path(filename).suffix.lower()
 
+    # Write to temp file for markitdown
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         tmp.write(content)
         tmp_path = Path(tmp.name)

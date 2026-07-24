@@ -8,6 +8,7 @@ use App\Models\Workspace;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class EvaluateJob implements ShouldQueue
 {
@@ -17,7 +18,7 @@ class EvaluateJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        public string $resumeText,
+        public string $resumeFilePath,
         public ?string $jobDescription,
         public Workspace $workspace,
         public Evaluation $evaluation)
@@ -33,8 +34,12 @@ class EvaluateJob implements ShouldQueue
         $response = Http::baseUrl(config('services.eval.url'))
             ->timeout(config('services.eval.timeout'))
             ->acceptJson()
+            ->attach(
+                'resume_file',
+                fopen(Storage::disk('local')->path($this->resumeFilePath), 'r'),
+                basename($this->resumeFilePath)
+            )
             ->post('/evaluate', [
-                'resume_text' => $this->resumeText,
                 'job_description' => $this->jobDescription,
             ]);
 
@@ -44,14 +49,16 @@ class EvaluateJob implements ShouldQueue
 
         if ($response->failed()) {
             $this->evaluation->update([
-                'workspace_id' => $this->workspace->id,
-                'resume_text' => $this->resumeText,
+                'resume_file_path' => $this->resumeFilePath,
+                'resume_text' => $response["resume_text"],
                 'status' => EvaluationStatus::Failed,
+                'evaluation_data' => $response->json()
             ]);
         } else {
             // dd("about to update");
             $this->evaluation->update([
-                'resume_text' => $this->resumeText,
+                'resume_file_path' => $this->resumeFilePath,
+                'resume_text' => $response["resume_text"],
                 'status' => EvaluationStatus::Completed,
                 'evaluation_data' => $response->json(),
             ]);
