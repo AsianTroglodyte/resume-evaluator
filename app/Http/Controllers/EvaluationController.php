@@ -23,8 +23,6 @@ class EvaluationController extends Controller
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
-        // dd($path);
-
         // Create evaluation and set status to processing
         $evaluation = Evaluation::create([
             'workspace_id' => $request->workspace->id,

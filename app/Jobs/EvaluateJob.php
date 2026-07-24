@@ -43,9 +43,6 @@ class EvaluateJob implements ShouldQueue
                 'job_description' => $this->jobDescription,
             ]);
 
-        // dd($response->json());
-        // dump($response->json());
-
 
         if ($response->failed()) {
             $this->evaluation->update([
