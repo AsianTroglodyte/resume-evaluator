@@ -18,7 +18,7 @@ class EvaluationController extends Controller
         // dd($request->resume_text, $request->job_description, $workspace->id);
 
         $request->validate([
-            'resume_file' => ['required'],
+            'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
         ]);
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
