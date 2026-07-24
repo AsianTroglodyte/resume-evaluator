@@ -66,7 +66,9 @@
                 <h2 class="font-semibold">New evaluation</h2>
                 <p class="text-sm text-base-content/60">Resume file is required. Job description is optional.</p>
             </div>
-            {{-- <form
+
+
+            <form
                 class="flex flex-col gap-4 px-4 py-5 sm:px-6"
                 method="POST"
                 enctype="multipart/form-data"
@@ -96,9 +98,9 @@
             <div class="flex justify-end">
                 <button type="submit" class="btn btn-primary btn-sm">Run evaluation</button>
             </div>
-            </form> --}}
+            </form>
 
-            <form
+            {{-- <form
                 class="flex flex-col gap-4 px-4 py-5 sm:px-6"
                 method="POST"
                 enctype="multipart/form-data"
@@ -130,8 +132,7 @@
                         class="btn btn-primary btn-sm"
                         id="run-evaluation">Run evaluation</button>
                 </div>
-            </form>
-
+            </form> --}}
         </section>
 
         <section class="space-y-4">

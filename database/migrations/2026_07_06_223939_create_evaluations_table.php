@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create('evaluations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('workspace_id')->constrained()->cascadeOnDelete();
-            $table->text('resume_text');
+            $table->string('file_path');
+            $table->text('resume_text')->nullable();
             $table->foreignId('job_listing_id')->nullable()->constrained('job_listings')->nullOnDelete();
             $table->text('job_description_text')->nullable();
             $table->string('status')->default(EvaluationStatus::Pending->value);
