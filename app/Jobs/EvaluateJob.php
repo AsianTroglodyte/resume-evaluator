@@ -43,14 +43,11 @@ class EvaluateJob implements ShouldQueue
                 'job_description' => $this->jobDescription,
             ]);
 
-        // dd($response->json());
-        // dump($response->json());
-
 
         if ($response->failed()) {
             $this->evaluation->update([
                 'resume_file_path' => $this->resumeFilePath,
-                'resume_text' => $response["resume_text"],
+                'resume_text' => $response->json('resume_text'),
                 'status' => EvaluationStatus::Failed,
                 'evaluation_data' => $response->json()
             ]);
@@ -58,7 +55,7 @@ class EvaluateJob implements ShouldQueue
             // dd("about to update");
             $this->evaluation->update([
                 'resume_file_path' => $this->resumeFilePath,
-                'resume_text' => $response["resume_text"],
+                'resume_text' => $response->json('resume_text'),
                 'status' => EvaluationStatus::Completed,
                 'evaluation_data' => $response->json(),
             ]);

@@ -29,15 +29,13 @@ class EvaluateRequest(BaseModel):
 @app.post("/evaluate")
 async def post_item(
     resume_file: UploadFile = File(...), 
-    job_description: str | None = Form()):
+    job_description: str | None = Form(None)):
 
     content = await resume_file.read()
     resume_text = await parse_document(
         content,
         resume_file.filename or "resume.pdf")
-
-    print(resume_text)
-
+    
     enrichment_task = asyncio.create_task(
         analyze_resume_enrichment(resume_text)
     )
