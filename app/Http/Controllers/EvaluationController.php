@@ -25,7 +25,7 @@ class EvaluationController extends Controller
 
         // Create evaluation and set status to processing
         $evaluation = Evaluation::create([
-            'workspace_id' => $request->workspace->id,
+            'workspace_id' => $workspace->id,
             'resume_file_path' => $resumeFilePath,
             'job_description_text' => $request->job_description,
             'status' => EvaluationStatus::Processing,
