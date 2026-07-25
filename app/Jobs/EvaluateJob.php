@@ -31,15 +31,6 @@ class EvaluateJob implements ShouldQueue
      */
     public function handle(): void
     {
-        if (! Storage::disk('local')->exists($this->resumeFilePath)) {
-            $this->evaluation->update([
-                'status' => EvaluationStatus::Failed,
-                'failure_reason' => 'Resume file is missing from storage.',
-            ]);
-
-            return;
-        }
-
         $stream = fopen(Storage::disk('local')->path($this->resumeFilePath), 'r');
 
         try {

@@ -22,10 +22,6 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-class EvaluateRequest(BaseModel):
-    job_description: str | None = None
-
-
 @app.post("/evaluate")
 async def post_item(
     resume_file: UploadFile = File(...), 
