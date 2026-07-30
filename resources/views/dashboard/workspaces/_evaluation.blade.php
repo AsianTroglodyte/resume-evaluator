@@ -50,9 +50,11 @@
 
         <div class="collapse-content">
             @if ($evaluation->status === \App\Enums\EvaluationStatus::Failed)
+            <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
                 <p class="text-sm text-error">
                     {{ $evaluation->failure_reason ?: 'Evaluation failed.' }}
                 </p>
+            </div>
             @else
                 @if (! empty($warnings))
                     <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
