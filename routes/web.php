@@ -10,7 +10,6 @@ use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
-use App\Jobs\EvaluateJob;
 use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
@@ -18,108 +17,107 @@ use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /**
  * @return list<array<string, mixed>>
  */
 if (! function_exists('mockWorkspaces')) {
-function mockWorkspaces(): array
-{
-    return [
-        [
-            'id' => 1,
-            'name' => 'Summer Internship Prep',
-            'updated_at' => '2 hours ago',
-            'evaluations' => [
-                [
-                    'id' => 103,
-                    'status' => 'pending',
-                    'job_description_label' => null,
-                    'enrichment' => null,
-                    'created_at' => 'Mar 23, 2026 · 9:14 AM',
-                    'resume_text_preview' => null,
-                    'job_description_preview' => null,
-                ],
-                [
-                    'id' => 102,
-                    'status' => 'completed',
-                    'job_description_label' => 'Software Engineering Intern — RiverTech',
-                    'enrichment' => [
-                        'analysis_summary' => 'Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting\'s language around REST APIs and Git workflows.',
+    function mockWorkspaces(): array
+    {
+        return [
+            [
+                'id' => 1,
+                'name' => 'Summer Internship Prep',
+                'updated_at' => '2 hours ago',
+                'evaluations' => [
+                    [
+                        'id' => 103,
+                        'status' => 'pending',
+                        'job_description_label' => null,
+                        'enrichment' => null,
+                        'created_at' => 'Mar 23, 2026 · 9:14 AM',
+                        'resume_text_preview' => null,
+                        'job_description_preview' => null,
                     ],
-                    'created_at' => 'Mar 22, 2026 · 4:30 PM',
-                    'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Teaching Assistant, Data Structures...",
-                    'job_description_preview' => 'We are looking for a Software Engineering Intern with experience in Python, REST APIs, and collaborative development using Git...',
-                    'matched_keywords' => ['Python', 'REST APIs', 'Git', 'PostgreSQL'],
-                    'missing_keywords' => ['Docker', 'Kubernetes', 'CI/CD', 'microservices'],
-                    'keyword_match' => 68,
-                ],
-                [
-                    'id' => 101,
-                    'status' => 'completed',
-                    'job_description_label' => null,
-                    'enrichment' => [
-                        'analysis_summary' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
+                    [
+                        'id' => 102,
+                        'status' => 'completed',
+                        'job_description_label' => 'Software Engineering Intern — RiverTech',
+                        'enrichment' => [
+                            'analysis_summary' => 'Solid structure and relevant coursework. Add more quantified project outcomes and mirror the posting\'s language around REST APIs and Git workflows.',
+                        ],
+                        'created_at' => 'Mar 22, 2026 · 4:30 PM',
+                        'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Teaching Assistant, Data Structures...",
+                        'job_description_preview' => 'We are looking for a Software Engineering Intern with experience in Python, REST APIs, and collaborative development using Git...',
+                        'matched_keywords' => ['Python', 'REST APIs', 'Git', 'PostgreSQL'],
+                        'missing_keywords' => ['Docker', 'Kubernetes', 'CI/CD', 'microservices'],
+                        'keyword_match' => 68,
                     ],
-                    'created_at' => 'Mar 20, 2026 · 11:02 AM',
-                    'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Campus IT Support (earlier draft)...",
-                    'job_description_preview' => null,
+                    [
+                        'id' => 101,
+                        'status' => 'completed',
+                        'job_description_label' => null,
+                        'enrichment' => [
+                            'analysis_summary' => 'Strong section headings and consistent formatting. Consider adding more quantified outcomes in experience bullets.',
+                        ],
+                        'created_at' => 'Mar 20, 2026 · 11:02 AM',
+                        'resume_text_preview' => "Alex Kim\nComputer Science, Junior\n\nExperience\n— Campus IT Support (earlier draft)...",
+                        'job_description_preview' => null,
+                    ],
                 ],
             ],
-        ],
-        [
-            'id' => 2,
-            'name' => 'Distributed Systems Roles',
-            'updated_at' => 'Yesterday',
-            'evaluations' => [
-                [
-                    'id' => 202,
-                    'status' => 'completed',
-                    'job_description_label' => 'Senior Backend Engineer (Distributed Systems)',
-                    'enrichment' => [
-                        'analysis_summary' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work. Experience bullets are strong but could better highlight scale and reliability themes from the posting.',
+            [
+                'id' => 2,
+                'name' => 'Distributed Systems Roles',
+                'updated_at' => 'Yesterday',
+                'evaluations' => [
+                    [
+                        'id' => 202,
+                        'status' => 'completed',
+                        'job_description_label' => 'Senior Backend Engineer (Distributed Systems)',
+                        'enrichment' => [
+                            'analysis_summary' => 'Missing explicit mentions of Kafka and consensus protocols despite relevant project work. Experience bullets are strong but could better highlight scale and reliability themes from the posting.',
+                        ],
+                        'created_at' => 'Mar 19, 2026 · 2:15 PM',
+                        'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nBuilt microservices handling 10k req/s at...",
+                        'job_description_preview' => 'Senior Backend Engineer to design distributed systems using Kafka, gRPC, and consensus protocols...',
+                        'matched_keywords' => ['gRPC', 'microservices', 'PostgreSQL'],
+                        'missing_keywords' => ['Kafka', 'consensus protocols', 'distributed systems'],
+                        'keyword_match' => 69,
                     ],
-                    'created_at' => 'Mar 19, 2026 · 2:15 PM',
-                    'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nBuilt microservices handling 10k req/s at...",
-                    'job_description_preview' => 'Senior Backend Engineer to design distributed systems using Kafka, gRPC, and consensus protocols...',
-                    'matched_keywords' => ['gRPC', 'microservices', 'PostgreSQL'],
-                    'missing_keywords' => ['Kafka', 'consensus protocols', 'distributed systems'],
-                    'keyword_match' => 69,
-                ],
-                [
-                    'id' => 201,
-                    'status' => 'completed',
-                    'job_description_label' => null,
-                    'enrichment' => [
-                        'analysis_summary' => 'Readable layout, but some bullets are long single-line paragraphs. Break complex achievements into shorter, scannable lines.',
+                    [
+                        'id' => 201,
+                        'status' => 'completed',
+                        'job_description_label' => null,
+                        'enrichment' => [
+                            'analysis_summary' => 'Readable layout, but some bullets are long single-line paragraphs. Break complex achievements into shorter, scannable lines.',
+                        ],
+                        'created_at' => 'Mar 10, 2026 · 10:48 AM',
+                        'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nExperience\n— Platform team, API development...",
+                        'job_description_preview' => null,
                     ],
-                    'created_at' => 'Mar 10, 2026 · 10:48 AM',
-                    'resume_text_preview' => "Jordan Lee\nBackend Engineer\n\nExperience\n— Platform team, API development...",
-                    'job_description_preview' => null,
                 ],
             ],
-        ],
-        [
-            'id' => 3,
-            'name' => 'Frontend Portfolio Refresh',
-            'updated_at' => 'Mar 5, 2026',
-            'evaluations' => [
-                [
-                    'id' => 301,
-                    'status' => 'failed',
-                    'job_description_label' => 'Frontend Developer — BlueWave Analytics',
-                    'enrichment' => null,
-                    'error_message' => 'Evaluation timed out. Try again with a shorter resume or job description.',
-                    'created_at' => 'Mar 5, 2026 · 3:22 PM',
-                    'resume_text_preview' => "Sam Rivera\nFrontend Developer...",
-                    'job_description_preview' => 'Frontend Developer with React, TypeScript, and data visualization experience...',
+            [
+                'id' => 3,
+                'name' => 'Frontend Portfolio Refresh',
+                'updated_at' => 'Mar 5, 2026',
+                'evaluations' => [
+                    [
+                        'id' => 301,
+                        'status' => 'failed',
+                        'job_description_label' => 'Frontend Developer — BlueWave Analytics',
+                        'enrichment' => null,
+                        'error_message' => 'Evaluation timed out. Try again with a shorter resume or job description.',
+                        'created_at' => 'Mar 5, 2026 · 3:22 PM',
+                        'resume_text_preview' => "Sam Rivera\nFrontend Developer...",
+                        'job_description_preview' => 'Frontend Developer with React, TypeScript, and data visualization experience...',
+                    ],
                 ],
             ],
-        ],
-    ];
-}
+        ];
+    }
 }
 
 /**
@@ -128,84 +126,84 @@ function mockWorkspaces(): array
  * @return array<string, mixed>
  */
 if (! function_exists('mockEvaluation')) {
-function mockEvaluation(): array
-{
-    return [
-        'keyword_match' => 62.5,
-        'matched_keywords' => [
-            'Python',
-            'FastAPI',
-            'PostgreSQL',
-            'Git',
-            'REST APIs',
-            'Linux',
-        ],
-        'missing_keywords' => [
-            'Docker',
-            'Kubernetes',
-            'AWS',
-            'CI/CD',
-            'microservices',
-            'agile',
-            'Redis',
-            'unit testing',
-            'code review',
-            'pair programming',
-            'Terraform',
-        ],
-        'jd_keywords' => [
-            'role' => 'Software Engineering Intern',
-            'company' => 'RiverTech',
-            'required_skills' => ['Python', 'FastAPI', 'Git', 'REST APIs'],
-            'preferred_skills' => ['Docker', 'PostgreSQL', 'Linux'],
-            'keywords' => ['Kubernetes', 'AWS', 'CI/CD', 'microservices', 'agile', 'Redis', 'unit testing', 'code review', 'pair programming', 'Terraform'],
-        ],
-        'ai_phrases' => [
-            ['phrase' => 'leveraged', 'suggestion' => 'used'],
-            ['phrase' => 'spearheaded', 'suggestion' => 'led'],
-            ['phrase' => 'synergy', 'suggestion' => 'collaboration'],
-            ['phrase' => 'in order to', 'suggestion' => 'to'],
-        ],
-        'enrichment' => [
-            'analysis_summary' => 'Projects are described clearly, but internship experience bullets are vague and lack metrics or specific technologies.',
-            'items_to_enrich' => [
-                [
-                    'item_id' => 'exp_0',
-                    'item_type' => 'experience',
-                    'title' => 'Software Engineering Intern',
-                    'subtitle' => 'RiverTech',
-                    'current_description' => [
-                        'Worked on backend features for the customer portal',
-                        'Helped with API development and bug fixes',
+    function mockEvaluation(): array
+    {
+        return [
+            'keyword_match' => 62.5,
+            'matched_keywords' => [
+                'Python',
+                'FastAPI',
+                'PostgreSQL',
+                'Git',
+                'REST APIs',
+                'Linux',
+            ],
+            'missing_keywords' => [
+                'Docker',
+                'Kubernetes',
+                'AWS',
+                'CI/CD',
+                'microservices',
+                'agile',
+                'Redis',
+                'unit testing',
+                'code review',
+                'pair programming',
+                'Terraform',
+            ],
+            'jd_keywords' => [
+                'role' => 'Software Engineering Intern',
+                'company' => 'RiverTech',
+                'required_skills' => ['Python', 'FastAPI', 'Git', 'REST APIs'],
+                'preferred_skills' => ['Docker', 'PostgreSQL', 'Linux'],
+                'keywords' => ['Kubernetes', 'AWS', 'CI/CD', 'microservices', 'agile', 'Redis', 'unit testing', 'code review', 'pair programming', 'Terraform'],
+            ],
+            'ai_phrases' => [
+                ['phrase' => 'leveraged', 'suggestion' => 'used'],
+                ['phrase' => 'spearheaded', 'suggestion' => 'led'],
+                ['phrase' => 'synergy', 'suggestion' => 'collaboration'],
+                ['phrase' => 'in order to', 'suggestion' => 'to'],
+            ],
+            'enrichment' => [
+                'analysis_summary' => 'Projects are described clearly, but internship experience bullets are vague and lack metrics or specific technologies.',
+                'items_to_enrich' => [
+                    [
+                        'item_id' => 'exp_0',
+                        'item_type' => 'experience',
+                        'title' => 'Software Engineering Intern',
+                        'subtitle' => 'RiverTech',
+                        'current_description' => [
+                            'Worked on backend features for the customer portal',
+                            'Helped with API development and bug fixes',
+                        ],
+                        'weakness_reason' => 'Generic phrasing with no measurable impact or tech stack named.',
                     ],
-                    'weakness_reason' => 'Generic phrasing with no measurable impact or tech stack named.',
+                ],
+                'questions' => [
+                    [
+                        'question_id' => 'q_0',
+                        'item_id' => 'exp_0',
+                        'question' => 'What specific metrics or outcomes improved from your work at RiverTech?',
+                        'placeholder' => 'e.g., Reduced API response time by 35%, fixed 12 production bugs',
+                    ],
+                    [
+                        'question_id' => 'q_1',
+                        'item_id' => 'exp_0',
+                        'question' => 'Which languages, frameworks, and tools did you use in this internship?',
+                        'placeholder' => 'e.g., Python, FastAPI, PostgreSQL, Git, Docker',
+                    ],
                 ],
             ],
-            'questions' => [
-                [
-                    'question_id' => 'q_0',
-                    'item_id' => 'exp_0',
-                    'question' => 'What specific metrics or outcomes improved from your work at RiverTech?',
-                    'placeholder' => 'e.g., Reduced API response time by 35%, fixed 12 production bugs',
-                ],
-                [
-                    'question_id' => 'q_1',
-                    'item_id' => 'exp_0',
-                    'question' => 'Which languages, frameworks, and tools did you use in this internship?',
-                    'placeholder' => 'e.g., Python, FastAPI, PostgreSQL, Git, Docker',
-                ],
+            'warnings' => [
+                'Education is empty — skip only if that\'s intentional.',
             ],
-        ],
-        'warnings' => [
-            'Education is empty — skip only if that\'s intentional.',
-        ],
-    ];
-}}
-
+        ];
+    }
+}
 
 Route::get('/dashboard/workspaces/{workspace}/test', function (Workspace $workspace) {
     return response()->json([
-        'hasPendingEvaluation' => $workspace->hasPendingEvaluation()
+        'hasPendingEvaluation' => $workspace->hasPendingEvaluation(),
     ]);
 })->name('test');
 
@@ -235,14 +233,14 @@ Route::get('/email/verify', function () {
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
- 
+
     return redirect()->route('home')->with('message', 'Verification link sent!');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 Route::middleware('auth')->group(function () {
     Route::post('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
-    
+
         return back()->with('message', 'Verification link sent!');
     })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
@@ -354,9 +352,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::controller(EvaluationController::class)->group(function () {
-        Route::post('/dashboard/workspaces/{workspace}/evaluation', 'store')
-            ->name('dashboard.workspaces.evaluations.store');
-    })->name('dashboard.workspaces.evaluations.store');
+        Route::post('/workspaces/{workspace}/evaluation', 'storeForWorkspace')
+            ->name('workspaces.evaluations.store');
+        Route::post('/submissions/{submission}/evaluation', 'storeForSubmission')
+            ->name('submissions.evaluations.store');
+    });
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');
 

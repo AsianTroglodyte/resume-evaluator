@@ -31,7 +31,7 @@ async def post_item(
     resume_text = await parse_document(
         content,
         resume_file.filename or "resume.pdf")
-    
+
     enrichment_task = asyncio.create_task(
         analyze_resume_enrichment(resume_text)
     )

@@ -1,4 +1,3 @@
-
 <x-dashboard-layout>
     <x-slot:title>{{ $workspace->name }}</x-slot:title>
 
@@ -72,7 +71,7 @@
                 class="flex flex-col gap-4 px-4 py-5 sm:px-6"
                 method="POST"
                 enctype="multipart/form-data"
-                action="{{ route('dashboard.workspaces.evaluations.store', $workspace) }}"
+                action="{{ route('workspaces.evaluations.store', $workspace) }}"
             >
             @csrf
             <label class="form-control w-full">

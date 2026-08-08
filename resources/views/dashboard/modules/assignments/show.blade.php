@@ -1,7 +1,6 @@
 @php
-    
-    use App\Enums\ModuleJobListingScope;
-    use App\Enums\JobListingSource;
+use App\Enums\ModuleJobListingScope;
+use App\Enums\JobListingSource;
 @endphp
 
 <x-dashboard-layout>
@@ -22,12 +21,11 @@
 
                 {{-- Instructor/admin only --}}
                 @can('update', $assignment)
-                    <a
-                        href="{{ route('dashboard.modules.assignments.edit', [$module, $assignment]) }}"
-                        class="btn btn-outline btn-sm shrink-0"
-                    >
-                        Edit assignment
-                    </a>
+                <a
+                    href="{{ route('dashboard.modules.assignments.edit', [$module, $assignment]) }}"
+                    class="btn btn-outline btn-sm shrink-0">
+                    Edit assignment
+                </a>
                 @endcan
             </div>
         </header>
@@ -63,8 +61,13 @@
                         </div>
                     </div>
                 </dl>
+                <!-- class="mt-6 space-y-5 border-t border-base-300 pt-6" -->
 
-                <div class="mt-6 space-y-5 border-t border-base-300 pt-6">
+                <form
+                    class="flex flex-col gap-4 px-4 py-5 sm:px-6"
+                    method="POST"
+                    enctype="multipart/form-data"
+                    action="{{ route('submissions.evaluations.store', $assignment) }}">
                     <div>
                         <h4 class="text-sm font-semibold">Submit resume</h4>
                         <p class="mt-1 text-sm text-base-content/70">Upload your resume for this assignment.</p>
@@ -75,52 +78,60 @@
                         <input
                             type="file"
                             class="file-input file-input-bordered w-full"
-                            accept=".pdf,.doc,.docx"
-                        />
+                            accept=".pdf,.doc,.docx" />
                         <span class="label-text-alt mt-1 text-base-content/60">Accepted formats: PDF, DOC, DOCX</span>
                     </label>
-
+                    <label class="form-control w-full">
+                        <span class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></span>
+                        <textarea
+                            name="job_description"
+                            class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
+                            placeholder="Paste a role description for targeted feedback and keyword analysis.">{{ session('job_description') }}</textarea>
+                        <span class="label-text-alt text-sm text-base-content/60">
+                            Leave blank for a general quality evaluation without keyword analysis.
+                        </span>
+                    </label>
                     <div class="flex flex-wrap justify-end gap-2">
                         <button type="submit" class="btn btn-primary">Submit resume</button>
                     </div>
-                </div>
+                </form>
             </article>
 
             {{-- Allowed job listings --}}
             @if ($assignment->job_listing_source === JobListingSource::Both
-                || $assignment->job_listing_source === JobListingSource::Module)
+            || $assignment->job_listing_source === JobListingSource::Module)
             <details class="collapse collapse-arrow rounded-box border border-base-300 bg-base-100" open>
                 <summary class="collapse-title text-lg font-semibold">Allowed job listings</summary>
                 <div class="collapse-content space-y-1">
                     <p class="text-sm text-base-content/70">Submit your resume against one of these postings.</p>
 
                     @if ($assignment->module_job_listing_scope === ModuleJobListingScope::All)
-                        @forelse ($module->jobListings as $jobListing)
-                        
-                            <details class="collapse collapse-arrow rounded-box border border-base-300">
-                                <summary class="collapse-title font-medium">
-                                    {{ $jobListing->name }}
-                                </summary>
-                                <div class="collapse-content">
-                                    <p class="text-sm text-base-content/70">
-                                        {{ $jobListing->description }}
-                                    </p>
-                                </div>
-                            </details>
-                        @empty
-                            <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
-                        @endforelse
+                    @forelse ($module->jobListings as $jobListing)
+
+                    <details class="collapse collapse-arrow rounded-box border border-base-300">
+                        <summary class="collapse-title font-medium">
+                            {{ $jobListing->name }}
+                        </summary>
+                        <div class="collapse-content">
+                            <p class="text-sm text-base-content/70">
+                                {{ $jobListing->description }}
+                            </p>
+                        </div>
+                    </details>
+                    @empty
+                    <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
+                    @endforelse
                     @else
-                        @forelse ($assignment->jobListings as $listing)
-                            <details class="collapse collapse-arrow rounded-box border border-base-300">
-                                <summary class="collapse-title font-medium">{{ $listing->name }}</summary>
-                                <div class="collapse-content">
-                                    <p class="text-sm text-base-content/70">{{ $listing->description }}</p>
-                                </div>
-                            </details>
-                        @empty
-                            <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
-                        @endforelse
+                    @forelse ($assignment->jobListings as $listing)
+                    <details class="collapse collapse-arrow rounded-box border border-base-300">
+                        <summary class="collapse-title font-medium">{{ $listing->name }}</summary>
+                        <div class="collapse-content">
+                            <p class="text-sm text-base-content/70">{{ $listing->description }}</p>
+                        </div>
+                    </details>
+                    @empty
+                    <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
+                    @endforelse
                     @endif
                 </div>
             </details>
@@ -128,32 +139,32 @@
 
             {{-- Instructor-only section --}}
             @can('seeAllAssignmentDetails', $assignment)
-                <article class="rounded-box border border-base-300 bg-base-100 p-6">
-                    <header class="mb-4 space-y-1 border-b border-base-300 pb-4">
-                        <h3 class="text-lg font-semibold">Assignment configuration</h3>
-                        <p class="text-sm text-base-content/70">Visible to instructors and admins only.</p>
-                    </header>
+            <article class="rounded-box border border-base-300 bg-base-100 p-6">
+                <header class="mb-4 space-y-1 border-b border-base-300 pb-4">
+                    <h3 class="text-lg font-semibold">Assignment configuration</h3>
+                    <p class="text-sm text-base-content/70">Visible to instructors and admins only.</p>
+                </header>
 
-                    <dl class="space-y-4 text-sm">
-                        <div>
-                            <dt class="font-medium">Assignee scope</dt>
-                            <dd class="mt-1">{{ ucfirst($assignment->assignee_scope->value) }}</dd>
-                        </div>
-                    </dl>
+                <dl class="space-y-4 text-sm">
+                    <div>
+                        <dt class="font-medium">Assignee scope</dt>
+                        <dd class="mt-1">{{ ucfirst($assignment->assignee_scope->value) }}</dd>
+                    </div>
+                </dl>
 
-                    <details class="collapse collapse-arrow mt-4 rounded-box border border-base-300">
-                        <summary class="collapse-title text-sm font-medium">Assignees</summary>
-                        <div class="collapse-content">
-                            <ul class="space-y-1 text-sm">
-                                @forelse ($assignment->assignees as $assignee)
-                                    <li>{{ $assignee->first_name }} {{ $assignee->last_name }} — {{ $assignee->email }}</li>
-                                @empty
-                                    <li class="text-base-content/70">Noone in the module was selected</li>
-                                @endforelse
-                            </ul>
-                        </div>
-                    </details>
-                </article>
+                <details class="collapse collapse-arrow mt-4 rounded-box border border-base-300">
+                    <summary class="collapse-title text-sm font-medium">Assignees</summary>
+                    <div class="collapse-content">
+                        <ul class="space-y-1 text-sm">
+                            @forelse ($assignment->assignees as $assignee)
+                            <li>{{ $assignee->first_name }} {{ $assignee->last_name }} — {{ $assignee->email }}</li>
+                            @empty
+                            <li class="text-base-content/70">Noone in the module was selected</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </details>
+            </article>
             @endcan
 
         </div>

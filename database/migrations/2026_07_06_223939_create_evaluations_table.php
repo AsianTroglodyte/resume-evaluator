@@ -14,6 +14,9 @@ return new class extends Migration
     {
         Schema::create('evaluations', function (Blueprint $table) {
             $table->id();
+            // It is one or the other when it comes to the workspace_id and submission_id
+            // We cannot *easily* enforce this on the DB-side without some hacks outside
+            // of the eloquent ORM. we must then enforce app-side.
             $table->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('submission_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('resume_file_path')->nullable();
@@ -28,8 +31,6 @@ return new class extends Migration
             $table->unique('submission_id');
         });
     }
-
-
 
     /**
      * Reverse the migrations.

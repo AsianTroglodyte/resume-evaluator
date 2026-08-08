@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Enums\EvaluationStatus;
 use App\Models\Evaluation;
-use App\Models\Workspace;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Http\Client\ConnectionException;
@@ -21,7 +20,6 @@ class EvaluateJob implements ShouldQueue
     public function __construct(
         public string $resumeFilePath,
         public ?string $jobDescription,
-        public Workspace $workspace,
         public Evaluation $evaluation)
     {
         //
@@ -36,28 +34,27 @@ class EvaluateJob implements ShouldQueue
 
         try {
             $response = Http::baseUrl(config('services.eval.url'))
-            ->timeout(config('services.eval.timeout'))
-            ->acceptJson()
-            ->attach(
-                'resume_file',
-                $stream,
-                basename($this->resumeFilePath)
+                ->timeout(config('services.eval.timeout'))
+                ->acceptJson()
+                ->attach(
+                    'resume_file',
+                    $stream,
+                    basename($this->resumeFilePath)
                 )
                 ->post('/evaluate', [
                     'job_description' => $this->jobDescription,
-                    ]);
-        } 
-        catch (ConnectionException) {
+                ]);
+        } catch (ConnectionException) {
             $this->evaluation->update([
                 'resume_file_path' => $this->resumeFilePath,
-                'resume_text' => "",
+                'resume_text' => '',
                 'status' => EvaluationStatus::Failed,
                 'evaluation_data' => null,
-                'failure_reason' => "Evaluation service seems to be down."
+                'failure_reason' => 'Evaluation service seems to be down.',
             ]);
+
             return;
-        }
-        finally {
+        } finally {
             if (is_resource($stream)) {
                 fclose($stream);
             }
