@@ -63,21 +63,18 @@ use App\Enums\JobListingSource;
                 </dl>
                 <!-- class="mt-6 space-y-5 border-t border-base-300 pt-6" -->
 
+                @if ($assignment->submission() === null)
                 <form
                     class="flex flex-col gap-4 px-4 py-5 sm:px-6"
                     method="POST"
                     enctype="multipart/form-data"
                     action="{{ route('submissions.evaluations.store', $assignment) }}">
                     @csrf
-                    <div>
-                        <h4 class="text-sm font-semibold">Submit resume</h4>
-                        <p class="mt-1 text-sm text-base-content/70">Upload your resume for this assignment.</p>
-                    </div>
-
                     <label class="form-control w-full">
                         <span class="label-text mb-1 font-medium">Resume file</span>
                         <input
                             type="file"
+                            name="resume_file"
                             class="file-input file-input-bordered w-full"
                             accept=".pdf,.doc,.docx" />
                         <span class="label-text-alt mt-1 text-base-content/60">Accepted formats: PDF, DOC, DOCX</span>
@@ -99,6 +96,9 @@ use App\Enums\JobListingSource;
                         <button type="submit" class="btn btn-primary">Submit resume</button>
                     </div>
                 </form>
+                @else
+                    {{ $assignment->toJson() }}
+                @endif
             </article>
 
             {{-- Allowed job listings --}}
