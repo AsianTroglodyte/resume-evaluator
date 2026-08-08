@@ -96,7 +96,46 @@ use App\Enums\JobListingSource;
                     </div>
                 </form>
                 @else
-                    {{ $assignment->submission->toJson() }}
+                <section class="mt-6 border-t border-base-300 pt-6" aria-labelledby="submission-heading">
+                    <div class="rounded-box border border-success/30 bg-success/5 p-5 sm:p-6">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div class="flex items-start gap-3">
+                                <div class="grid size-10 shrink-0 place-items-center rounded-full bg-success/15 text-success">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                        class="size-5"
+                                        aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.478-9.817a.75.75 0 0 1 1.052-.143Z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h3 id="submission-heading" class="font-semibold">Submission received</h3>
+                                    <p class="mt-1 text-sm text-base-content/70">
+                                        Your resume has been submitted for this assignment.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <span class="badge badge-success badge-outline shrink-0">Submitted</span>
+                        </div>
+
+                        <dl class="mt-5 grid gap-4 border-t border-success/20 pt-4 text-sm sm:grid-cols-2">
+                            <div>
+                                <dt class="text-base-content/60">Submitted on</dt>
+                                <dd class="mt-1 font-medium">
+                                    {{ $assignment->submission->created_at->format('M j, Y g:i A') }}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-base-content/60">Assignment version</dt>
+                                <dd class="mt-1 font-medium">{{ $assignment->submission->assignment_version }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </section>
                 @endif
             </article>
 
