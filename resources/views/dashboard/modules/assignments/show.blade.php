@@ -61,9 +61,8 @@ use App\Enums\JobListingSource;
                         </div>
                     </div>
                 </dl>
-                <!-- class="mt-6 space-y-5 border-t border-base-300 pt-6" -->
 
-                @if ($assignment->submission() === null)
+                @if ($assignment->submission === null)
                 <form
                     class="flex flex-col gap-4 px-4 py-5 sm:px-6"
                     method="POST"
@@ -97,7 +96,7 @@ use App\Enums\JobListingSource;
                     </div>
                 </form>
                 @else
-                    {{ $assignment->toJson() }}
+                    {{ $assignment->submission->toJson() }}
                 @endif
             </article>
 
