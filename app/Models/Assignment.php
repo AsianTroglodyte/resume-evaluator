@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use Illuminate\Database\Eloquent\Relations\HasOne;
 class Assignment extends Model
 {
     use HasFactory;
@@ -77,9 +77,9 @@ class Assignment extends Model
         return $this->belongsTo(Module::class);
     }
 
-    public function submission(): BelongsTo
+    public function submission(): HasOne
     {
-        return $this->belongsTo(Submission::class);
+        return $this->hasOne(Submission::class);
     }
 
     private function assigneesWithMembershipStatus(string $status): BelongsToMany
