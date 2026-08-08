@@ -7,6 +7,7 @@ use App\Jobs\EvaluateJob;
 use App\Models\Assignment;
 use App\Models\Evaluation;
 use App\Models\Workspace;
+use App\Models\Submission;
 use Illuminate\Http\Request;
 
 class EvaluationController extends Controller
@@ -44,36 +45,47 @@ class EvaluationController extends Controller
             ]);
     }
 
-    // public function storeForSubmission(Request $request, Assignment $assignment)
-    // {
-    //     $request->validate([
-    //         'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
-    //     ]);
+    public function storeForSubmission(Request $request, Assignment $assignment)
+    {
+        dd($request);
 
-    //     $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
+        $request->validate([
+            'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+        ]);
 
-    //     // Create evaluation and set status to processing
-    //     $evaluation = Evaluation::create([
-    //         'submission_id' => null,
-    //         'resume_file_path' => $resumeFilePath,
-    //         'job_description_text' => $request->job_description,
-    //         'status' => EvaluationStatus::Processing,
-    //     ]);
+        $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
-    //     EvaluateJob::dispatch(
-    //         $resumeFilePath,
-    //         $request->job_description,
-    //         $workspace,
-    //         $evaluation
-    //     );
 
-    //     return redirect()
-    //         ->route('dashboard.workspaces.show', $workspace)
-    //         ->with([
-    //             // 'evaluation' => $response->json(),
-    //             'job_description' => request()->job_description,
-    //         ]);;
-    // }
+        $submission = Submission::create([
+            'user_id' => 0,
+            'assignment_id' => $assignment,
+            'assignment_version' => "1",
+            'resubmission_count' => 100000,
+            'due_date_snapshot' => null,
+        ]);
+
+
+        // Create evaluation and set status to processing
+        $evaluation = Evaluation::create([
+            'submission_id' => null,
+            'resume_file_path' => $resumeFilePath,
+            'job_description_text' => $request->job_description,
+            'status' => EvaluationStatus::Processing,
+        ]);
+
+        EvaluateJob::dispatch(
+            $resumeFilePath,
+            $request->job_description,
+            $evaluation
+        );
+
+        return redirect()
+            ->route('dashboard.modules.assignments.show')
+            ->with([
+                // 'evaluation' => $response->json(),
+                'job_description' => request()->job_description,
+            ]);;
+    }
 
     public function store(Request $request, Workspace $workspace, ?Assignment $assignment)
     {

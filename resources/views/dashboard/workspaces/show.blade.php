@@ -73,30 +73,30 @@
                 enctype="multipart/form-data"
                 action="{{ route('workspaces.evaluations.store', $workspace) }}"
             >
-            @csrf
-            <label class="form-control w-full">
-                <div class="label-text mb-1 font-medium">Resume file</div>
-                <input
-                    type="file"
-                    name="resume_file"
-                    class="file-input" />
-                @error('resume_file')
-                <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
-                @enderror
-            </label>
-            <label class="form-control w-full">
-                <span class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></span>
-                <textarea
-                    name="job_description"
-                    class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
-                    placeholder="Paste a role description for targeted feedback and keyword analysis.">{{ session('job_description') }}</textarea>
-                <span class="label-text-alt text-sm text-base-content/60">
-                    Leave blank for a general quality evaluation without keyword analysis.
-                </span>
-            </label>
-            <div class="flex justify-end">
-                <button type="submit" class="btn btn-primary btn-sm">Run evaluation</button>
-            </div>
+                @csrf
+                <label class="form-control w-full">
+                    <div class="label-text mb-1 font-medium">Resume file</div>
+                    <input
+                        type="file"
+                        name="resume_file"
+                        class="file-input" />
+                    @error('resume_file')
+                    <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                    @enderror
+                </label>
+                <label class="form-control w-full">
+                    <span class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></span>
+                    <textarea
+                        name="job_description"
+                        class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
+                        placeholder="Paste a role description for targeted feedback and keyword analysis.">{{ session('job_description') }}</textarea>
+                    <span class="label-text-alt text-sm text-base-content/60">
+                        Leave blank for a general quality evaluation without keyword analysis.
+                    </span>
+                </label>
+                <div class="flex justify-end">
+                    <button type="submit" class="btn btn-primary btn-sm">Run evaluation</button>
+                </div>
             </form>
         </section>
 

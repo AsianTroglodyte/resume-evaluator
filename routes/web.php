@@ -354,7 +354,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::controller(EvaluationController::class)->group(function () {
         Route::post('/workspaces/{workspace}/evaluation', 'storeForWorkspace')
             ->name('workspaces.evaluations.store');
-        Route::post('/submissions/{submission}/evaluation', 'storeForSubmission')
+        Route::post('/submissions/{assignment}/evaluation', 'storeForSubmission')
             ->name('submissions.evaluations.store');
     });
 

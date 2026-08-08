@@ -68,6 +68,7 @@ use App\Enums\JobListingSource;
                     method="POST"
                     enctype="multipart/form-data"
                     action="{{ route('submissions.evaluations.store', $assignment) }}">
+                    @csrf
                     <div>
                         <h4 class="text-sm font-semibold">Submit resume</h4>
                         <p class="mt-1 text-sm text-base-content/70">Upload your resume for this assignment.</p>
@@ -80,6 +81,9 @@ use App\Enums\JobListingSource;
                             class="file-input file-input-bordered w-full"
                             accept=".pdf,.doc,.docx" />
                         <span class="label-text-alt mt-1 text-base-content/60">Accepted formats: PDF, DOC, DOCX</span>
+                        @error('resume_file')
+                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @enderror
                     </label>
                     <label class="form-control w-full">
                         <span class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></span>
