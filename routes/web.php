@@ -356,6 +356,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('workspaces.evaluations.store');
         Route::post('/submissions/{assignment}/evaluation', 'storeForSubmission')
             ->name('submissions.evaluations.store');
+        Route::delete('/submissions/{assignment}/evaluation', 'destroyForSubmission')
+            ->name('submissions.evaluations.destroy');
     });
 
     Route::redirect('/dashboard/admin', '/dashboard/admin/users');

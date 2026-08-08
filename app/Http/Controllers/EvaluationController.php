@@ -79,17 +79,26 @@ class EvaluationController extends Controller
         );
 
         return redirect()
-            ->route('dashboard.modules.assignments.show', $assignment->module(), $assignment)
+            ->route('dashboard.modules.assignments.show', [$assignment->module, $assignment])
             ->with([
-                // 'evaluation' => $response->json(),
+                'job_description' => request()->job_description,
+            ]);
+    }
+
+    public function destroyForSubmission(Request $request, Assignment $assignment) {
+
+        // dd($assignment->submission);
+        $assignment->submission->delete();
+
+        return redirect()
+            ->route('dashboard.modules.assignments.show', [$assignment->module, $assignment])
+            ->with([
                 'job_description' => request()->job_description,
             ]);
     }
 
     public function store(Request $request, Workspace $workspace, ?Assignment $assignment)
     {
-        // dd($request->resume_text, $request->job_description, $workspace->id);
-
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
         ]);

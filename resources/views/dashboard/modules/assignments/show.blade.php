@@ -135,6 +135,18 @@ use App\Enums\JobListingSource;
                             </div>
                         </dl>
                     </div>
+                    <form
+                        method="POST"
+                        class="gap-4 px-4 py-5 sm:px-6"
+                        action="{{route("submissions.evaluations.destroy", $assignment)}}">
+                        @csrf
+                        @method("DELETE")
+                        <button
+                            type="submit"
+                            class="btn btn-error">
+                            remove submission
+                        </button>
+                    </form>
                 </section>
                 @endif
             </article>
