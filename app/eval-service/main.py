@@ -22,10 +22,6 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-class EvaluateRequest(BaseModel):
-    job_description: str | None = None
-
-
 @app.post("/evaluate")
 async def post_item(
     resume_file: UploadFile = File(...), 
@@ -35,7 +31,7 @@ async def post_item(
     resume_text = await parse_document(
         content,
         resume_file.filename or "resume.pdf")
-    
+
     enrichment_task = asyncio.create_task(
         analyze_resume_enrichment(resume_text)
     )

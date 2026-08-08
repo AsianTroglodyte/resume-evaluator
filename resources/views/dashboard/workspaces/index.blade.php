@@ -91,30 +91,5 @@
                 </tbody>
             </table>
         </div>
-
-        {{--
-        Full table (requires evaluations relationship + latest eval eager load):
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Workspace</th>
-                    <th>Latest evaluation</th>
-                    <th>Keywords</th>
-                    <th>Updated</th>
-                    <th class="text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($workspaces as $workspace)
-                    <tr class="relative hover:bg-base-200">
-                        ...
-                    </tr>
-                @empty
-                    ...
-                @endforelse
-            </tbody>
-        </table>
-        --}}
     </section>
 </x-dashboard-layout>

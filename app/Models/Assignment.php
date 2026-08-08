@@ -77,6 +77,11 @@ class Assignment extends Model
         return $this->belongsTo(Module::class);
     }
 
+    public function submission(): BelongsTo
+    {
+        return $this->belongsTo(Submission::class);
+    }
+
     private function assigneesWithMembershipStatus(string $status): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'assignment_assignees')
