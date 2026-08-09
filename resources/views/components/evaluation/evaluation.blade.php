@@ -19,9 +19,8 @@
 @endphp
 <details
     wire:key="evaluation-{{ $evaluation->id }}"
-
     @if ($expandedIds !== null && (in_array($evaluation->id, $expandedIds, true)))
-            open 
+        open 
     @endif
 >
     <summary class="collapse-title min-h-0 py-4 rounded-box border border-base-300 cursor-pointer"

@@ -9,6 +9,7 @@ use App\Models\Evaluation;
 use App\Models\Workspace;
 use App\Models\Submission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class EvaluationController extends Controller
@@ -18,9 +19,30 @@ class EvaluationController extends Controller
      */
     public function storeForWorkspace(Request $request, Workspace $workspace)
     {
+        // dd($workspace->evaluations);
+        // Storage::disk('local')->delete($assignment->submission->evaluation->resume_file_path);
+        // $assignment->submission->evaluation->delete();
+
+        $keepIds = $workspace->evaluations()
+            ->latest('id')
+            ->limit(10)
+            ->pluck('id');
+
+        $stale = $workspace->evaluations()
+            ->whereNotIn('id', $keepIds)
+            ->get(['id', 'reume_file_path']);
+
+        foreach ($stale as $evaluation) {
+            if ($evaluation->resume_file_path) {
+                Storage::disk('local')->delete($evaluation->resume_file_path);
+            }
+        }
+
+        $workspace->evaluations()->whereNotIn('id', $keepIds)->delete();
+
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
-        ]);
+            ]);
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
@@ -31,6 +53,8 @@ class EvaluationController extends Controller
             'job_description_text' => $request->job_description,
             'status' => EvaluationStatus::Processing,
         ]);
+
+        // Delete any evaluation files past 5
 
         // dd("just before dispathing evaluation");
         EvaluateJob::dispatch(
@@ -54,8 +78,7 @@ class EvaluationController extends Controller
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
-        // dd($request);sub
-
+        
         $submission = Submission::create([
             'user_id' => $request->user()->id,
             'assignment_id' => $assignment->id,
@@ -71,8 +94,6 @@ class EvaluationController extends Controller
             'job_description_text' => $request->job_description,
             'status' => EvaluationStatus::Processing,
         ]);
-
-        // Delete any evaluations past 
 
         EvaluateJob::dispatch(
             $resumeFilePath,
@@ -91,6 +112,7 @@ class EvaluationController extends Controller
 
         // $assignment->submission->evaluation;
         Storage::disk('local')->delete($assignment->submission->evaluation->resume_file_path);
+        $assignment->submission->evaluation->delete();
         $assignment->submission->delete();
 
         return redirect()
@@ -107,8 +129,6 @@ class EvaluationController extends Controller
         ]);
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
-
-        // dd($workspace);
 
         if ($workspace === null and $assignment !== null) {
 
