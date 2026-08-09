@@ -47,12 +47,13 @@ class WorkspaceController extends Controller
     public function destroy(Workspace $workspace): RedirectResponse
     {
         $workspaceEvaluations = $workspace->evaluations;
-        dd($workspaceEvaluations);
+        // dd($workspaceEvaluations);
 
-        // foreach ($workspaceEvaluations as $workspaceEvaluation) {
-        //     // workspaceEvaluation->
-        //     Storage::disk('local')->delete($workspaceEvaluation->resume_file_path);
-        // }
+        foreach ($workspaceEvaluations as $workspaceEvaluation) {
+            // workspaceEvaluation->
+            Storage::disk('local')->delete($workspaceEvaluation->resume_file_path);
+            $workspaceEvaluation->delete();
+        }
         $workspace->delete();
 
         return redirect()->route('dashboard.workspaces.index');

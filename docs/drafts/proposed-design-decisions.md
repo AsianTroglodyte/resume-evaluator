@@ -54,7 +54,7 @@
 | Assignment submit | Store resume text + job context → queue **EvaluateSubmission** job. |
 | Evaluation execution | **Async** for **both** workspace practice and assignment submit (`pending` → `processing` → `completed` \| `failed`); queued worker calls eval-service. |
 | Failed evaluation | **Retry + edit** — failed rows show **Retry** (re-queue with stored inputs). Student may also edit resume/JD and re-submit: workspace → **new `evaluations` row**; assignment → **resubmit overwrites** same submission row (ADR `0003`). |
-| Practice history retention | **Cap per workspace** — keep latest **10** `evaluations` rows per workspace; prune oldest on new insert. |
+| Practice history retention | **Cap per workspace** — keep latest **5** `evaluations` rows per workspace; prune oldest on new insert. |
 | Async UI | **Redirect + poll on detail** — after submit/run, redirect to evaluation or submission detail; that page polls until `completed` \| `failed`. |
 | Instructor submission view | **Full row at all statuses** — instructors see resume, JD, and status (`pending` / `failed` / `completed`) immediately; same detail as student **minus** retry/resubmit actions. |
 | Workspace privacy | **Owner only** — practice workspaces and evaluations are private; instructors do not see practice runs. |
