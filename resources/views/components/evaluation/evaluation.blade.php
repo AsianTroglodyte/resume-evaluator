@@ -1,3 +1,8 @@
+@props([
+    'expandedIds' => null,
+    'evaluation' => null
+])
+
 @php
     $data = is_array($evaluation->evaluation_data) ? $evaluation->evaluation_data : [];
     $matchedKeywords = $data['matched_keywords'] ?? [];
@@ -16,7 +21,9 @@
         default => 'badge-ghost',
     };
     $status = $evaluation->status;
+
 @endphp
+
 <details
     wire:key="evaluation-{{ $evaluation->id }}"
     @if ($expandedIds !== null && (in_array($evaluation->id, $expandedIds, true)))

@@ -26,6 +26,7 @@ class ModuleAssignmentsController extends Controller
 
     public function show(Module $module, Assignment $assignment)
     {
+        // dd($assignment);
         $users = $module->users;
         $assignment->load(['assignees', 'jobListings']);
 

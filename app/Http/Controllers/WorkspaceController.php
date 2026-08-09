@@ -31,7 +31,6 @@ class WorkspaceController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // dd($request->workspace_name);
         $request->validate([
             'workspace_name' => ['required', 'min:3'],
         ]);
@@ -40,17 +39,12 @@ class WorkspaceController extends Controller
             'name' => $request->workspace_name,
         ]);
 
-        // return redirect()->route('dashboard.workspaces.index');
         return redirect()->route('dashboard.workspaces.index');
     }
 
     public function destroy(Workspace $workspace): RedirectResponse
     {
-        $workspaceEvaluations = $workspace->evaluations;
-        // dd($workspaceEvaluations);
-
-        foreach ($workspaceEvaluations as $workspaceEvaluation) {
-            // workspaceEvaluation->
+        foreach ($workspace->evaluations as $workspaceEvaluation) {
             Storage::disk('local')->delete($workspaceEvaluation->resume_file_path);
             $workspaceEvaluation->delete();
         }
