@@ -14,7 +14,7 @@ Students need a place to practice resume feedback without assignment pressure. I
 - Job context in a workspace: **pasted JD** or JD from **any assignment’s allowed on-site job listing** (practice against mock postings). Listing-backed runs store **`job_description_text` snapshot + `job_listing_id`**; paste-only runs store text with null listing FK.
 - Practice evaluations are **not** submitted to assignments.
 - **Privacy:** workspaces and practice evaluations are **owner-only**; module staff do not have access.
-- **MVP:** each workspace practice run is **persisted** in **`evaluations`** with `workspace_id` set and `submission_id` null (ADR `0006`). **Retention:** keep latest **10** workspace-backed runs per workspace; prune oldest on insert. UI may show latest first. Resume stored as **`resume_text` only** on the evaluation (upload → extract → discard file; paste allowed).
+- **MVP:** each workspace practice run is **persisted** in **`evaluations`** with `workspace_id` set and `submission_id` null (ADR `0006`). **Retention:** keep latest **5** workspace-backed runs per workspace; prune oldest on insert. UI may show latest first. Resume stored as **`resume_text` only** on the evaluation (upload → extract → discard file; paste allowed).
 
 ### Assignment submission
 
@@ -40,7 +40,7 @@ Students need a place to practice resume feedback without assignment pressure. I
 - Simpler student mental model: **turn in resume → get feedback on that turn-in**.
 - Shared `evaluations` table for both flows with XOR parent (ADR `0006`); submissions remain the LMS turn-in record.
 - Resubmission updates resume/JD on the submission-backed evaluation and refreshes the submission’s assignment-policy snapshot (ADR `0002`); job context is not stored on `submissions`.
-- **Practice retention:** cap at **10** evaluations per workspace (delete oldest workspace-backed rows beyond cap on new run); never prune submission-backed evaluations via that policy.
+- **Practice retention:** cap at **5** evaluations per workspace (delete oldest workspace-backed rows beyond cap on new run); never prune submission-backed evaluations via that policy.
 
 ## Related ADRs
 

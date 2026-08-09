@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+
 class Assignment extends Model
 {
     use HasFactory;
@@ -80,6 +82,11 @@ class Assignment extends Model
     public function submission(): HasOne
     {
         return $this->hasOne(Submission::class);
+    }
+
+    public function evaluation(): HasOneThrough
+    {
+        return $this->hasOneThrough(Evaluation::class, Submission::class);
     }
 
     private function assigneesWithMembershipStatus(string $status): BelongsToMany

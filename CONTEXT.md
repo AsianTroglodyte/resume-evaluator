@@ -145,4 +145,4 @@ Instructors see submissions at **all statuses** (`pending`, `processing`, `faile
 | Workspace + listings | May use any assignment’s listing JD for practice; no claim | Same; practice never consumes claim slots |
 | Resume storage | **`resume_text` only** (upload → extract; paste OK; no file on disk) | **File + `resume_text`** (storage key, filename, frozen text) |
 | Listing-backed JD | **Snapshot `job_description_text` + `job_listing_id`** on row | Same |
-| Practice history | **Cap: latest 10 runs per workspace** (prune on insert) | Instructor-configurable or higher default |
+| Practice history | **Cap: latest 5 runs per workspace** (prune on insert) | Instructor-configurable or higher default |

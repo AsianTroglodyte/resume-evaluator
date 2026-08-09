@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class WorkspaceController extends Controller
@@ -30,7 +31,6 @@ class WorkspaceController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // dd($request->workspace_name);
         $request->validate([
             'workspace_name' => ['required', 'min:3'],
         ]);
@@ -39,12 +39,15 @@ class WorkspaceController extends Controller
             'name' => $request->workspace_name,
         ]);
 
-        // return redirect()->route('dashboard.workspaces.index');
         return redirect()->route('dashboard.workspaces.index');
     }
 
     public function destroy(Workspace $workspace): RedirectResponse
     {
+        foreach ($workspace->evaluations as $workspaceEvaluation) {
+            Storage::disk('local')->delete($workspaceEvaluation->resume_file_path);
+            $workspaceEvaluation->delete();
+        }
         $workspace->delete();
 
         return redirect()->route('dashboard.workspaces.index');
