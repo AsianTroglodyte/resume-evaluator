@@ -137,14 +137,15 @@ use App\Enums\JobListingSource;
                     </div>
                     <form
                         method="POST"
-                        class="gap-4 px-4 py-5 sm:px-6"
-                        action="{{route("submissions.evaluations.destroy", $assignment)}}">
+                        class="mt-4 flex justify-end"
+                        action="{{ route('submissions.evaluations.destroy', $assignment) }}"
+                        onsubmit="return confirm('Remove your submission for this assignment?')">
                         @csrf
-                        @method("DELETE")
+                        @method('DELETE')
                         <button
                             type="submit"
-                            class="btn btn-error">
-                            remove submission
+                            class="btn btn-outline btn-error btn-sm">
+                            Remove submission
                         </button>
                     </form>
                 </section>
