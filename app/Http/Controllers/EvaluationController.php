@@ -19,26 +19,6 @@ class EvaluationController extends Controller
      */
     public function storeForWorkspace(Request $request, Workspace $workspace)
     {
-        // dd($workspace->evaluations);
-        // Storage::disk('local')->delete($assignment->submission->evaluation->resume_file_path);
-        // $assignment->submission->evaluation->delete();
-
-        $keepIds = $workspace->evaluations()
-            ->latest('id')
-            ->limit(5)
-            ->pluck('id');
-
-        $stale = $workspace->evaluations()
-            ->whereNotIn('id', $keepIds)
-            ->get(['id', 'reume_file_path']);
-
-        foreach ($stale as $evaluation) {
-            if ($evaluation->resume_file_path) {
-                Storage::disk('local')->delete($evaluation->resume_file_path);
-            }
-        }
-
-        $workspace->evaluations()->whereNotIn('id', $keepIds)->delete();
 
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
@@ -56,12 +36,28 @@ class EvaluationController extends Controller
 
         // Delete any evaluation files past 5
 
-        // dd("just before dispathing evaluation");
         EvaluateJob::dispatch(
             $resumeFilePath,
             $request->job_description,
             $evaluation
         );
+
+        $keepIds = $workspace->evaluations()
+            ->latest('id')
+            ->limit(5)
+            ->pluck('id');
+
+        $stale = $workspace->evaluations()
+            ->whereNotIn('id', $keepIds)
+            ->get(['id', 'reume_file_path']);
+
+        foreach ($stale as $evaluation) {
+            if ($evaluation->resume_file_path) {
+                Storage::disk('local')->delete($evaluation->resume_file_path);
+            }
+        }
+
+    $workspace->evaluations()->whereNotIn('id', $keepIds)->delete();
 
         return redirect()
             ->route('dashboard.workspaces.show', $workspace)

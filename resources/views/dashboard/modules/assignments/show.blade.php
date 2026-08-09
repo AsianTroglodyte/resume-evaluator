@@ -1,6 +1,7 @@
 @php
 use App\Enums\ModuleJobListingScope;
 use App\Enums\JobListingSource;
+$evaluation = $assignment->evaluation;
 @endphp
 
 <x-dashboard-layout>
@@ -149,9 +150,6 @@ use App\Enums\JobListingSource;
                         </button>
                     </form>
                 </section>
-                @php
-                    $evaluation = $assignment->evaluation;
-                @endphp
                 @endif
                 @if ($evaluation !== null)
                 <section class="space-y-4">
