@@ -19,7 +19,6 @@ class EvaluationController extends Controller
      */
     public function storeForWorkspace(Request $request, Workspace $workspace)
     {
-
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
             ]);
@@ -57,7 +56,7 @@ class EvaluationController extends Controller
             }
         }
 
-    $workspace->evaluations()->whereNotIn('id', $keepIds)->delete();
+        $workspace->evaluations()->whereNotIn('id', $keepIds)->delete();
 
         return redirect()
             ->route('dashboard.workspaces.show', $workspace)

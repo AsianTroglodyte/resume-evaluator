@@ -1,12 +1,17 @@
+@props([
+    'matchedKeywords' => [],
+    'missingKeywords' => [],
+])
+
 @php
-    $matched = array_values(array_filter($matchedKeywords ?? [], fn ($keyword) => is_string($keyword) && $keyword !== ''));
-    $missing = array_values(array_filter($missingKeywords ?? [], fn ($keyword) => is_string($keyword) && $keyword !== ''));
+    $matched = array_values(array_filter($matchedKeywords, fn ($keyword) => is_string($keyword) && $keyword !== ''));
+    $missing = array_values(array_filter($missingKeywords, fn ($keyword) => is_string($keyword) && $keyword !== ''));
     $missingVisible = array_slice($missing, 0, 8);
     $missingRest = array_slice($missing, 8);
 @endphp
 
 @if (! empty($matched) || ! empty($missing))
-    <div @class(['grid gap-4 md:grid-cols-2', $class ?? 'mt-6'])>
+    <div {{ $attributes->class(['grid gap-4 md:grid-cols-2', 'mt-6']) }}>
         @if (! empty($matched))
             <div class="rounded-box border border-success/30 bg-success/5 p-4">
                 <p class="text-sm font-semibold">
