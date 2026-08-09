@@ -152,10 +152,10 @@
                 </div>
             @endif
 
-            @include('evaluation._keyword-analysis', [
-                'matchedKeywords' => $matchedKeywords,
-                'missingKeywords' => $missingKeywords,
-            ])
+            <x-evaluation.keyword-analysis
+                :matched-keywords="$matchedKeywords"
+                :missing-keywords="$missingKeywords"
+            />
 
             @if (! empty($aiPhrases))
                 <div class="mt-4 rounded-box border border-base-300 bg-base-200/40 p-4">
