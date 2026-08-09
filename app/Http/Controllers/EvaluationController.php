@@ -9,6 +9,7 @@ use App\Models\Evaluation;
 use App\Models\Workspace;
 use App\Models\Submission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class EvaluationController extends Controller
 {
@@ -87,7 +88,8 @@ class EvaluationController extends Controller
 
     public function destroyForSubmission(Request $request, Assignment $assignment) {
 
-        // dd($assignment->submission);
+        // $assignment->submission->evaluation;
+        Storage::delete($assignment->submission->evaluation);
         $assignment->submission->delete();
 
         return redirect()
