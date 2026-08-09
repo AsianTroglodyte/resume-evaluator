@@ -9,6 +9,7 @@ use App\Models\Evaluation;
 use App\Models\Workspace;
 use App\Models\Submission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class EvaluationController extends Controller
 {
@@ -63,7 +64,6 @@ class EvaluationController extends Controller
             'due_date_snapshot' => null,
         ]);
 
-
         // Create evaluation and set status to processing
         $evaluation = Evaluation::create([
             'submission_id' => $submission->id,
@@ -72,6 +72,8 @@ class EvaluationController extends Controller
             'status' => EvaluationStatus::Processing,
         ]);
 
+        // Delete any evaluations past 
+
         EvaluateJob::dispatch(
             $resumeFilePath,
             $request->job_description,
@@ -79,17 +81,27 @@ class EvaluationController extends Controller
         );
 
         return redirect()
-            ->route('dashboard.modules.assignments.show', $assignment->module(), $assignment)
+            ->route('dashboard.modules.assignments.show', [$assignment->module, $assignment])
             ->with([
-                // 'evaluation' => $response->json(),
+                'job_description' => request()->job_description,
+            ]);
+    }
+
+    public function destroyForSubmission(Request $request, Assignment $assignment) {
+
+        // $assignment->submission->evaluation;
+        Storage::disk('local')->delete($assignment->submission->evaluation->resume_file_path);
+        $assignment->submission->delete();
+
+        return redirect()
+            ->route('dashboard.modules.assignments.show', [$assignment->module, $assignment])
+            ->with([
                 'job_description' => request()->job_description,
             ]);
     }
 
     public function store(Request $request, Workspace $workspace, ?Assignment $assignment)
     {
-        // dd($request->resume_text, $request->job_description, $workspace->id);
-
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
         ]);

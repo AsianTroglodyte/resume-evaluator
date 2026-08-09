@@ -75,8 +75,6 @@ class EvaluateJob implements ShouldQueue
                 'status' => EvaluationStatus::Completed,
                 'evaluation_data' => $response->json(),
             ]);
-
-            Storage::disk('local')->delete($this->resumeFilePath);
         }
     }
 }
