@@ -64,7 +64,6 @@ class EvaluationController extends Controller
             'due_date_snapshot' => null,
         ]);
 
-
         // Create evaluation and set status to processing
         $evaluation = Evaluation::create([
             'submission_id' => $submission->id,
@@ -72,6 +71,8 @@ class EvaluationController extends Controller
             'job_description_text' => $request->job_description,
             'status' => EvaluationStatus::Processing,
         ]);
+
+        // Delete any evaluations past 
 
         EvaluateJob::dispatch(
             $resumeFilePath,
@@ -89,7 +90,7 @@ class EvaluationController extends Controller
     public function destroyForSubmission(Request $request, Assignment $assignment) {
 
         // $assignment->submission->evaluation;
-        Storage::delete($assignment->submission->evaluation);
+        Storage::disk('local')->delete($assignment->submission->evaluation->resume_file_path);
         $assignment->submission->delete();
 
         return redirect()
