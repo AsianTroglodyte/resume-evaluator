@@ -6,6 +6,7 @@ new class extends Component
 {
     /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Evaluation> */
     public $evaluation;
+    public bool $isOpen = false;
 
     public function mount(Evaluation $evaluation): void
     {
@@ -17,14 +18,11 @@ new class extends Component
         $this->evaluation->refresh();
     }
 
-    // public function toggleExpanded(int $id): void
-    // {
-    //     if (in_array($id, $this->expandedIds, true)) {
-    //         $this->expandedIds = array_values(array_diff($this->expandedIds, [$id]));
-    //     } else {
-    //         $this->expandedIds[] = $id;
-    //     }
-    // }
+    public function toggleExpanded(): void
+    {
+        $this->isOpen = !$this->isOpen;
+
+    }
 };
 ?>
 
@@ -52,13 +50,12 @@ new class extends Component
     @if ($evaluation->status === EvaluationStatus::Processing)
         wire:poll.1s="loadEvaluation"
     @endif
-    {{-- wire:key="evaluation-{{ $evaluation->id }}"
-    @if ($expandedIds !== null && (in_array($evaluation->id, $expandedIds, true)))
+    @if ($isOpen)
         open
-    @endif --}}
+    @endif
 >
     <summary class="collapse-title min-h-0 cursor-pointer py-4"
-        {{-- wire:click="toggleExpanded({{ $evaluation->id }})" --}}
+        wire:click="toggleExpanded"
     >
         <div class="flex flex-wrap items-center justify-between gap-3 pr-6">
             <div class="flex min-w-0 flex-col gap-1">

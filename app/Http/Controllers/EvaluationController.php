@@ -6,10 +6,9 @@ use App\Enums\EvaluationStatus;
 use App\Jobs\EvaluateJob;
 use App\Models\Assignment;
 use App\Models\Evaluation;
-use App\Models\Workspace;
 use App\Models\Submission;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class EvaluationController extends Controller
@@ -21,7 +20,7 @@ class EvaluationController extends Controller
     {
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
-            ]);
+        ]);
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
@@ -73,11 +72,10 @@ class EvaluationController extends Controller
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
-        
         $submission = Submission::create([
             'user_id' => $request->user()->id,
             'assignment_id' => $assignment->id,
-            'assignment_version' => "1",
+            'assignment_version' => '1',
             'resubmission_count' => 100000,
             'due_date_snapshot' => null,
         ]);
@@ -103,12 +101,21 @@ class EvaluationController extends Controller
             ]);
     }
 
-    public function destroyForSubmission(Request $request, Assignment $assignment) {
+    public function destroyForSubmission(Request $request, Assignment $assignment)
+    {
+        $submission = $assignment->submissionFor($request->user())->first();
 
-        // $assignment->submission->evaluation;
-        Storage::disk('local')->delete($assignment->submission->evaluation->resume_file_path);
-        $assignment->submission->evaluation->delete();
-        $assignment->submission->delete();
+        if ($submission === null) {
+            return redirect()
+                ->route('dashboard.modules.assignments.show', [$assignment->module, $assignment]);
+        }
+
+        if ($submission->evaluation?->resume_file_path) {
+            Storage::disk('local')->delete($submission->evaluation->resume_file_path);
+        }
+
+        $submission->evaluation?->delete();
+        $submission->delete();
 
         return redirect()
             ->route('dashboard.modules.assignments.show', [$assignment->module, $assignment])
