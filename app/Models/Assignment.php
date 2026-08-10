@@ -11,8 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use Illuminate\Support\Facades\Auth;
 
 class Assignment extends Model
 {
@@ -30,7 +28,6 @@ class Assignment extends Model
         'job_listing_source',
         'module_job_listing_scope',
         'allow_resubmission',
-        'Module',
     ];
 
     protected function casts(): array
@@ -85,10 +82,10 @@ class Assignment extends Model
         return $this->hasMany(Submission::class);
     }
 
-    public function submissionFor(?User $user = null): HasOne
+    public function submissionFor(User $user): HasOne
     {
         return $this->hasOne(Submission::class)
-            ->where('user_id', $user?->id ?? Auth::id());
+            ->where('user_id', $user->id);
     }
 
     private function assigneesWithMembershipStatus(string $status): BelongsToMany

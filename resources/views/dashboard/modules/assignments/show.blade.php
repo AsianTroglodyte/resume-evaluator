@@ -2,8 +2,8 @@
 use App\Enums\ModuleJobListingScope;
 use App\Enums\JobListingSource;
 
-// if (u)
-$evaluation = $assignment->submissionFor->evaluation;
+$submission = $assignment->submissionFor(auth()->user())->first();
+$evaluation = $submission?->evaluation;
 @endphp
 
 <x-dashboard-layout>
@@ -65,7 +65,8 @@ $evaluation = $assignment->submissionFor->evaluation;
                     </div>
                 </dl>
 
-                @if ($assignment->submission === null)
+
+                @if ($submission === null)
                 <form
                     class="flex flex-col gap-4 px-4 py-5 sm:px-6"
                     method="POST"
@@ -129,12 +130,12 @@ $evaluation = $assignment->submissionFor->evaluation;
                             <div>
                                 <dt class="text-base-content/60">Submitted on</dt>
                                 <dd class="mt-1 font-medium">
-                                    {{ $assignment->submission->created_at->format('M j, Y g:i A') }}
+                                    {{ $submission->created_at->format('M j, Y g:i A') }}
                                 </dd>
                             </div>
                             <div>
                                 <dt class="text-base-content/60">Assignment version</dt>
-                                <dd class="mt-1 font-medium">{{ $assignment->submission->assignment_version }}</dd>
+                                <dd class="mt-1 font-medium">{{ $submission->assignment_version }}</dd>
                             </div>
                         </dl>
                     </div>
