@@ -159,7 +159,7 @@ $evaluation = $assignment->evaluation;
                     @if (session('evaluation_error'))
                     <p class="text-sm text-error">{{ session('evaluation_error') }}</p>
                     @endif
-                    <x-evaluation.evaluation :$evaluation :expandedIds=null> </x-evaluation.evaluation>
+                    <livewire:evaluation.evaluation :$evaluation :expandedIds=null> </livewire:evaluation.evaluation>
                     </section>
                 @endif
             </article>

@@ -1,7 +1,33 @@
-@props([
-    'expandedIds' => null,
-    'evaluation' => null
-])
+<?php
+use App\Enums\EvaluationStatus;
+use App\Models\Evaluation;
+use Livewire\Component;
+new class extends Component
+{
+    /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Evaluation> */
+    public $evaluation;
+
+    public function mount(Evaluation $evaluation): void
+    {
+        $this->evaluation = $evaluation;
+        $this->loadEvaluation();
+    }
+
+    public function loadEvaluation(): void
+    {
+        $this->evaluation->refresh();
+    }
+
+    // public function toggleExpanded(int $id): void
+    // {
+    //     if (in_array($id, $this->expandedIds, true)) {
+    //         $this->expandedIds = array_values(array_diff($this->expandedIds, [$id]));
+    //     } else {
+    //         $this->expandedIds[] = $id;
+    //     }
+    // }
+};
+?>
 
 @php
     $data = is_array($evaluation->evaluation_data) ? $evaluation->evaluation_data : [];
@@ -16,19 +42,20 @@
     $summary = $enrichment['analysis_summary'] ?? null;
 
     $statusBadgeClass = match ($evaluation->status) {
-        \App\Enums\EvaluationStatus::Completed => 'badge-success',
-        \App\Enums\EvaluationStatus::Failed => 'badge-error',
+        EvaluationStatus::Completed => 'badge-success',
+        EvaluationStatus::Failed => 'badge-error',
         default => 'badge-ghost',
     };
-    $status = $evaluation->status;
-
 @endphp
 
 <details
-    wire:key="evaluation-{{ $evaluation->id }}"
+    @if ($evaluation->status === EvaluationStatus::Processing) 
+        wire:poll.1s="loadEvaluation"
+    @endif
+    {{-- wire:key="evaluation-{{ $evaluation->id }}"
     @if ($expandedIds !== null && (in_array($evaluation->id, $expandedIds, true)))
         open 
-    @endif
+    @endif --}}
 >
     <summary class="collapse-title min-h-0 py-4 rounded-box border border-base-300 cursor-pointer"
         wire:click="toggleExpanded({{ $evaluation->id }})">
@@ -46,7 +73,7 @@
                     <p class="truncate text-sm font-normal text-base-content/60">
                         {{ $summary }}
                     </p>
-                @elseif ($evaluation->status === \App\Enums\EvaluationStatus::Failed)
+                @elseif ($evaluation->status === EvaluationStatus::Failed)
                     <p class="truncate text-sm font-normal text-error">
                         {{ $evaluation->failure_reason ?: 'Evaluation failed.' }}
                     </p>
@@ -68,7 +95,7 @@
     </summary>
 
     <div class="collapse-content">
-        @if ($evaluation->status === \App\Enums\EvaluationStatus::Failed)
+        @if ($evaluation->status === EvaluationStatus::Failed)
         <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
             <p class="text-sm text-error">
                 {{ $evaluation->failure_reason ?: 'Evaluation failed.' }}
@@ -91,7 +118,7 @@
                 </div>
             @endif
 
-            @if ($status === \App\Enums\EvaluationStatus::Processing)
+            @if ($evaluation->status === EvaluationStatus::Processing)
                 <p class="text-sm text-base-content/60">Pending.</p>
             @elseif (empty($enrichment) && empty($warnings) && empty($aiPhrases) && ! $hasKeywordFeedback)
                 <p class="text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
