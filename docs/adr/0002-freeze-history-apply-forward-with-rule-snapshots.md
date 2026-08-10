@@ -1,6 +1,6 @@
 # Freeze history apply forward with rule snapshots
 
-**Status:** Accepted; amended 2026-07-24 (job context lives on `evaluations` per ADR `0006`, not duplicated on `submissions`).
+**Status:** Accepted; amended 2026-07-24 (job context lives on `evaluations` per ADR `0006`, not duplicated on `submissions`); amended again to drop `resubmission_count` (revision via timestamps only; `allow_resubmission` remains assignment policy).
 
 ## Context
 
@@ -13,10 +13,11 @@ With ADR `0006`, resume and job context are evaluation inputs on the 1:1 submiss
 - Assignment rule changes apply only to **future** submits/resubmits. Existing submission rows stay valid under the policy captured at their last write.
 - Each **`submissions`** row stores a **minimal assignment-policy snapshot**:
   - `assignment_version`
-  - `due_at_snapshot` (or equivalent due-date snapshot field)
-  - plus `resubmission_count` / timestamps as revision metadata (ADR `0003`)
+  - `due_date_snapshot` (nullable due-date snapshot at last write)
+  - plus timestamps (`created_at` / `updated_at`) as revision metadata (ADR `0003`)
 - **Job context** (pasted `job_description_text` and/or `job_listing_id` when listing-backed) is stored only on the linked **`evaluations`** row, same as workspace practice runs. It is not copied onto `submissions`.
 - On resubmit, refresh the submission’s policy snapshot and update the submission-backed evaluation’s resume/JD inputs in place.
+- **`allow_resubmission`** lives on the **assignment** (policy). Submissions do **not** store a resubmission counter.
 
 ## Consequences
 

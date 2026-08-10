@@ -18,7 +18,7 @@ Product rules still forbid treating a practice run as the turn-in artifact (no e
 - **Practice:** many evaluations per workspace; retention cap (latest **5** per workspace; prune oldest on insert) applies only to workspace-backed rows.
 - **Submit:** at most **one** evaluation per submission (`submission_id` unique). Create/resubmit updates that evaluation in place (aligned with ADR `0003`), same as overwriting embedded fields previously did.
 - Inputs and outputs for a run (resume text/path, **job context** `job_description_text` / `job_listing_id`, status, `evaluation_data`, etc.) live on the **`evaluations`** row only. Do **not** duplicate JD/listing onto `submissions`.
-- `submissions` keeps LMS turn-in concerns: assignment, submitter, **assignment-policy** snapshot (`assignment_version`, `due_at_snapshot` per ADR `0002`), `resubmission_count`, and relates to its evaluation via the XOR FK (evaluation → submission)—not by copying eval JSON or job context onto the submission.
+- `submissions` keeps LMS turn-in concerns: assignment, submitter, and **assignment-policy** snapshot (`assignment_version`, `due_date_snapshot` per ADR `0002`), and relates to its evaluation via the XOR FK (evaluation → submission)—not by copying eval JSON or job context onto the submission.
 - **Still forbidden:** linking or copying a workspace practice evaluation into a submission; submit always creates/updates the submission’s own evaluation.
 
 ## Consequences

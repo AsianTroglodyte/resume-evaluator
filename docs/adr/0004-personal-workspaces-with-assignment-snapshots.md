@@ -25,7 +25,7 @@ Students need a place to practice resume feedback without assignment pressure. I
 
 ### Async evaluation (both flows)
 
-- **Workspace practice** and **assignment submit** both enqueue eval jobs against **`evaluations`** rows; status is `pending` → `processing` → `completed` | `failed` until done.
+- **Workspace practice** and **assignment submit** both enqueue eval jobs against **`evaluations`** rows; status is `processing` → `completed` | `failed` until done.
 - **On `failed`:** student may **retry** (re-queue with frozen inputs) or **edit** resume/JD and try again — workspace creates a **new** `evaluations` row when inputs change; assignment **resubmit** updates the single submission and its evaluation in place (ADR `0003`). Row stores **`failure_reason`** (user-safe); full errors logged server-side.
 - **Async UI:** after run/submit, **redirect to detail page** (evaluation entry or submission); page **polls** until terminal status.
 

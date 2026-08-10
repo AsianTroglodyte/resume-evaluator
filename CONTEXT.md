@@ -54,7 +54,7 @@ A **user-owned, named** area where students **freely evaluate resumes** for prac
 _Avoid_: module workspace, assignment draft
 
 **Practice Evaluation**:
-An automated assessment run from a workspace for student feedback only. Not submitted to assignments. **MVP:** each practice run is **persisted** in the **`evaluations`** table (one row per run). History UI may be minimal at first; retention limits TBD later.
+An automated assessment run from a workspace for student feedback only. Not submitted to assignments. **MVP:** each practice run is **persisted** in the **`evaluations`** table (one row per run; `workspace_id` set). History UI may be minimal at first; **retention: keep latest 5** workspace-backed runs per workspace (prune oldest on insert).
 _Avoid_: Submission, qualifying evaluation, turn-in
 
 ### Assignment & submission
@@ -72,20 +72,20 @@ A student’s reserved slot on an on-site job listing for a specific assignment,
 _Avoid_: Using claim for workspace practice
 
 **Submit to Assignment**:
-The LMS action where a student uploads (or provides) a **resume** for an assignment. Job context follows **assignment instructions**: **paste a JD** (e.g. external job) or **select an allowed on-site job listing** (JD taken from the listing). The system runs automated evaluation **on submit**, then stores the resume, job context, and **evaluation result** on the submission row.
+The LMS action where a student uploads (or provides) a **resume** for an assignment. Job context follows **assignment instructions**: **paste a JD** (e.g. external job) or **select an allowed on-site job listing** (JD taken from the listing). The system creates/updates the submission and a linked **submit-time evaluation** (ADR `0006`), then runs automated evaluation **on submit**.
 _Avoid_: Submitting an evaluation, picking a past practice run, workspace snapshot
 
 **Submission**:
-The single active per-user, per-assignment record of a committed **resume** turn-in, updated in place on resubmission. Holds the resume artifact, job context, rule snapshot, and **submit-time evaluation output** (`evaluation_data`, scores, `evaluator_version`) **on the submission row**—not a foreign key to a workspace `evaluations` row. Visible to the submitting student and module **instructors** at all statuses (TAs deferred post-MVP). Instructors see resume, job context, and evaluation status; retry/resubmit actions are student-only.
-_Avoid_: Attempt record (for MVP), workspace snapshot, evaluation-as-submit-unit, `evaluation_id` from practice
+The single active per-user, per-assignment record of a committed **resume** turn-in, updated in place on resubmission. Holds LMS turn-in identity and **assignment-policy snapshot** (`assignment_version`, `due_date_snapshot`). Resume, job context, and evaluation output live on the linked **`evaluations`** row (`submission_id` set; XOR with workspace per ADR `0006`)—not embedded on the submission. Visible to the submitting student and module **instructors** at all statuses (TAs deferred post-MVP). Instructors see resume, job context, and evaluation status via that link; retry/resubmit actions are student-only.
+_Avoid_: Attempt record (for MVP), workspace snapshot, evaluation-as-submit-unit, practice `evaluation_id` picker, resubmission counter
 
 **Submit-Time Evaluation**:
-The automated feedback pipeline invoked when a submission is created or updated. Same eval-service as practice, but results are **owned by the submission** and frozen for instructor/student review. Re-running on resubmit replaces the submission’s evaluation fields; practice runs in workspaces are unrelated.
+The automated feedback pipeline invoked when a submission is created or updated. Same eval-service as practice; results are **owned by the submission-backed `evaluations` row** and frozen for instructor/student review. Re-running on resubmit updates that evaluation in place; practice runs in workspaces are unrelated.
 _Avoid_: Pre-submit qualifying evaluation, evaluation picker
 
 **Resubmission**:
-An update to the existing submission record (new resume, re-evaluate, increment revision metadata).
-_Avoid_: New attempt row (for MVP)
+An update to the existing submission record (new resume, refresh policy snapshot, re-evaluate the linked evaluation in place). Whether resubmit is allowed is an **assignment** policy (`allow_resubmission`), not a counter on the submission.
+_Avoid_: New attempt row (for MVP), `resubmission_count`
 
 **Assignment Version**:
 A monotonic version incremented only when submission-validity rules change.
@@ -114,27 +114,28 @@ A user may use workspaces without module membership. Assignment submission does 
 _Avoid_: Workspace-bound turn-in, evaluation-first submit, instructor visibility into practice runs
 
 **Submit-Evaluate-Freeze**:
-Assignment submissions always trigger evaluation at submit time; the result stored on the submission is the audit artifact for instructors and progress tracking.
+Assignment submissions always trigger evaluation at submit time; the linked submission-backed `evaluations` row is the audit artifact for instructors and progress tracking.
 _Avoid_: Submit-only without evaluation, submit by reference to a prior practice evaluation
 
-**Evaluation storage (two homes)**:
-- **Workspace practice** → `evaluations` table (rows per practice run; `workspace_id`).
-- **Assignment submit** → `evaluation_data` (and related fields) **on the `submissions` row**. No FK to workspace `evaluations`.
+**Evaluation storage (XOR parent)**:
+All runs live in **`evaluations`**. Each row has **exactly one** parent (ADR `0006`):
+- **Workspace practice** → `workspace_id` set, `submission_id` null.
+- **Assignment submit** → `submission_id` set, `workspace_id` null (at most one evaluation per submission).
 
 **Async evaluation**:
-Both workspace practice and assignment submit run evaluation via a **queued job**; the relevant row stays `pending` / `processing` until complete or failed.
+Both workspace practice and assignment submit run evaluation via a **queued job**; the evaluation row stays `processing` until `completed` or `failed`.
 
 **Job context freeze (listing-backed)**:
-When JD comes from an allowed listing, store **`job_description_text` snapshot + `job_listing_id`** on the row at eval/submit time. Paste-only: text only, `job_listing_id` null. Listing edits do not alter past rows.
+When JD comes from an allowed listing, store **`job_description_text` snapshot + `job_listing_id`** on the **`evaluations`** row at eval/submit time. Paste-only: text only, `job_listing_id` null. Listing edits do not alter past rows.
 
 **Failed evaluation**:
-Rows in `failed` state offer **retry** (re-queue with stored inputs) and **edit + try again**. Workspace practice: changed inputs → new `evaluations` row. Assignment submit: resubmit overwrites the single submission row (ADR `0003`). Persist **`failure_reason`** (user-safe message); full stack traces stay in application logs.
+Rows in `failed` state offer **retry** (re-queue with stored inputs) and **edit + try again**. Workspace practice: changed inputs → new `evaluations` row. Assignment submit: resubmit updates the single submission and its evaluation in place (ADR `0003`). Persist **`failure_reason`** (user-safe message); full stack traces stay in application logs.
 
 **Async UI**:
 After run/submit, redirect to the **detail page** (practice evaluation entry or submission). That page polls until status is `completed` or `failed`.
 
 **Instructor submission access**:
-Instructors see submissions at **all statuses** (`pending`, `processing`, `failed`, `completed`). Evaluation output renders when complete; status is visible throughout. Student-only: retry and resubmit.
+Instructors see submissions at **all evaluation statuses** (`processing`, `failed`, `completed`, or no submission yet). Evaluation output renders when complete; status is visible throughout. Student-only: retry and resubmit.
 
 ### MVP vs future (job listings)
 

@@ -25,3 +25,21 @@
         scrollbar-gutter: stable;
     }
 }
+
+@layer utilities {
+    @keyframes toast-auto-dismiss {
+        0%,
+        70% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            visibility: hidden;
+        }
+    }
+
+    .toast-auto-dismiss {
+        animation: toast-auto-dismiss 3s ease forwards;
+    }
+}

@@ -10,6 +10,7 @@ use App\Models\Submission;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class EvaluationController extends Controller
 {
@@ -20,7 +21,15 @@ class EvaluationController extends Controller
     {
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+
         ]);
+
+        if ($workspace->hasProcessingEvaluations()) {
+            // dd("rate_limited");
+            throw ValidationException::withMessages([
+                'rate_limit' => 'An evaluation is already processing. Wait for it to complete',
+            ]);
+        }
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
@@ -33,7 +42,6 @@ class EvaluationController extends Controller
         ]);
 
         // Delete any evaluation files past 5
-
         EvaluateJob::dispatch(
             $resumeFilePath,
             $request->job_description,
@@ -47,7 +55,7 @@ class EvaluationController extends Controller
 
         $stale = $workspace->evaluations()
             ->whereNotIn('id', $keepIds)
-            ->get(['id', 'reume_file_path']);
+            ->get(['id', 'resume_file_path']);
 
         foreach ($stale as $evaluation) {
             if ($evaluation->resume_file_path) {
