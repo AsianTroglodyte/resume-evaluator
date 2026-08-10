@@ -47,7 +47,6 @@ $evaluation = $submission?->evaluation;
                             <tr>
                                 <th>Student</th>
                                 <th>Submitted on</th>
-                                <th>Resubmissions</th>
                                 <th>Status</th>
                                 <th>Score</th>
                                 <th>Evaluated on</th>
@@ -72,7 +71,6 @@ $evaluation = $submission?->evaluation;
                                     <div class="text-xs text-base-content/60">{{ $row['user']->email }}</div>
                                 </td>
                                 <td>{{ $rowSubmission?->created_at->format('M j, Y g:i A') ?? '—' }}</td>
-                                <td>{{ $rowSubmission?->resubmission_count ?? '—' }}</td>
                                 <td>
                                     <span class="badge badge-sm {{ $rowStatusBadgeClass }}">
                                         {{ $rowEvaluation?->status->value ?? 'incomplete' }}

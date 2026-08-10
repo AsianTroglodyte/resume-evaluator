@@ -76,7 +76,6 @@ class EvaluationController extends Controller
             'user_id' => $request->user()->id,
             'assignment_id' => $assignment->id,
             'assignment_version' => '1',
-            'resubmission_count' => 100000,
             'due_date_snapshot' => null,
         ]);
 
@@ -131,12 +130,6 @@ class EvaluationController extends Controller
         ]);
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
-
-        if ($workspace === null and $assignment !== null) {
-
-        } elseif ($workspace !== null and $assignment === null) {
-
-        }
 
         // Create evaluation and set status to processing
         $evaluation = Evaluation::create([

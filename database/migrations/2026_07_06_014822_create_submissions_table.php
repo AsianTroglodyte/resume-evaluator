@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId("user_id")->constrained();
             $table->foreignId("assignment_id")->constrained()->cascadeOnDelete();
             $table->unsignedInteger("assignment_version");
-            $table->unsignedInteger("resubmission_count");
             $table->timestamp("due_date_snapshot")->nullable();
             $table->timestamps();
             $table->unique(['user_id', 'assignment_id']);
