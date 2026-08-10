@@ -11,7 +11,7 @@
 @endphp
 
 @if (! empty($matched) || ! empty($missing))
-    <div {{ $attributes->class(['grid gap-4 md:grid-cols-2', 'mt-6']) }}>
+    <div {{ $attributes->class(['grid gap-4 md:grid-cols-2']) }}>
         @if (! empty($matched))
             <div class="rounded-box border border-success/30 bg-success/5 p-4">
                 <p class="text-sm font-semibold">

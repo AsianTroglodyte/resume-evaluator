@@ -1,7 +1,32 @@
-@props([
-    'expandedIds' => null,
-    'evaluation' => null
-])
+<?php
+use App\Enums\EvaluationStatus;
+use App\Models\Evaluation;
+use Livewire\Component;
+new class extends Component
+{
+    /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Evaluation> */
+    public $evaluation;
+
+    public function mount(Evaluation $evaluation): void
+    {
+        $this->evaluation = $evaluation;
+    }
+
+    public function loadEvaluation(): void
+    {
+        $this->evaluation->refresh();
+    }
+
+    // public function toggleExpanded(int $id): void
+    // {
+    //     if (in_array($id, $this->expandedIds, true)) {
+    //         $this->expandedIds = array_values(array_diff($this->expandedIds, [$id]));
+    //     } else {
+    //         $this->expandedIds[] = $id;
+    //     }
+    // }
+};
+?>
 
 @php
     $data = is_array($evaluation->evaluation_data) ? $evaluation->evaluation_data : [];
@@ -16,22 +41,25 @@
     $summary = $enrichment['analysis_summary'] ?? null;
 
     $statusBadgeClass = match ($evaluation->status) {
-        \App\Enums\EvaluationStatus::Completed => 'badge-success',
-        \App\Enums\EvaluationStatus::Failed => 'badge-error',
+        EvaluationStatus::Completed => 'badge-success',
+        EvaluationStatus::Failed => 'badge-error',
         default => 'badge-ghost',
     };
-    $status = $evaluation->status;
-
 @endphp
 
 <details
-    wire:key="evaluation-{{ $evaluation->id }}"
-    @if ($expandedIds !== null && (in_array($evaluation->id, $expandedIds, true)))
-        open 
+    class="collapse collapse-arrow w-full rounded-box border border-base-300 bg-base-100"
+    @if ($evaluation->status === EvaluationStatus::Processing)
+        wire:poll.1s="loadEvaluation"
     @endif
+    {{-- wire:key="evaluation-{{ $evaluation->id }}"
+    @if ($expandedIds !== null && (in_array($evaluation->id, $expandedIds, true)))
+        open
+    @endif --}}
 >
-    <summary class="collapse-title min-h-0 py-4 rounded-box border border-base-300 cursor-pointer"
-        wire:click="toggleExpanded({{ $evaluation->id }})">
+    <summary class="collapse-title min-h-0 cursor-pointer py-4"
+        {{-- wire:click="toggleExpanded({{ $evaluation->id }})" --}}
+    >
         <div class="flex flex-wrap items-center justify-between gap-3 pr-6">
             <div class="flex min-w-0 flex-col gap-1">
                 <div class="flex flex-wrap items-center gap-2">
@@ -46,7 +74,7 @@
                     <p class="truncate text-sm font-normal text-base-content/60">
                         {{ $summary }}
                     </p>
-                @elseif ($evaluation->status === \App\Enums\EvaluationStatus::Failed)
+                @elseif ($evaluation->status === EvaluationStatus::Failed)
                     <p class="truncate text-sm font-normal text-error">
                         {{ $evaluation->failure_reason ?: 'Evaluation failed.' }}
                     </p>
@@ -67,8 +95,8 @@
         </div>
     </summary>
 
-    <div class="collapse-content">
-        @if ($evaluation->status === \App\Enums\EvaluationStatus::Failed)
+    <div class="collapse-content space-y-4">
+        @if ($evaluation->status === EvaluationStatus::Failed)
         <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
             <p class="text-sm text-error">
                 {{ $evaluation->failure_reason ?: 'Evaluation failed.' }}
@@ -91,14 +119,14 @@
                 </div>
             @endif
 
-            @if ($status === \App\Enums\EvaluationStatus::Processing)
-                <p class="text-sm text-base-content/60">Pending.</p>
+            @if ($evaluation->status === EvaluationStatus::Processing)
+                <p class="text-sm text-base-content/60">Processing.</p>
             @elseif (empty($enrichment) && empty($warnings) && empty($aiPhrases) && ! $hasKeywordFeedback)
                 <p class="text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
             @endif
 
             @if (! empty($enrichment))
-                <div class="mt-4 rounded-box border border-primary/20 bg-primary/5 p-4">
+                <div class="rounded-box border border-primary/20 bg-primary/5 p-4">
                     <p class="text-sm font-semibold text-primary">Resume analysis</p>
                     @if (! empty($enrichment['analysis_summary']))
                         <p class="mt-2 text-sm leading-relaxed text-base-content/90">{{ $enrichment['analysis_summary'] }}</p>
@@ -158,7 +186,7 @@
             />
 
             @if (! empty($aiPhrases))
-                <div class="mt-4 rounded-box border border-base-300 bg-base-200/40 p-4">
+                <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
                     <p class="text-sm font-semibold text-base-content">
                         AI-sounding phrases ({{ count($aiPhrases) }})
                     </p>
