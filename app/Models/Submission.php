@@ -15,7 +15,6 @@ class submission extends Model
         'user_id',
         'assignment_id',
         'assignment_version',
-        'resubmission_count',
         'due_date_snapshot',
     ];
 
