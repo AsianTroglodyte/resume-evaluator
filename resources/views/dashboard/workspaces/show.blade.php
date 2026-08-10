@@ -112,7 +112,7 @@
                 @forelse ($workspace->evaluations as $evaluation)
                     <livewire:evaluation.evaluation
                         :$evaluation
-                        :wire:key="'evaluation-'.$evaluation->id"
+                        :wire:key="$evaluation->id"
                     />
                 @empty
                     <div class="rounded-box border border-base-300 bg-base-100 px-4 py-5 sm:px-6">
