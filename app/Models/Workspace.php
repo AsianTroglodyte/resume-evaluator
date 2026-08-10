@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\EvaluationStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Log;
-use phpDocumentor\Reflection\Types\Boolean;
 
 class Workspace extends Model
 {
@@ -27,17 +26,8 @@ class Workspace extends Model
         return $this->hasMany(Evaluation::class)->latest();
     }
 
-    public function hasPendingEvaluation()
+    public function hasProcessingEvaluations(): bool
     {
-        // return $this->evaluations() ?? true;
-        //             ->latest()
-        $latestEvaluation = $this->evaluations()
-            ->latest()
-            ->limit(1)
-            ->get()[0];
-
-        // dd($latestEvaluation);
-
-        return $latestEvaluation->status === "completed";
+        return $this->evaluations()->where('status', EvaluationStatus::Processing)->exists();
     }
 }

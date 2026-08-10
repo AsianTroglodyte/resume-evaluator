@@ -4,8 +4,8 @@ use App\Models\Evaluation;
 use Livewire\Component;
 new class extends Component
 {
-    /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Evaluation> */
-    public $evaluation;
+    public Evaluation $evaluation;
+
     public bool $isOpen = false;
 
     public function mount(Evaluation $evaluation): void
@@ -20,8 +20,7 @@ new class extends Component
 
     public function toggleExpanded(): void
     {
-        $this->isOpen = !$this->isOpen;
-
+        $this->isOpen = ! $this->isOpen;
     }
 };
 ?>

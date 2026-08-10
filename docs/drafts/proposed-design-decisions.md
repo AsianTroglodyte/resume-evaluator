@@ -1,11 +1,13 @@
 # Proposed design decisions (draft)
 
-**Status:** Part A **superseded** for submit flow by ADRs `0004` (revised) and `0005` (2026-07-04). Part B remains tentative pending client review.  
-**Authoritative vocabulary:** `CONTEXT.md`. **Authoritative submit/practice split:** `docs/adr/0004`, `docs/adr/0005`.
+**Status:** Part A **superseded** for submit/practice product split by ADRs `0004` / `0005` (2026-07-04), and for **evaluation storage** by ADR `0006` (shared `evaluations` table with XOR `workspace_id` / `submission_id` — not `evaluation_data` embedded on `submissions`). Part B remains tentative pending client review.  
+**Authoritative vocabulary:** `CONTEXT.md`. **Authoritative decisions:** `docs/adr/0004`, `docs/adr/0005`, `docs/adr/0006`.
 
 ---
 
 ## Part A — Resume evaluation & workspaces (revised MVP)
+
+> **Storage note:** tables below retain product intent, but evaluation **storage** follows ADR `0006` (shared `evaluations` with XOR parent). Do not embed `evaluation_data` on `submissions`.
 
 ### Product scope
 
@@ -20,10 +22,10 @@
 | Decision | Choice |
 |----------|--------|
 | Workspaces | **Practice only** — draft resumes, optional **practice evaluations** for feedback. Not required for submit. **Multiple named workspaces per user.** |
-| Data model | **`evaluations`** = workspace practice runs. **`submissions`** = resume + `evaluation_data` on row (no FK to practice). |
+| Data model | **`evaluations`** for all runs; XOR parent `workspace_id` *or* `submission_id` (ADR `0006`). **`submissions`** = LMS turn-in + assignment-policy snapshot only. |
 | Assignment submit unit | **Resume** via upload (PDF/DOCX) or paste; **MVP stores `resume_text` only** (extract on upload, discard file). **Future:** persisted file + `resume_text`. |
-| When evaluation runs for assignments | **On submit** (and on resubmit), async job, results frozen on **submission** row. |
-| Instructor artifact | Frozen **`evaluation_data`** (+ scores, `evaluator_version`) on submission. |
+| When evaluation runs for assignments | **On submit** (and on resubmit), async job, results frozen on the submission-backed **`evaluations`** row. |
+| Instructor artifact | Linked evaluation: frozen **`evaluation_data`** (+ scores, `evaluator_version`). |
 
 ### Job description sources (revised)
 
@@ -31,7 +33,7 @@
 |---------|------|
 | **Workspace practice** | **Pasted JD** or select JD from **any assignment’s allowed on-site job listing**. No claims, no capacity. |
 | **Assignment submit (MVP)** | Per assignment instructions: **paste JD** or **select allowed on-site job listing**. No claims, no capacity. |
-| **Listing-backed rows** | **Snapshot `job_description_text` + `job_listing_id`** at eval/submit time (paste-only: text only, `job_listing_id` null). |
+| **Listing-backed rows** | **Snapshot `job_description_text` + `job_listing_id`** at eval/submit time on the **`evaluations`** row (paste-only: text only, `job_listing_id` null). |
 | **Assignment submit (future)** | Claim listing (FCFS) then submit resume when capacity is required. |
 | **No JD** | Optional; keyword match omitted. |
 
@@ -39,28 +41,28 @@
 
 | Field / behavior | Choice |
 |------------------|--------|
-| Storage | **`evaluations`** table for workspace practice; **`evaluation_data`** JSON on **`submissions`** for turn-in (separate; no FK). |
+| Storage | Shared **`evaluations`** table (ADR `0006`); practice vs turn-in distinguished by XOR parent FKs. |
 | Scores | `keyword_match` nullable when no JD; other scores TBD. |
 | Feedback | Enrichment, warnings, AI phrases, keyword lists (eval-service shape today). |
-| Instructor view | Same evaluation detail as students, from **submission** record. |
+| Instructor view | Same evaluation detail as students, via the submission’s linked evaluation. |
 
 ### Technical pipeline (revised)
 
 | Step | Choice |
 |------|--------|
-| Resume artifact (MVP) | Upload → extract text → store **`resume_text`** on row; **no file persistence**. Paste-as-text also allowed. Same for workspace practice and submissions. |
+| Resume artifact (MVP) | Upload → extract text → store **`resume_text`** on the evaluation; **no file persistence**. Paste-as-text also allowed. Same for workspace practice and submit-time evaluations. |
 | Resume artifact (future) | **File + `resume_text`** — storage key, original filename, frozen text snapshot. |
-| Job context (listing) | **`job_description_text` snapshot + nullable `job_listing_id`** when sourced from an allowed listing; paste-only rows store text with null FK. |
-| Assignment submit | Store resume text + job context → queue **EvaluateSubmission** job. |
-| Evaluation execution | **Async** for **both** workspace practice and assignment submit (`pending` → `processing` → `completed` \| `failed`); queued worker calls eval-service. |
-| Failed evaluation | **Retry + edit** — failed rows show **Retry** (re-queue with stored inputs). Student may also edit resume/JD and re-submit: workspace → **new `evaluations` row**; assignment → **resubmit overwrites** same submission row (ADR `0003`). |
-| Practice history retention | **Cap per workspace** — keep latest **5** `evaluations` rows per workspace; prune oldest on new insert. |
+| Job context (listing) | **`job_description_text` snapshot + nullable `job_listing_id`** on **`evaluations`** when sourced from an allowed listing; paste-only rows store text with null FK. |
+| Assignment submit | Create/update submission + submission-backed evaluation → queue evaluate job. |
+| Evaluation execution | **Async** for **both** workspace practice and assignment submit (`processing` → `completed` \| `failed`); queued worker calls eval-service. |
+| Failed evaluation | **Retry + edit** — failed rows show **Retry** (re-queue with stored inputs). Student may also edit resume/JD and re-submit: workspace → **new `evaluations` row**; assignment → **resubmit updates** same submission + evaluation (ADR `0003`). |
+| Practice history retention | **Cap per workspace** — keep latest **5** workspace-backed `evaluations` rows; prune oldest on new insert. |
 | Async UI | **Redirect + poll on detail** — after submit/run, redirect to evaluation or submission detail; that page polls until `completed` \| `failed`. |
-| Instructor submission view | **Full row at all statuses** — instructors see resume, JD, and status (`pending` / `failed` / `completed`) immediately; same detail as student **minus** retry/resubmit actions. |
+| Instructor submission view | **Full row at all statuses** — instructors see resume, JD, and status (`processing` / `failed` / `completed`) immediately; same detail as student **minus** retry/resubmit actions. |
 | Workspace privacy | **Owner only** — practice workspaces and evaluations are private; instructors do not see practice runs. |
 | Failed row detail | **`failure_reason`** — user-safe message on `failed` rows; full exception detail in Laravel logs only. |
 | Workspaces | Optional; practice eval pipeline can reuse eval-service; **no submit linkage** in MVP. |
-| `evaluator_version` | Stored on submission (and practice rows when they exist). |
+| `evaluator_version` | Stored on the **`evaluations`** row (practice and submit-time). |
 
 ### Retired (do not implement for MVP)
 
@@ -132,7 +134,7 @@ Decisions below are retained for later client alignment. Do not implement for MV
 
 | Decision | Choice |
 |----------|--------|
-| External submit | Paste JD at submit (or stored on submission); resume upload; evaluate-on-submit; freeze JD + `evaluation_data` on submission. |
+| External submit | Paste JD at submit; resume upload; evaluate-on-submit; freeze JD + `evaluation_data` on the submission-backed **`evaluations`** row (ADR `0006`). |
 
 ### Open (not decided)
 

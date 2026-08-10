@@ -93,7 +93,9 @@
                     </span>
                 </label>
                 <div class="flex justify-end">
-                    <button type="submit" class="btn btn-primary btn-sm">Run evaluation</button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        Run evaluation
+                    </button>
                 </div>
             </form>
         </section>
@@ -184,6 +186,14 @@
             </dialog>
         </section>
     </section>
+
+    @error('rate_limit')
+        <div class="toast toast-top toast-center z-50 toast-auto-dismiss pointer-events-none">
+            <div class="alert alert-warning shadow-lg">
+                <span>{{ $message }}</span>
+            </div>
+        </div>
+    @enderror
 
     <script>
         document.querySelectorAll('[data-workspace-rename]').forEach((root) => {
