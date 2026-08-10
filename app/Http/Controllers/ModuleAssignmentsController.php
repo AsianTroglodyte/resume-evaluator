@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\Enums\AssigneeScope;
 use App\Enums\JobListingSource;
 use App\Enums\ModuleJobListingScope;
+use App\Enums\RoleInModule;
 use App\Models\Assignment;
 use App\Models\Module;
+use App\Models\Submission;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr as SupportArr;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 
 class ModuleAssignmentsController extends Controller
@@ -24,17 +29,22 @@ class ModuleAssignmentsController extends Controller
         ]);
     }
 
-    public function show(Module $module, Assignment $assignment)
+    public function show(Request $request, Module $module, Assignment $assignment)
     {
-        // dd($assignment);
         $users = $module->users;
         $assignment->load(['assignees', 'jobListings']);
 
-        return view('dashboard.modules.assignments.show', [
+        $viewData = [
             'module' => $module,
             'assignment' => $assignment,
             'users' => $users,
-        ]);
+        ];
+
+        if ($request->user()->can('seeAllAssignmentDetails', $assignment)) {
+            $viewData['submissionRows'] = $this->submissionRowsFor($module, $assignment);
+        }
+
+        return view('dashboard.modules.assignments.show', $viewData);
     }
 
     public function store(Module $module)
@@ -206,5 +216,32 @@ class ModuleAssignmentsController extends Controller
         return redirect()->route('dashboard.modules.show', [
             'module' => $module,
         ]);
+    }
+
+    /**
+     * Build one row per assignee, pairing each with their submission
+     * (and its evaluation) when one exists, for the instructor grading view.
+     *
+     * @return Collection<int, array{user: User, submission: ?Submission}>
+     */
+    private function submissionRowsFor(Module $module, Assignment $assignment): Collection
+    {
+        $roster = $assignment->assignee_scope === AssigneeScope::Everyone
+            ? $module->users()->wherePivot('role_in_module', RoleInModule::Student->value)->get()
+            : $assignment->assignees;
+
+        $submissionsByUserId = $assignment->allSubmissions()
+            ->with('evaluation')
+            ->whereIn('user_id', $roster->pluck('id'))
+            ->get()
+            ->keyBy('user_id');
+
+        return $roster
+            ->sortBy(fn ($user) => strtolower($user->last_name.' '.$user->first_name))
+            ->values()
+            ->map(fn ($user) => [
+                'user' => $user,
+                'submission' => $submissionsByUserId->get($user->id),
+            ]);
     }
 }
