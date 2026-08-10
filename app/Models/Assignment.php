@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Facades\Auth;
 
 class Assignment extends Model
 {
@@ -79,14 +80,15 @@ class Assignment extends Model
         return $this->belongsTo(Module::class);
     }
 
-    public function submission(): HasOne
+    public function allSubmissions(): HasMany
     {
-        return $this->hasOne(Submission::class);
+        return $this->hasMany(Submission::class);
     }
 
-    public function evaluation(): HasOneThrough
+    public function submissionFor(?User $user = null): HasOne
     {
-        return $this->hasOneThrough(Evaluation::class, Submission::class);
+        return $this->hasOne(Submission::class)
+            ->where('user_id', $user?->id ?? Auth::id());
     }
 
     private function assigneesWithMembershipStatus(string $status): BelongsToMany

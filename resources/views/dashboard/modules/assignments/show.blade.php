@@ -1,7 +1,9 @@
 @php
 use App\Enums\ModuleJobListingScope;
 use App\Enums\JobListingSource;
-$evaluation = $assignment->evaluation;
+
+// if (u)
+$evaluation = $assignment->submissionFor->evaluation;
 @endphp
 
 <x-dashboard-layout>
