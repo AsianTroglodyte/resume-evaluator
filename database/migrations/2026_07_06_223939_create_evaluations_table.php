@@ -23,7 +23,7 @@ return new class extends Migration
             $table->text('resume_text')->nullable();
             $table->foreignId('job_listing_id')->nullable()->constrained('job_listings')->nullOnDelete();
             $table->text('job_description_text')->nullable();
-            $table->string('status')->default(EvaluationStatus::Pending->value);
+            $table->string('status')->default(EvaluationStatus::Processing->value);
             $table->text('failure_reason')->nullable();
             $table->json('evaluation_data')->nullable();
             $table->string('evaluator_version')->nullable();

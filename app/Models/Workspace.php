@@ -24,7 +24,7 @@ class Workspace extends Model
 
     public function evaluations(): HasMany
     {
-        return $this->hasMany(Evaluation::class);
+        return $this->hasMany(Evaluation::class)->latest();
     }
 
     public function hasPendingEvaluation()

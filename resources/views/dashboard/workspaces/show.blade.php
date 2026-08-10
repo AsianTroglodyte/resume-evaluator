@@ -65,8 +65,6 @@
                 <h2 class="font-semibold">New evaluation</h2>
                 <p class="text-sm text-base-content/60">Resume file is required. Job description is optional.</p>
             </div>
-
-
             <form
                 class="flex flex-col gap-4 px-4 py-5 sm:px-6"
                 method="POST"
@@ -110,7 +108,18 @@
             <p class="text-sm text-error">{{ session('evaluation_error') }}</p>
             @endif
 
-            <livewire:workspace-evaluations :workspace="$workspace" />
+            <div class="space-y-4">
+                @forelse ($workspace->evaluations as $evaluation)
+                    <livewire:evaluation.evaluation
+                        :$evaluation
+                        :wire:key="'evaluation-'.$evaluation->id"
+                    />
+                @empty
+                    <div class="rounded-box border border-base-300 bg-base-100 px-4 py-5 sm:px-6">
+                        <p class="text-sm text-base-content/60">No evaluation run yet. Submit the form above to see results here.</p>
+                    </div>
+                @endforelse
+            </div>
         </section>
 
         <section class="rounded-box border border-error/40 bg-error/5 p-4">

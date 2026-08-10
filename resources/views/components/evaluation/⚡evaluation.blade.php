@@ -10,7 +10,6 @@ new class extends Component
     public function mount(Evaluation $evaluation): void
     {
         $this->evaluation = $evaluation;
-        $this->loadEvaluation();
     }
 
     public function loadEvaluation(): void
@@ -49,16 +48,18 @@ new class extends Component
 @endphp
 
 <details
-    @if ($evaluation->status === EvaluationStatus::Processing) 
+    class="collapse collapse-arrow w-full rounded-box border border-base-300 bg-base-100"
+    @if ($evaluation->status === EvaluationStatus::Processing)
         wire:poll.1s="loadEvaluation"
     @endif
     {{-- wire:key="evaluation-{{ $evaluation->id }}"
     @if ($expandedIds !== null && (in_array($evaluation->id, $expandedIds, true)))
-        open 
+        open
     @endif --}}
 >
-    <summary class="collapse-title min-h-0 py-4 rounded-box border border-base-300 cursor-pointer"
-        wire:click="toggleExpanded({{ $evaluation->id }})">
+    <summary class="collapse-title min-h-0 cursor-pointer py-4"
+        {{-- wire:click="toggleExpanded({{ $evaluation->id }})" --}}
+    >
         <div class="flex flex-wrap items-center justify-between gap-3 pr-6">
             <div class="flex min-w-0 flex-col gap-1">
                 <div class="flex flex-wrap items-center gap-2">
@@ -94,7 +95,7 @@ new class extends Component
         </div>
     </summary>
 
-    <div class="collapse-content">
+    <div class="collapse-content space-y-4">
         @if ($evaluation->status === EvaluationStatus::Failed)
         <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
             <p class="text-sm text-error">
@@ -119,13 +120,13 @@ new class extends Component
             @endif
 
             @if ($evaluation->status === EvaluationStatus::Processing)
-                <p class="text-sm text-base-content/60">Pending.</p>
+                <p class="text-sm text-base-content/60">Processing.</p>
             @elseif (empty($enrichment) && empty($warnings) && empty($aiPhrases) && ! $hasKeywordFeedback)
                 <p class="text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
             @endif
 
             @if (! empty($enrichment))
-                <div class="mt-4 rounded-box border border-primary/20 bg-primary/5 p-4">
+                <div class="rounded-box border border-primary/20 bg-primary/5 p-4">
                     <p class="text-sm font-semibold text-primary">Resume analysis</p>
                     @if (! empty($enrichment['analysis_summary']))
                         <p class="mt-2 text-sm leading-relaxed text-base-content/90">{{ $enrichment['analysis_summary'] }}</p>
@@ -185,7 +186,7 @@ new class extends Component
             />
 
             @if (! empty($aiPhrases))
-                <div class="mt-4 rounded-box border border-base-300 bg-base-200/40 p-4">
+                <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
                     <p class="text-sm font-semibold text-base-content">
                         AI-sounding phrases ({{ count($aiPhrases) }})
                     </p>
