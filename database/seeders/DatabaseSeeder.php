@@ -218,7 +218,9 @@ class DatabaseSeeder extends Seeder
 
         $classmates = User::factory(4)->password('password')->create();
 
-        foreach ([$testUser, ...$classmates] as $member) {
+        $members = [$testUser, ...$classmates];
+
+        foreach ($members as $member) {
             ModuleMembership::factory()
                 ->module($module)
                 ->user($member)
@@ -234,9 +236,15 @@ class DatabaseSeeder extends Seeder
             ->forModule($module)
             ->create();
 
+        // dd($jobListings);
+
+        $assignees1 = $classmates->take(2);
+
         $assignment = Assignment::factory()
             ->forModule($module)
             ->createdBy($admin)
+            ->withJobListings($jobListings)
+            ->withUsers($assignees1)
             ->create([
                 'title' => 'Practice Resume Submission 1',
                 'assignee_scope' => AssigneeScope::Selected,
@@ -244,13 +252,6 @@ class DatabaseSeeder extends Seeder
                 'module_job_listing_scope' => ModuleJobListingScope::Selected,
             ]);
 
-        foreach ($jobListings as $jobListing) {
-            AssignmentAllowedJobListings::factory()
-                ->withAssignment($assignment)
-                ->withJobListing($jobListing)
-                ->create();
-        }
-
         AssignmentAssignees::factory()
             ->hasAssignment($assignment)
             ->hasUser($testUser)
@@ -263,38 +264,38 @@ class DatabaseSeeder extends Seeder
                 ->create();
         }
 
-        $assignment = Assignment::factory()
-        ->forModule($module)
-        ->createdBy($admin)
-        ->create([
-            'title' => 'Practice Resume Submission 2',
-            'assignee_scope' => AssigneeScope::Selected,
-            'job_listing_source' => JobListingSource::Module,
-            'module_job_listing_scope' => ModuleJobListingScope::Selected,
-        ]);
+        // $assignment = Assignment::factory()
+        // ->forModule($module)
+        // ->createdBy($admin)
+        // ->create([
+        //     'title' => 'Practice Resume Submission 2',
+        //     'assignee_scope' => AssigneeScope::Selected,
+        //     'job_listing_source' => JobListingSource::Module,
+        //     'module_job_listing_scope' => ModuleJobListingScope::Selected,
+        // ]);
 
-        $jobListings = JobListing::factory(3)
-            ->forModule($module)
-            ->create();
+        // $jobListings = JobListing::factory(3)
+        //     ->forModule($module)
+        //     ->create();
 
-        foreach ($jobListings as $jobListing) {
-            AssignmentAllowedJobListings::factory()
-                ->withAssignment($assignment)
-                ->withJobListing($jobListing)
-                ->create();
-        }
+        // foreach ($jobListings as $jobListing) {
+        //     AssignmentAllowedJobListings::factory()
+        //         ->withAssignment($assignment)
+        //         ->withJobListing($jobListing)
+        //         ->create();
+        // }
 
-        AssignmentAssignees::factory()
-            ->hasAssignment($assignment)
-            ->hasUser($testUser)
-            ->create();
+        // AssignmentAssignees::factory()
+        //     ->hasAssignment($assignment)
+        //     ->hasUser($testUser)
+        //     ->create();
 
-        foreach ($classmates->take(2) as $classmate) {
-            AssignmentAssignees::factory()
-                ->hasAssignment($assignment)
-                ->hasUser($classmate)
-                ->create();
-        }
+        // foreach ($classmates->take(2) as $classmate) {
+        //     AssignmentAssignees::factory()
+        //         ->hasAssignment($assignment)
+        //         ->hasUser($classmate)
+        //         ->create();
+        // }
 
         return $testUser;
     }
