@@ -44,6 +44,7 @@ class EvaluateJob implements ShouldQueue
                 ->post('/evaluate', [
                     'job_description' => $this->jobDescription,
                 ]);
+            
         } catch (ConnectionException) {
             $this->evaluation->update([
                 'resume_file_path' => $this->resumeFilePath,
@@ -52,7 +53,6 @@ class EvaluateJob implements ShouldQueue
                 'evaluation_data' => null,
                 'failure_reason' => 'Evaluation service seems to be down.',
             ]);
-
             return;
         } finally {
             if (is_resource($stream)) {
