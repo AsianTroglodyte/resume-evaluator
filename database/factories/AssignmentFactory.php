@@ -57,11 +57,10 @@ class AssignmentFactory extends Factory
      */
     public function withJobListings(Collection|array|JobListing $jobListings): static
     {
-        // $jobListings = collect(Arr::wrap($jobListings));
-        Collection::wrap($jobListings);
+        $jobListings = Collection::wrap($jobListings);
 
         return $this->afterCreating(function (Assignment $assignment) use ($jobListings): void {
-            $assignment->allAssignees()->attach($jobListings->modelKeys());
+            $assignment->jobListings()->attach($jobListings->pluck('id'));
         });
     }
 
@@ -70,10 +69,10 @@ class AssignmentFactory extends Factory
      */
     public function withUsers(Collection|array|User $users): static
     {
-        Collection::wrap($users);
+        $users = Collection::wrap($users);
 
         return $this->afterCreating(function (Assignment $assignment) use ($users): void {
-            $assignment->allAssignees()->attach($users->modelKeys());
+            $assignment->allAssignees()->attach($users->pluck('id'));
         });
     }
 }
