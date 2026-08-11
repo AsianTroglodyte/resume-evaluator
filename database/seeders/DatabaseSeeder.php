@@ -238,11 +238,44 @@ class DatabaseSeeder extends Seeder
             ->forModule($module)
             ->createdBy($admin)
             ->create([
-                'title' => 'Practice Resume Submission',
+                'title' => 'Practice Resume Submission 1',
                 'assignee_scope' => AssigneeScope::Selected,
                 'job_listing_source' => JobListingSource::Module,
                 'module_job_listing_scope' => ModuleJobListingScope::Selected,
             ]);
+
+        foreach ($jobListings as $jobListing) {
+            AssignmentAllowedJobListings::factory()
+                ->withAssignment($assignment)
+                ->withJobListing($jobListing)
+                ->create();
+        }
+
+        AssignmentAssignees::factory()
+            ->hasAssignment($assignment)
+            ->hasUser($testUser)
+            ->create();
+
+        foreach ($classmates->take(2) as $classmate) {
+            AssignmentAssignees::factory()
+                ->hasAssignment($assignment)
+                ->hasUser($classmate)
+                ->create();
+        }
+
+        $assignment = Assignment::factory()
+        ->forModule($module)
+        ->createdBy($admin)
+        ->create([
+            'title' => 'Practice Resume Submission 2',
+            'assignee_scope' => AssigneeScope::Selected,
+            'job_listing_source' => JobListingSource::Module,
+            'module_job_listing_scope' => ModuleJobListingScope::Selected,
+        ]);
+
+        $jobListings = JobListing::factory(3)
+            ->forModule($module)
+            ->create();
 
         foreach ($jobListings as $jobListing) {
             AssignmentAllowedJobListings::factory()
