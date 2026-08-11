@@ -21,7 +21,6 @@ class EvaluationController extends Controller
     {
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
-
         ]);
 
         if ($workspace->hasProcessingEvaluations()) {

@@ -218,7 +218,9 @@ class DatabaseSeeder extends Seeder
 
         $classmates = User::factory(4)->password('password')->create();
 
-        foreach ([$testUser, ...$classmates] as $member) {
+        $members = [$testUser, ...$classmates];
+
+        foreach ($members as $member) {
             ModuleMembership::factory()
                 ->module($module)
                 ->user($member)
@@ -230,38 +232,41 @@ class DatabaseSeeder extends Seeder
                 ->create();
         }
 
-        $jobListings = JobListing::factory(3)
+        $jobListings1 = JobListing::factory(3)
             ->forModule($module)
             ->create();
 
-        $assignment = Assignment::factory()
+        // dd($jobListings);
+
+        $assignees1 = $classmates->take(2);
+
+        $assignment1 = Assignment::factory()
             ->forModule($module)
             ->createdBy($admin)
+            ->withJobListings($jobListings1)
+            ->withUsers([...$assignees1, $testUser])
             ->create([
-                'title' => 'Practice Resume Submission',
+                'title' => 'Practice Resume Submission 1',
                 'assignee_scope' => AssigneeScope::Selected,
                 'job_listing_source' => JobListingSource::Module,
                 'module_job_listing_scope' => ModuleJobListingScope::Selected,
             ]);
 
-        foreach ($jobListings as $jobListing) {
-            AssignmentAllowedJobListings::factory()
-                ->withAssignment($assignment)
-                ->withJobListing($jobListing)
-                ->create();
-        }
-
-        AssignmentAssignees::factory()
-            ->hasAssignment($assignment)
-            ->hasUser($testUser)
+        $jobListings2 = JobListing::factory(3)
+            ->forModule($module)
             ->create();
 
-        foreach ($classmates->take(2) as $classmate) {
-            AssignmentAssignees::factory()
-                ->hasAssignment($assignment)
-                ->hasUser($classmate)
-                ->create();
-        }
+        $assignment2 = Assignment::factory()
+            ->forModule($module)
+            ->createdBy($admin)
+            ->withJobListings($jobListings2)
+            ->withUsers([...$assignees1, $testUser])
+            ->create([
+                'title' => 'Practice Resume Submission 2',
+                'assignee_scope' => AssigneeScope::Selected,
+                'job_listing_source' => JobListingSource::Module,
+                'module_job_listing_scope' => ModuleJobListingScope::Selected,
+            ]);
 
         return $testUser;
     }

@@ -6,9 +6,14 @@ use App\Enums\AssigneeScope;
 use App\Enums\JobListingSource;
 use App\Enums\ModuleJobListingScope;
 use App\Models\Assignment;
+use App\Models\AssignmentAllowedJobListings;
+use App\Models\AssignmentAssignees;
+use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 /**
  * @extends Factory<Assignment>
@@ -45,5 +50,29 @@ class AssignmentFactory extends Factory
     public function createdBy(User $user): static
     {
         return $this->state(fn () => ['created_by_user_id' => $user->id]);
+    }
+
+    /**
+     * @param JobListing|list<JobListing> $jobListings
+     */
+    public function withJobListings(Collection|array|JobListing $jobListings): static
+    {
+        $jobListings = Collection::wrap($jobListings);
+
+        return $this->afterCreating(function (Assignment $assignment) use ($jobListings): void {
+            $assignment->jobListings()->attach($jobListings->pluck('id'));
+        });
+    }
+
+    /**
+     * @param User|list<User> $users
+     */
+    public function withUsers(Collection|array|User $users): static
+    {
+        $users = Collection::wrap($users);
+
+        return $this->afterCreating(function (Assignment $assignment) use ($users): void {
+            $assignment->allAssignees()->attach($users->pluck('id'));
+        });
     }
 }
