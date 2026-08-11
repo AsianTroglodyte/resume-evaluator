@@ -1,6 +1,7 @@
 # Draft design documents
 
-Proposals under review. **Not adopted domain language** until promoted into `CONTEXT.md` and `docs/adr/`.
+Proposals and narrative under review or retained for storytelling.
 
-- Do not treat these as implementation contracts.
-- After client review, accepted decisions should be split into ADRs and `CONTEXT.md` updates; drafts can be archived or deleted.
+- **Authoritative** language and decisions live in `CONTEXT.md` and `docs/adr/`.
+- `proposed-design-decisions.md` Part B claim/group rules were **promoted** to ADR `0007` (2026-08-11); the draft keeps seminar workflow notes and open items only.
+- After implementation sign-off, trim or archive superseded draft sections.

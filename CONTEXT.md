@@ -32,8 +32,12 @@ _Avoid_: Learner, participant
 ### Core Domain
 
 **Module**:
-The primary teaching container for members, assignments, and module-scoped job listings.
+The primary teaching container for members, optional groups, assignments, and module-scoped job listings.
 _Avoid_: class, course (unless intentionally mapped in UI copy)
+
+**Group**:
+An optional cohort within a module (e.g. IT vs CS) used to scope assignment eligibility and/or which job listings students see. A module with no groups behaves as a single implicit “everyone” cohort.
+_Avoid_: section, team, cohort (unless mapped as UI copy for Group)
 
 **Module Membership**:
 A relationship between a user and module with exactly one role and lifecycle status.
@@ -50,8 +54,8 @@ _Avoid_: Deleted module
 ### Workspace & practice (optional, not submit)
 
 **Workspace**:
-A **user-owned, named** area where students **freely evaluate resumes** for practice—upload or paste resume, optional job context. A user may have **multiple workspaces**. **Private to the owner** — instructors and other students cannot view workspace practice runs. Job context may be a **pasted JD** or the JD from **any assignment’s allowed on-site job listing** (for practice against mock postings). Independent of modules, assignments, and turn-in. Workspaces do **not** gate or supply assignment submissions.
-_Avoid_: module workspace, assignment draft
+A **user-owned, named** area where students **freely evaluate resumes** for practice—upload or paste resume, optional job context. A user may have **multiple workspaces**. **Private to the owner** — instructors and other students cannot view workspace practice runs. Job context may be a **pasted JD** or the JD of the student’s **current claim** on a chosen assignment (practice against that mock posting). Workspaces do **not** create or change claims, do **not** consume listing capacity, and do **not** gate or supply assignment submissions.
+_Avoid_: module workspace, assignment draft, browsing all allowed listings from the workspace
 
 **Practice Evaluation**:
 An automated assessment run from a workspace for student feedback only. Not submitted to assignments. **MVP:** each practice run is **persisted** in the **`evaluations`** table (one row per run; `workspace_id` set). History UI may be minimal at first; **retention: keep latest 5** workspace-backed runs per workspace (prune oldest on insert).
@@ -64,16 +68,16 @@ A module-owned work item that defines submission-validity rules and allowed job 
 _Avoid_: Task, project (unless explicitly different)
 
 **Allowed Job Listing**:
-A job listing explicitly attached to an assignment and used as job context when the student submits.
+A job listing explicitly attached to an assignment; students claim one of these (when the assignment uses on-site listings) or the listing’s JD is otherwise used as job context.
 _Avoid_: Global listing, open listing
 
-**Job Listing Claim** (future, not MVP):
-A student’s reserved slot on an on-site job listing for a specific assignment, enforced with capacity (FCFS). Separate step before submit in the future design. **MVP does not implement claims or capacity**—students select a listing or paste a JD at submit time only.
-_Avoid_: Using claim for workspace practice
+**Job Listing Claim**:
+A student’s reserved slot on an on-site job listing for a specific assignment, enforced with per-assignment capacity (first-come first-served). At most **one active claim per (student, assignment)**. Claiming and changing claims happens on the **assignment** page; workspace practice may **read** the current claim’s JD but never creates or consumes a claim.
+_Avoid_: Soft preference, shortlist, practice-time claim
 
 **Submit to Assignment**:
-The LMS action where a student uploads (or provides) a **resume** for an assignment. Job context follows **assignment instructions**: **paste a JD** (e.g. external job) or **select an allowed on-site job listing** (JD taken from the listing). The system creates/updates the submission and a linked **submit-time evaluation** (ADR `0006`), then runs automated evaluation **on submit**.
-_Avoid_: Submitting an evaluation, picking a past practice run, workspace snapshot
+The LMS action where a student uploads (or provides) a **resume** for an assignment. Job context follows **assignment instructions**: **paste a JD** (e.g. external job) or, for on-site mock listings, the JD from the student’s **current claim** (claim required before submit). The system creates/updates the submission and a linked **submit-time evaluation** (ADR `0006`), then runs automated evaluation **on submit**.
+_Avoid_: Submitting an evaluation, picking a past practice run, workspace snapshot, picking an arbitrary unclaimed listing at submit when claims apply
 
 **Submission**:
 The single active per-user, per-assignment record of a committed **resume** turn-in, updated in place on resubmission. Holds LMS turn-in identity and **assignment-policy snapshot** (`assignment_version`, `due_date_snapshot`). Resume, job context, and evaluation output live on the linked **`evaluations`** row (`submission_id` set; XOR with workspace per ADR `0006`)—not embedded on the submission. Visible to the submitting student and module **instructors** at all statuses (TAs deferred post-MVP). Instructors see resume, job context, and evaluation status via that link; retry/resubmit actions are student-only.
@@ -137,13 +141,16 @@ After run/submit, redirect to the **detail page** (practice evaluation entry or 
 **Instructor submission access**:
 Instructors see submissions at **all evaluation statuses** (`processing`, `failed`, `completed`, or no submission yet). Evaluation output renders when complete; status is visible throughout. Student-only: retry and resubmit.
 
-### MVP vs future (job listings)
+### MVP vs later (job listings)
 
-| | **MVP (current)** | **Future** |
+| | **MVP** | **Later** |
 |---|---|---|
-| Listing selection | Select any allowed on-site listing or paste JD per assignment instructions | Claim listing (FCFS) then submit resume |
-| Capacity | Not implemented | Per-assignment listing capacity |
-| Workspace + listings | May use any assignment’s listing JD for practice; no claim | Same; practice never consumes claim slots |
+| Groups | Optional groups within a module; omit ⇒ everyone cohort | Instructor claim override / audit, richer group tooling |
+| On-site listing selection | **Claim** allowed listing (FCFS, capacity on claim); then submit resume | Same model |
+| External / paste JD | Paste at submit when assignment instructions require it | Same |
+| Capacity | Per-assignment listing capacity; submit does **not** free the slot | Same |
+| Workspace + listings | Paste JD, or practice using **current claim’s JD** for a chosen assignment (read-only; no claim mutation) | Same; never consume claim slots from practice |
+| Workspace claim-JD UI | **Deferred** until groups/claims ship — paste-only (or no listing picker) until then | Ship assignment picker that resolves JD from claim |
 | Resume storage | **`resume_text` only** (upload → extract; paste OK; no file on disk) | **File + `resume_text`** (storage key, filename, frozen text) |
 | Listing-backed JD | **Snapshot `job_description_text` + `job_listing_id`** on row | Same |
 | Practice history | **Cap: latest 5 runs per workspace** (prune on insert) | Instructor-configurable or higher default |

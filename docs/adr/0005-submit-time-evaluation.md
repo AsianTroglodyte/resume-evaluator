@@ -8,7 +8,7 @@ Automated resume feedback (enrichment, keyword match, warnings, AI phrases) is t
 
 ## Decision
 
-- Every assignment **submission** (create and resubmit) triggers an **evaluate-on-submit** job against the eval-service using the submission-backed evaluation’s resume and frozen job context (`job_description_text`; `job_listing_id` when listing-backed).
+- Every assignment **submission** (create and resubmit) triggers an **evaluate-on-submit** job against the eval-service using the submission-backed evaluation’s resume and frozen job context (`job_description_text`; `job_listing_id` when listing-backed). For on-site mock assignments, that job context comes from the student’s **current claim** (ADR `0007`).
 - Resume, job context, results (`evaluation_data`), **`evaluator_version`**, and status / `failure_reason` live on that **`evaluations`** row (XOR parent per ADR `0006`)—not duplicated onto `submissions`. Assignment-policy freeze fields stay on the submission (ADR `0002`).
 - Execution is **asynchronous** (queued worker) for **workspace practice** and **assignment submit**; the evaluation row’s status reflects `processing` → `completed` | `failed` until evaluation finishes.
 - The **submission** (with its linked evaluation) is the system of record for instructor review and audit. Practice runs use the same `evaluations` table under a workspace parent only.
@@ -27,5 +27,6 @@ Automated resume feedback (enrichment, keyword match, warnings, AI phrases) is t
 
 - ADR `0004` — workspaces vs submit path
 - ADR `0006` — evaluation XOR ownership (workspace or submission)
+- ADR `0007` — groups, claims, claim-backed practice JD
 - ADR `0002` — assignment-policy snapshot on submission; JD on evaluation
 - ADR `0003` — single active submission

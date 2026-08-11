@@ -1,152 +1,66 @@
 # Proposed design decisions (draft)
 
-**Status:** Part A **superseded** for submit/practice product split by ADRs `0004` / `0005` (2026-07-04), and for **evaluation storage** by ADR `0006` (shared `evaluations` table with XOR `workspace_id` / `submission_id` — not `evaluation_data` embedded on `submissions`). Part B remains tentative pending client review.  
-**Authoritative vocabulary:** `CONTEXT.md`. **Authoritative decisions:** `docs/adr/0004`, `docs/adr/0005`, `docs/adr/0006`.
+**Status:** Part A largely superseded by ADRs `0004` / `0005` / `0006`. Part B claim/group decisions **promoted to MVP** via ADR `0007` (2026-08-11). This draft retains narrative / open items only.  
+**Authoritative vocabulary:** `CONTEXT.md`. **Authoritative decisions:** `docs/adr/0004`–`0007`.
 
 ---
 
-## Part A — Resume evaluation & workspaces (revised MVP)
+## Part A — Resume evaluation & workspaces (historical)
 
-> **Storage note:** tables below retain product intent, but evaluation **storage** follows ADR `0006` (shared `evaluations` with XOR parent). Do not embed `evaluation_data` on `submissions`.
+Kept for history. Prefer ADRs for current rules. Job-description sources below are **obsolete** (replaced by ADR `0007`).
 
-### Product scope
+### Job description sources (obsolete — see ADR `0007`)
 
-| Decision | Choice |
-|----------|--------|
-| MVP AI scope | **Evaluate-only** (scores + structured feedback). No tailor/improve in MVP. |
-| Long-term | Toward **feature parity** with Resume-Matcher (tailor, improve, etc.) after MVP. |
-| Resume-Matcher relationship | **Thin Python eval service** owned by this project; port patterns/modules from Resume-Matcher, do not merge their main branch continuously. |
-
-### Workspace vs assignment (revised)
-
-| Decision | Choice |
-|----------|--------|
-| Workspaces | **Practice only** — draft resumes, optional **practice evaluations** for feedback. Not required for submit. **Multiple named workspaces per user.** |
-| Data model | **`evaluations`** for all runs; XOR parent `workspace_id` *or* `submission_id` (ADR `0006`). **`submissions`** = LMS turn-in + assignment-policy snapshot only. |
-| Assignment submit unit | **Resume** via upload (PDF/DOCX) or paste; **MVP stores `resume_text` only** (extract on upload, discard file). **Future:** persisted file + `resume_text`. |
-| When evaluation runs for assignments | **On submit** (and on resubmit), async job, results frozen on the submission-backed **`evaluations`** row. |
-| Instructor artifact | Linked evaluation: frozen **`evaluation_data`** (+ scores, `evaluator_version`). |
-
-### Job description sources (revised)
-
-| Context | Rule |
-|---------|------|
-| **Workspace practice** | **Pasted JD** or select JD from **any assignment’s allowed on-site job listing**. No claims, no capacity. |
-| **Assignment submit (MVP)** | Per assignment instructions: **paste JD** or **select allowed on-site job listing**. No claims, no capacity. |
-| **Listing-backed rows** | **Snapshot `job_description_text` + `job_listing_id`** at eval/submit time on the **`evaluations`** row (paste-only: text only, `job_listing_id` null). |
-| **Assignment submit (future)** | Claim listing (FCFS) then submit resume when capacity is required. |
-| **No JD** | Optional; keyword match omitted. |
-
-### Evaluation output (MVP)
-
-| Field / behavior | Choice |
-|------------------|--------|
-| Storage | Shared **`evaluations`** table (ADR `0006`); practice vs turn-in distinguished by XOR parent FKs. |
-| Scores | `keyword_match` nullable when no JD; other scores TBD. |
-| Feedback | Enrichment, warnings, AI phrases, keyword lists (eval-service shape today). |
-| Instructor view | Same evaluation detail as students, via the submission’s linked evaluation. |
-
-### Technical pipeline (revised)
-
-| Step | Choice |
-|------|--------|
-| Resume artifact (MVP) | Upload → extract text → store **`resume_text`** on the evaluation; **no file persistence**. Paste-as-text also allowed. Same for workspace practice and submit-time evaluations. |
-| Resume artifact (future) | **File + `resume_text`** — storage key, original filename, frozen text snapshot. |
-| Job context (listing) | **`job_description_text` snapshot + nullable `job_listing_id`** on **`evaluations`** when sourced from an allowed listing; paste-only rows store text with null FK. |
-| Assignment submit | Create/update submission + submission-backed evaluation → queue evaluate job. |
-| Evaluation execution | **Async** for **both** workspace practice and assignment submit (`processing` → `completed` \| `failed`); queued worker calls eval-service. |
-| Failed evaluation | **Retry + edit** — failed rows show **Retry** (re-queue with stored inputs). Student may also edit resume/JD and re-submit: workspace → **new `evaluations` row**; assignment → **resubmit updates** same submission + evaluation (ADR `0003`). |
-| Practice history retention | **Cap per workspace** — keep latest **5** workspace-backed `evaluations` rows; prune oldest on new insert. |
-| Async UI | **Redirect + poll on detail** — after submit/run, redirect to evaluation or submission detail; that page polls until `completed` \| `failed`. |
-| Instructor submission view | **Full row at all statuses** — instructors see resume, JD, and status (`processing` / `failed` / `completed`) immediately; same detail as student **minus** retry/resubmit actions. |
-| Workspace privacy | **Owner only** — practice workspaces and evaluations are private; instructors do not see practice runs. |
-| Failed row detail | **`failure_reason`** — user-safe message on `failed` rows; full exception detail in Laravel logs only. |
-| Workspaces | Optional; practice eval pipeline can reuse eval-service; **no submit linkage** in MVP. |
-| `evaluator_version` | Stored on the **`evaluations`** row (practice and submit-time). |
-
-### Retired (do not implement for MVP)
-
-- Evaluation-first snapshot / workspace snapshot submit.
-- Qualifying evaluation picker.
-- Requirement that practice evaluation match listing before submit.
-- “Scan history” as prerequisite to turn-in.
+| Context | Rule (obsolete) |
+|---------|-----------------|
+| Workspace practice | Was: any allowed listing. **Now:** paste or **current claim** on a chosen assignment. |
+| Assignment submit | Was: pick any allowed listing. **Now:** paste (external) or **current claim** (on-site). |
 
 ---
 
-## Part B — LMS redesign (senior seminar workflow)
+## Part B — Groups, claims, capacity (promoted)
 
-**Status:** **Future** — not MVP. Current build uses simple JD paste or listing select at submit with **no claims or capacity**.
-
-Decisions below are retained for later client alignment. Do not implement for MVP unless explicitly promoted to an ADR.
+**Status:** **MVP** — recorded in ADR `0007`. Summary retained here for seminar workflow storytelling.
 
 ### Real-world workflow (target)
 
 1. **Assignment 1:** Students target **any online job** (external JD — paste at submit).
 2. **Assignment 2 (typical):** Students use **on-site mock job listings** with limited capacity; mock interview follow-up (out of scope for software).
 3. Often **two assignments** in a course; system should support **more** for flexibility.
-4. **IT vs CS** students may see different mock listings.
-5. Mock listings may have **capacity**; allocation **first-come first-served**.
+4. **IT vs CS** students may see different mock listings (via **groups**).
+5. Mock listings may have **capacity**; allocation **first-come first-served** via **claims**.
 
-### Job listing claims
+### Decisions (authoritative in ADR `0007` / CONTEXT)
 
-| Decision | Choice |
-|----------|--------|
-| Claim scope | **One active claim per (student, assignment)** — Option C. |
-| Change claim | Student may **change claim at any time**. Existing submissions remain valid under **freeze-history**; new/resubmit uses new claim + new resume submit + re-evaluate. |
-| Submit validation | Submission must use student's **current claim** for that assignment; claim must be an **allowed listing**. Resume submitted on assignment; JD from claimed listing at submit time. |
+| Topic | Choice |
+|-------|--------|
+| Modules vs groups | Optional groups; no groups ⇒ everyone cohort |
+| Claim scope | One active claim per (student, assignment) |
+| Change claim | Anytime on assignment page; freeze-history on existing submissions |
+| Capacity | Per assignment; consumed on claim; submit does not free slot |
+| Workspace listing JD | Read current claim only; no claim mutation from practice |
+| Workspace claim-JD UI | **Deferred** until groups/claims land — paste-only until then |
+| Claim UI | On the assignment page |
 
-### Modules vs groups
-
-| Decision | Choice |
-|----------|--------|
-| Structure | **One module with optional groups** — Option A. |
-| Default (no groups) | Module behaves as implicit **“everyone”** cohort. |
-| When groups used | e.g. IT / CS — group-scoped assignments and/or listing visibility. |
-
-### Job listing ownership & assignment attachment
-
-| Decision | Direction (tentative) |
-|----------|----------------------|
-| Listing storage | Listings at **module level** (optionally filtered by group); **`capacity`** on listing. |
-| Assignment link | Via `assignment_allowed_job_listings`. Assignment 1: external only, no claims. |
-
-### Job listing capacity (FCFS)
-
-| Decision | Choice |
-|----------|--------|
-| Slot consumption | **On claim** (Option C). |
-| After submit | Submitting does **not** free the slot. |
-| Capacity scope | **Per assignment** (Option B). |
-
-### Claim change after submission
-
-| Decision | Choice |
-|----------|--------|
-| Behavior | **Submission unchanged until resubmit** (Option A). UI may show mismatch between current claim and submitted listing snapshot. |
-
-### Claim UI placement (MVP)
-
-| Decision | Choice |
-|----------|--------|
-| Where students claim | **On the assignment page** — claim, upload resume, submit (and view submission status/feedback). |
-
-### Assignment 1 (external JD)
-
-| Decision | Choice |
-|----------|--------|
-| External submit | Paste JD at submit; resume upload; evaluate-on-submit; freeze JD + `evaluation_data` on the submission-backed **`evaluations`** row (ADR `0006`). |
-
-### Open (not decided)
+### Open (not decided / later)
 
 - Full instructor claim override + audit (post-MVP).
 - Interview scheduling (out of scope).
-- **`group_id` on job listings** — deferred.
+- Exact `group_id` attachment on job listings vs filter-only via assignment attachment — refine when implementing groups.
+
+---
+
+## Build sequencing note (2026-08-11)
+
+Do **not** build workspace JD selection UI now. Continue other MVP work; implement **groups + claims** (and assignment claim UX) before the workspace “pick assignment → use my claim’s JD” control.
 
 ---
 
 ## Promotion checklist
 
 - [x] Revise submit model in `CONTEXT.md`, ADR `0004`, ADR `0005`, README.
-- [ ] Client review of Part B claim rules after Part A revision.
-- [ ] Split remaining Part B items into ADRs when committed.
-- [ ] Archive or trim superseded sections in this draft after sign-off.
+- [x] Promote Part B claims/groups into ADR `0007` and update `CONTEXT.md`.
+- [x] Record deferred workspace claim-JD UI until groups/claims ship.
+- [ ] Implement groups + claims + assignment claim UI.
+- [ ] Then add workspace claim-JD picker (no listing browser).
+- [ ] Archive or trim superseded sections in this draft after implementation sign-off.
