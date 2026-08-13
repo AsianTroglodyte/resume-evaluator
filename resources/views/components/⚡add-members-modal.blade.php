@@ -6,8 +6,10 @@ use App\Models\Module;
 
 new class extends Component {
     public Module $module;
-    public string $userQuery = "Karan";
+    public string $userQuery = "";
+    public $tooManyQueryResults = false;
     public bool $dialogIsOpen = false;
+    public $queryResult = [];
     public string $results = "";
 
     public function mount(Module $module): void
@@ -16,12 +18,31 @@ new class extends Component {
         // User::query()->get();
     }
 
-    // public function render()
-    // {
-    //     return redirect()->route("")->([
-    //         'module' => $module])
-    //         ->with(['$dialogIsOpen' => $dialogIsOpen]);
-    // }
+    public function updatedUserQuery()
+    {
+        $this->queryResult = filled($this->userQuery) ?
+            User::
+                selectRaw("CONCAT(first_name, ' ', last_name, '; ', email) AS full_identifier")
+                ->where("full_identifier", "LIKE", "%{$this->userQuery}%")
+                ->limit(101)
+                ->get()
+            : collect();
+
+        if ($this->queryResult->count() > 100) {
+            $this->tooManyQueryResults = true;
+        }
+        else {
+            $this->tooManyQueryResults = false;
+        }
+
+        // echo $this->queryResult;
+        // foreach ($this->queryResult as $user) {
+        //     echo $user;
+        // }
+        // dd($this->queryResult);
+        // dd(User::query());
+        return;
+    }
 
     public function toggleDialogIsOpen(): void
     {
@@ -107,13 +128,27 @@ new class extends Component {
                     <fieldset class="rounded-box border border-base-300 bg-base-200/30 p-3">
                         <legend class="px-1 text-sm font-medium">Matches</legend>
                         <ul class="max-h-48 space-y-1 overflow-y-auto" data-user-search-results>
-                            <li class="px-2 py-3 text-center text-sm text-base-content/50">
-                                Search results will appear here.
-                            </li>
-                            <li 
+                            {{-- <li 
                                 class="px-2 py-3 text-center text-sm text-base-content/50">
-                                {{ $userQuery}}
+                                $userQuery: {{ $userQuery }}
+                            </li> --}}
+                            @if (filled($queryResult))
+                                @foreach ($queryResult as $user)
+                                <li 
+                                    class="px-2 py-3 text-center text-sm text-base-content/50">
+                                    {{ $user->full_identifier }}
+                                </li>
+                                @endforeach
+                            @elseif (!filled($queryResult) && $userQuery !== "")
+                            <li class="px-2 py-3 text-center text-sm text-base-content/50">
+                                We didn't find any Matches
                             </li>
+                            @else
+                            <li class="px-2 py-3 text-center text-sm text-base-content/50">
+                                Search results will appeapr here.
+                            </li>
+                            @endif
+
                             {{--
                             <li>
                                 <label class="flex cursor-pointer items-center gap-3 rounded px-2 py-2 hover:bg-base-200">
