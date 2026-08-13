@@ -15,39 +15,37 @@ new class extends Component {
     public function mount(Module $module): void
     {
         $this->module = $module;
-        // User::query()->get();
     }
 
-    public function updatedUserQuery()
+    public function selectUser(int $id): void
     {
-        $this->queryResult = filled($this->userQuery) ?
-            User::
-                selectRaw("id, CONCAT(first_name, ' ', last_name, '; ', email) AS full_identifier")
-                ->where("full_identifier", "LIKE", "%{$this->userQuery}%")
-                ->limit(101)
-                ->get()
-            : collect();
-        return;
+        $user = User::query()
+            ->selectRaw("id, CONCAT(first_name, ' ', last_name, '; ', email) AS full_identifier")
+            ->find($id);
+
+        if ($user && ! collect($this->selectedUsers)->contains('id', $id)) {
+            $this->selectedUsers[] = $user;
+        }
     }
 
-    public function selectUser(int $id, string $full_identifier) {
-        // $array_push($this->selected, );
-        // echo $this->queryResult;
-        // foreach ($this->queryResult as $user) {
-        //     echo $user;
-        // }
-        // dd($this->queryResult);
-        // dd(User::query());
+    public function with(): array
+    {
+        return [
+            'queryResult' => filled($this->userQuery)
+                ? User::query()
+                    ->selectRaw("id, CONCAT(first_name, ' ', last_name, '; ', email) AS full_identifier")
+                    ->whereRaw(
+                        "CONCAT(first_name, ' ', last_name, '; ', email) LIKE ?",
+                        ['%'.$this->userQuery.'%']
+                    )
+                    ->limit(101)
+                    ->get()
+                : collect(),
+        ];
     }
 
     public function deselectUser() {
-        // $array_pop($this->selected);
-        // echo $this->queryResult;
-        // foreach ($this->queryResult as $user) {
-        //     echo $user;
-        // }
-        // dd($this->queryResult);
-        // dd(User::query());
+
     }
 
     public function toggleDialogIsOpen(): void
@@ -89,7 +87,6 @@ new class extends Component {
             <h3 class="text-2xl font-bold text-primary">Add members</h3>
         </header>
 
-        {{-- DaisyUI radio tabs (no JS). Wire each panel’s form separately. --}}
         <div class="mt-4 tabs tabs-lift overflow-visible">
             <input
                 type="radio"
@@ -106,8 +103,6 @@ new class extends Component {
                     class="flex flex-col gap-4 overflow-visible"
                 >
                     @csrf
-
-                    {{-- Wire: render search hits here (checkboxes or click-to-select). --}}
                     <fieldset class="rounded-box border border-base-300 bg-base-200/30 p-3">
                         <legend class="px-1 text-sm font-medium">Selected</legend>
                         <ul class="max-h-48 space-y-1 overflow-y-auto" data-user-search-results>
@@ -115,14 +110,14 @@ new class extends Component {
                             @foreach ($selectedUsers as $selectedUser)
                             <li 
                                 class="px-2  text-sm text-base-content/50">
-                                {{ $user->full_identifier }}
+                                {{ $selectedUser}}
                             </li>
                             @endforeach
                         @elseif (!filled($selectedUsers))
-                        <li 
-                            class="px-2 text-center text-sm text-base-content/50">
-                            Have not selected any users yet
-                        </li>
+                            <li 
+                                class="px-2 text-center text-sm text-base-content/50">
+                                Have not selected any users yet
+                            </li>
                         @endif
                         </ul>
                     </fieldset>
@@ -154,26 +149,28 @@ new class extends Component {
                                 <div
                                     id="user-combobox-list"
                                     role="listbox"
-                                    class="absolute left-0 right-0 top-full z-50 mt-1 hidden max-h-48 overflow-y-auto rounded-box border border-base-300 bg-base-100 shadow"
+                                    class="absolute left-0 right-0 top-full z-50 mt-1 hidden max-h-48
+                                    overflow-y-auto rounded-box border border-base-300 bg-base-100 shadow"
                                 >
                                     <ul class="menu menu-sm w-full p-0">
-                                        @if (count($queryResult) > 100)
-                                            <li class="px-3 py-2 text-sm text-base-content/70">
-                                                Too many matches — refine your search.
-                                            </li>
-                                        @elseif (filled($queryResult))
+                                        @if (filled($queryResult))
                                             @foreach ($queryResult as $user)
-                                                <li role="option" wire:key="user-option-{{ $user->id }}">
+                                            {{-- wire:key="user-option-{{ $user->id }}" --}}
+                                            {{-- wire:click="selectUser({{ $user->id }})" --}}
+                                                <li role="option" >
                                                     <button
                                                         type="button"
                                                         class="rounded-none"
-                                                        {{-- wire:click="selectUser({{ $user->id }}, @js($user->full_identifier))" --}}
                                                     >
                                                         {{ $user->full_identifier }}
                                                     </button>
                                                 </li>
                                             @endforeach
-                                        @else
+                                        @elseif (count($queryResult) > 100)
+                                            <li class="px-3 py-2 text-sm text-base-content/70">
+                                                Too many matches — refine your search.
+                                            </li>
+                                        @elseif (count($queryResult) === 0)
                                             <li class="px-3 py-2 text-sm text-base-content/70">
                                                 No matches
                                             </li>
