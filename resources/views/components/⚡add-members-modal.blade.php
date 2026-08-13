@@ -20,7 +20,6 @@ new class extends Component {
     public function selectUser(int $id): void
     {
         $user = User::query()
-            ->selectRaw("id, CONCAT(first_name, ' ', last_name, '; ', email) AS full_identifier")
             ->find($id);
 
         if ($user && ! collect($this->selectedUsers)->contains('id', $id)) {
@@ -46,6 +45,12 @@ new class extends Component {
 
     public function deselectUser() {
 
+    }
+
+    public function cancel() {
+        $this->toggleDialogIsOpen();
+        $this->userQuery = "";
+        $this->selectedUsers = [];
     }
 
     public function toggleDialogIsOpen(): void
@@ -105,12 +110,12 @@ new class extends Component {
                     @csrf
                     <fieldset class="rounded-box border border-base-300 bg-base-200/30 p-3">
                         <legend class="px-1 text-sm font-medium">Selected</legend>
-                        <ul class="max-h-48 space-y-1 overflow-y-auto" data-user-search-results>
+                        <ul class="max-h-100 space-y-1 overflow-y-auto" data-user-search-results>
                         @if (filled($selectedUsers))
                             @foreach ($selectedUsers as $selectedUser)
                             <li 
-                                class="px-2  text-sm text-base-content/50">
-                                {{ $selectedUser}}
+                                class="px-2 text-sm text-base-content/50">
+                                {{ $selectedUser["first_name"]}} {{ $selectedUser["last_name"] }} {{ $selectedUser["email"] }}
                             </li>
                             @endforeach
                         @elseif (!filled($selectedUsers))
@@ -152,19 +157,20 @@ new class extends Component {
                                     class="absolute left-0 right-0 top-full z-50 mt-1 hidden max-h-48
                                     overflow-y-auto rounded-box border border-base-300 bg-base-100 shadow"
                                 >
+                                {{-- wire:key="user-option-{{ $user->id }}" --}}
                                     <ul class="menu menu-sm w-full p-0">
                                         @if (filled($queryResult))
                                             @foreach ($queryResult as $user)
-                                            {{-- wire:key="user-option-{{ $user->id }}" --}}
-                                            {{-- wire:click="selectUser({{ $user->id }})" --}}
-                                                <li role="option" >
-                                                    <button
-                                                        type="button"
-                                                        class="rounded-none"
-                                                    >
-                                                        {{ $user->full_identifier }}
-                                                    </button>
-                                                </li>
+                                            <li role="option" 
+                                            >
+                                            <button
+                                                type="button"
+                                                class="rounded-none"
+                                                wire:click="selectUser({{ $user->id }})"
+                                            >
+                                                    {{ $user->full_identifier }}
+                                                </button>
+                                            </li>
                                             @endforeach
                                         @elseif (count($queryResult) > 100)
                                             <li class="px-3 py-2 text-sm text-base-content/70">
@@ -209,8 +215,10 @@ new class extends Component {
                     <div class="flex justify-end gap-2">
                         <button type="button" 
                         class="btn btn-ghost btn-sm" 
-                        wire:click="toggleDialogIsOpen"
-                        onclick="add_members.close()">
+                        {{-- wire:click="toggleDialogIsOpen" --}}
+                        onclick="add_members.close()"
+                        wire:click="cancel"
+                        >
                             Cancel
                         </button>
                         <button type="submit" class="btn btn-primary btn-sm">
