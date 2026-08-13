@@ -29,17 +29,22 @@ new class extends Component {
 
     public function with(): array
     {
+        $selectedIds = collect($this->selectedUsers)->pluck('id')->filter()->all();
+
+        $queryResult = filled($this->userQuery)
+            ? User::query()
+                ->selectRaw("id, CONCAT(first_name, ' ', last_name, '; ', email) AS full_identifier")
+                ->whereRaw(
+                    "CONCAT(first_name, ' ', last_name, '; ', email) LIKE ?",
+                    ['%'.$this->userQuery.'%']
+                )
+                ->when($selectedIds !== [], fn ($query) => $query->whereNotIn('id', $selectedIds))
+                ->limit(101)
+                ->get()
+            : collect();
+
         return [
-            'queryResult' => filled($this->userQuery)
-                ? User::query()
-                    ->selectRaw("id, CONCAT(first_name, ' ', last_name, '; ', email) AS full_identifier")
-                    ->whereRaw(
-                        "CONCAT(first_name, ' ', last_name, '; ', email) LIKE ?",
-                        ['%'.$this->userQuery.'%']
-                    )
-                    ->limit(101)
-                    ->get()
-                : collect(),
+            'queryResult' => $queryResult,
         ];
     }
 
