@@ -22,9 +22,7 @@
                     </label>
                 </div>
 
-                <button type="button" class="btn btn-primary btn-sm shrink-0" onclick="add_members.showModal()">
-                    Add members
-                </button>
+                <livewire:add-members-modal :module="$module"/>
             </div>
 
             @if (session('members_add_summary'))
@@ -45,8 +43,7 @@
                     @endforeach
                 </ul>
             @endif
-
-            @include('dashboard.modules.members.partials.add-members-modal', ['module' => $module])
+            
 
             <div class="overflow-x-auto rounded-box border border-base-300">
                 <table class="table">

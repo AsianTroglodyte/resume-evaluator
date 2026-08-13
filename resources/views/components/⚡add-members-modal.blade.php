@@ -1,17 +1,62 @@
+<?php
+use Livewire\Component;
+use App\Models\User;
+use App\Models\Module;
+
+
+new class extends Component {
+    public Module $module;
+    public string $userQuery = "Karan";
+    public bool $dialogIsOpen = false;
+    public string $results = "";
+
+    public function mount(Module $module): void
+    {
+        $this->module = $module;
+        // User::query()->get();
+    }
+
+    // public function render()
+    // {
+    //     return redirect()->route("")->([
+    //         'module' => $module])
+    //         ->with(['$dialogIsOpen' => $dialogIsOpen]);
+    // }
+
+    public function toggleDialogIsOpen(): void
+    {
+        $this->dialogIsOpen = !$this->dialogIsOpen;
+    }
+};
+
+?>
+{{-- dialog markup… wire:model.live="userQuery" on the search input --}}
+
 @php
     use App\Enums\RoleInModule;
 @endphp
+<div>
+<button type="button" class="btn btn-primary btn-sm shrink-0"
+    onclick="add_members.showModal()"
+    wire:click="toggleDialogIsOpen">
+    Add Members
+</button>
 
-<dialog id="add_members" class="modal">
+<dialog id="add_members" class="modal"
+    @if ($dialogIsOpen)
+        open 
+    @endif
+    >
     <div class="modal-box w-[92vw] max-w-2xl">
         <button
             type="button"
             class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
-            onclick="add_members.close()"
+            wire:click="toggleDialogIsOpen"
             aria-label="Close"
-        >
+            onclick="add_members.close()">
             ×
         </button>
+    
 
         <header class="space-y-1 pr-10">
             <h3 class="text-2xl font-bold text-primary">Add members</h3>
@@ -43,16 +88,17 @@
                         <span class="label-text mb-1 font-medium">Search users</span>
                         <input
                             type="search"
-                            name="user_query"
-                            value="{{ old('user_query') }}"
-                            placeholder="Name or email…"
+                            name="new_member_email"
+                            {{-- value="{{ old('userQuery') }}" --}}
+                            wire:model.live.debounce.300ms="userQuery"  
+                            placeholder="Search by name or email…"
                             class="input input-bordered w-full @error('user_query') input-error @enderror"
                             autocomplete="off"
                         />
                         <span class="label-text-alt mt-1 text-base-content/60">
                             Wire this to a user typeahead (exclude active members).
                         </span>
-                        @error('user_query')
+                        @error('"new_member_email')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
                     </label>
@@ -63,6 +109,10 @@
                         <ul class="max-h-48 space-y-1 overflow-y-auto" data-user-search-results>
                             <li class="px-2 py-3 text-center text-sm text-base-content/50">
                                 Search results will appear here.
+                            </li>
+                            <li 
+                                class="px-2 py-3 text-center text-sm text-base-content/50">
+                                {{ $userQuery}}
                             </li>
                             {{--
                             <li>
@@ -103,7 +153,10 @@
                     </label>
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" class="btn btn-ghost btn-sm" onclick="add_members.close()">
+                        <button type="button" 
+                        class="btn btn-ghost btn-sm" 
+                        wire:click="toggleDialogIsOpen"
+                        onclick="add_members.close()">
                             Cancel
                         </button>
                         <button type="submit" class="btn btn-primary btn-sm">
@@ -203,3 +256,4 @@
         document.getElementById('add_members')?.showModal();
     </script>
 @endif
+</div>
