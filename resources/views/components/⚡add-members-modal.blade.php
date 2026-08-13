@@ -30,6 +30,7 @@ new class extends Component {
     public function with(): array
     {
         $selectedIds = collect($this->selectedUsers)->pluck('id')->filter()->all();
+        $memberIds = $this->module->members()->pluck('users.id')->all();
 
         $queryResult = filled($this->userQuery)
             ? User::query()
@@ -39,6 +40,7 @@ new class extends Component {
                     ['%'.$this->userQuery.'%']
                 )
                 ->when($selectedIds !== [], fn ($query) => $query->whereNotIn('id', $selectedIds))
+                ->when($memberIds !== [], fn ($query) => $query->whereNotIn('id', $memberIds))
                 ->limit(101)
                 ->get()
             : collect();

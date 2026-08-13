@@ -16,7 +16,7 @@ class ModuleMembersController extends Controller
     public function index(Module $module)
     {
         $members = $module
-            ->users()
+            ->members()
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();
@@ -77,7 +77,7 @@ class ModuleMembersController extends Controller
             ]);
         }
 
-        $members = $module->users()
+        $members = $module->members()
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();

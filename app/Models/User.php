@@ -82,7 +82,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isInModule(Module $module): bool
     {
-        return $module->users()->whereKey($this->id)->exists();
+        return $module->members()->whereKey($this->id)->exists();
     }
 
     public function isInstructorInModule(Module $module): bool

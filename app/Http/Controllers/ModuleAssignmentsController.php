@@ -20,7 +20,7 @@ class ModuleAssignmentsController extends Controller
     public function create(Module $module)
     {
         $job_listings = $module->jobListings;
-        $users = $module->users;
+        $users = $module->members;
 
         return view('dashboard.modules.assignments.create', [
             'module' => $module,
@@ -31,7 +31,7 @@ class ModuleAssignmentsController extends Controller
 
     public function show(Request $request, Module $module, Assignment $assignment)
     {
-        $users = $module->users;
+        $users = $module->members;
         $assignment->load(['assignees', 'jobListings']);
 
         $viewData = [
@@ -127,7 +127,7 @@ class ModuleAssignmentsController extends Controller
     public function edit(Module $module, Assignment $assignment)
     {
         $job_listings = $module->jobListings;
-        $users = $module->users;
+        $users = $module->members;
         $assignment->load(['assignees', 'jobListings']);
 
         return view('dashboard.modules.assignments.edit', [
@@ -200,7 +200,7 @@ class ModuleAssignmentsController extends Controller
         $assigneeIds = $validated['assignee_ids'] ?? [];
         $assignment->allAssignees()->sync($assigneeIds);
 
-        $users = $module->users;
+        $users = $module->members;
 
         return redirect()->route('dashboard.modules.assignments.show', [
             'module' => $module,
@@ -227,7 +227,7 @@ class ModuleAssignmentsController extends Controller
     private function submissionRowsFor(Module $module, Assignment $assignment): Collection
     {
         $roster = $assignment->assignee_scope === AssigneeScope::Everyone
-            ? $module->users()->wherePivot('role_in_module', RoleInModule::Student->value)->get()
+            ? $module->members()->wherePivot('role_in_module', RoleInModule::Student->value)->get()
             : $assignment->assignees;
 
         $submissionsByUserId = $assignment->allSubmissions()

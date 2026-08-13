@@ -42,12 +42,12 @@ class Module extends Model
         return $this->hasMany(ModuleMembership::class);
     }
 
-    public function users(): BelongsToMany
+    public function members(): BelongsToMany
     {
         return $this->usersWithMembership(status: 'active');
     }
 
-    public function removedUsers(): BelongsToMany
+    public function removedMembers(): BelongsToMany
     {
         return $this->usersWithMembership(status: 'removed');
     }
