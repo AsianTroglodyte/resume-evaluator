@@ -56,6 +56,11 @@ new class extends Component {
         $this->selectedUsers = $filteredArray;
     }
 
+    public function addSelected()
+    {
+        dd("bruh");
+    }
+
     public function cancel() {
         $this->toggleDialogIsOpen();
         $this->userQuery = "";
@@ -166,7 +171,7 @@ new class extends Component {
                                 aria-expanded="{{ filled($userQuery) ? 'true' : 'false' }}"
                             />
 
-                            @error('"new_member_email')
+                            @error('new_member_email')
                                 <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                             @enderror
 
@@ -208,10 +213,6 @@ new class extends Component {
                     </label>
 
 
-                    {{-- Wire: selected users mirrored here if you prefer chips over checkboxes. --}}
-                    <div class="hidden flex-wrap gap-2" data-selected-users>
-                        {{-- <span class="badge badge-outline gap-1">Name <button type="button" aria-label="Remove">×</button></span> --}}
-                    </div>
 
                     <label class="form-control w-full">
                         <span class="label-text mb-1 font-medium">Role in module</span>
@@ -235,13 +236,12 @@ new class extends Component {
                     <div class="flex justify-end gap-2">
                         <button type="button" 
                         class="btn btn-ghost btn-sm" 
-                        {{-- wire:click="toggleDialogIsOpen" --}}
                         onclick="add_members.close()"
                         wire:click="cancel"
                         >
                             Cancel
                         </button>
-                        <button type="submit" class="btn btn-primary btn-sm">
+                        <button wire:submit="addSelected" class="btn btn-primary btn-sm">
                             Add selected
                         </button>
                     </div>
