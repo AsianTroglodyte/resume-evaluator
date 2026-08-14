@@ -154,8 +154,8 @@ new class extends Component {
                     
                     <input type="hidden" name="add_mode" value="find" />
 
-                    <label class="form-control w-full">
-                        <span class="label-text mb-1 font-medium w-fit">Search users</span>
+                    <div class="form-control w-full">
+                        <label for="add-members-user-search" class="label-text mb-1 w-fit font-medium">Search users</label>
                         <div class="relative w-full focus-within:[&_#user-combobox-list]:block">
                             <input
                                 id="add-members-user-search"
@@ -184,7 +184,11 @@ new class extends Component {
                                 >
                                 {{-- wire:key="user-option-{{ $user->id }}" --}}
                                     <ul class="menu menu-sm w-full p-0">
-                                        @if (filled($queryResult))
+                                        @if (count($queryResult) > 100)
+                                        <li class="px-3 py-2 text-sm text-base-content/70">
+                                            Too many matches — refine your search.
+                                        </li>
+                                        @elseif (filled($queryResult))
                                             @foreach ($queryResult as $user)
                                             <li role="option" 
                                             >
@@ -197,10 +201,6 @@ new class extends Component {
                                                 </button>
                                             </li>
                                             @endforeach
-                                        @elseif (count($queryResult) > 100)
-                                            <li class="px-3 py-2 text-sm text-base-content/70">
-                                                Too many matches — refine your search.
-                                            </li>
                                         @elseif (count($queryResult) === 0)
                                             <li class="px-3 py-2 text-sm text-base-content/70">
                                                 No matches
@@ -210,13 +210,14 @@ new class extends Component {
                                 </div>
                             @endif
                         </div>
-                    </label>
+                    </div>
 
 
 
-                    <label class="form-control w-full">
-                        <span class="label-text mb-1 font-medium">Role in module</span>
+                    <div class="form-control w-full">
+                        <label for="add-members-role-find" class="label-text mb-1 w-fit font-medium">Role in module</label>
                         <select
+                            id="add-members-role-find"
                             name="role_in_module"
                             class="select select-bordered w-full @error('role_in_module') select-error @enderror"
                             required
@@ -231,7 +232,7 @@ new class extends Component {
                         @error('role_in_module')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
-                    </label>
+                    </div>
 
                     <div class="flex justify-end gap-2">
                         <button type="button" 
@@ -300,9 +301,10 @@ new class extends Component {
                         @enderror
                     </label>
 
-                    <label class="form-control w-full">
-                        <span class="label-text mb-1 font-medium">Role in module</span>
+                    <div class="form-control w-full">
+                        <label for="add-members-role-paste" class="label-text mb-1 w-fit font-medium">Role in module</label>
                         <select
+                            id="add-members-role-paste"
                             name="role_in_module"
                             class="select select-bordered w-full"
                             required
@@ -314,7 +316,7 @@ new class extends Component {
                                 Instructor
                             </option>
                         </select>
-                    </label>
+                    </div>
 
                     <div class="flex justify-end gap-2">
                         <button type="button" class="btn btn-ghost btn-sm" onclick="add_members.close()">
