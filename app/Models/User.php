@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\AssigneeScope;
 use App\Enums\GlobalRole;
+use App\Enums\ModuleMembershipStatus;
 use App\Enums\ModuleStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -70,7 +71,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function modulesPartOf(): BelongsToMany
     {
         return $this->belongsToMany(Module::class, 'module_memberships')
-            ->wherePivot('status', ModuleStatus::Active);
+            ->wherePivot('status', ModuleMembershipStatus::Active);
     }
 
     public function isGlobalAdmin(): bool
