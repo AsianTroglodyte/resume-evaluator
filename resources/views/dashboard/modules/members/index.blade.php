@@ -36,15 +36,6 @@
                 </div>
             @endif
 
-            @if ($errors->any())
-                <ul class="list-disc space-y-1 pl-5 text-sm text-error">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            @endif
-            
-
             <div class="overflow-x-auto rounded-box border border-base-300">
                 <table class="table">
                     <thead>

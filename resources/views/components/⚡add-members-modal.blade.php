@@ -50,8 +50,15 @@ new class extends Component {
         ];
     }
 
-    public function deselectUser() {
+    public function deselectUser(int $id): void
+    {
+        $filteredArray = array_filter($this->selectedUsers, fn ($selectedUser) => $selectedUser["id"] !== $id);
+        $this->selectedUsers = $filteredArray;
+    }
 
+    public function addSelected()
+    {
+        dd("bruh");
     }
 
     public function cancel() {
@@ -117,16 +124,27 @@ new class extends Component {
                     @csrf
                     <fieldset class="rounded-box border border-base-300 bg-base-200/30 p-3">
                         <legend class="px-1 text-sm font-medium">Selected</legend>
-                        <ul class="max-h-100 space-y-1 overflow-y-auto" data-user-search-results>
+                        <ul class="max-h-100 space-y-0 overflow-y-auto" data-user-search-results>
                         @if (filled($selectedUsers))
                             @foreach ($selectedUsers as $selectedUser)
-                            <li 
-                                class="px-2 text-sm text-base-content/50">
-                                {{ $selectedUser["first_name"]}} {{ $selectedUser["last_name"] }} {{ $selectedUser["email"] }}
+                            <li wire:key="selected-user-{{ $selectedUser['id'] }}">
+                                <button
+                                    type="button"
+                                    class="flex w-full items-center justify-between gap-2 rounded px-2 cursor-pointer
+                                    py-0.5 text-left text-sm text-base-content/80 hover:bg-base-200"
+                                    wire:click="deselectUser({{ $selectedUser['id'] }})"
+                                    aria-label="Remove {{ $selectedUser['first_name'] }} {{ $selectedUser['last_name'] }}"
+                                >
+                                    <span class="min-w-0 truncate">
+                                        {{ $selectedUser['first_name'] }} {{ $selectedUser['last_name'] }}
+                                        <span class="text-base-content/50">{{ $selectedUser['email'] }}</span>
+                                    </span>
+                                    <span class="shrink-0 text-base leading-none" aria-hidden="true">×</span>
+                                </button>
                             </li>
                             @endforeach
                         @elseif (!filled($selectedUsers))
-                            <li 
+                            <li
                                 class="px-2 text-center text-sm text-base-content/50">
                                 Have not selected any users yet
                             </li>
@@ -136,8 +154,8 @@ new class extends Component {
                     
                     <input type="hidden" name="add_mode" value="find" />
 
-                    <label class="form-control w-full">
-                        <span class="label-text mb-1 font-medium">Search users</span>
+                    <div class="form-control w-full">
+                        <label for="add-members-user-search" class="label-text mb-1 w-fit font-medium">Search users</label>
                         <div class="relative w-full focus-within:[&_#user-combobox-list]:block">
                             <input
                                 id="add-members-user-search"
@@ -153,7 +171,7 @@ new class extends Component {
                                 aria-expanded="{{ filled($userQuery) ? 'true' : 'false' }}"
                             />
 
-                            @error('"new_member_email')
+                            @error('new_member_email')
                                 <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                             @enderror
 
@@ -166,7 +184,11 @@ new class extends Component {
                                 >
                                 {{-- wire:key="user-option-{{ $user->id }}" --}}
                                     <ul class="menu menu-sm w-full p-0">
-                                        @if (filled($queryResult))
+                                        @if (count($queryResult) > 100)
+                                        <li class="px-3 py-2 text-sm text-base-content/70">
+                                            Too many matches — refine your search.
+                                        </li>
+                                        @elseif (filled($queryResult))
                                             @foreach ($queryResult as $user)
                                             <li role="option" 
                                             >
@@ -179,10 +201,6 @@ new class extends Component {
                                                 </button>
                                             </li>
                                             @endforeach
-                                        @elseif (count($queryResult) > 100)
-                                            <li class="px-3 py-2 text-sm text-base-content/70">
-                                                Too many matches — refine your search.
-                                            </li>
                                         @elseif (count($queryResult) === 0)
                                             <li class="px-3 py-2 text-sm text-base-content/70">
                                                 No matches
@@ -192,17 +210,14 @@ new class extends Component {
                                 </div>
                             @endif
                         </div>
-                    </label>
-
-
-                    {{-- Wire: selected users mirrored here if you prefer chips over checkboxes. --}}
-                    <div class="hidden flex-wrap gap-2" data-selected-users>
-                        {{-- <span class="badge badge-outline gap-1">Name <button type="button" aria-label="Remove">×</button></span> --}}
                     </div>
 
-                    <label class="form-control w-full">
-                        <span class="label-text mb-1 font-medium">Role in module</span>
+
+
+                    <div class="form-control w-full">
+                        <label for="add-members-role-find" class="label-text mb-1 w-fit font-medium">Role in module</label>
                         <select
+                            id="add-members-role-find"
                             name="role_in_module"
                             class="select select-bordered w-full @error('role_in_module') select-error @enderror"
                             required
@@ -217,18 +232,17 @@ new class extends Component {
                         @error('role_in_module')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
-                    </label>
+                    </div>
 
                     <div class="flex justify-end gap-2">
                         <button type="button" 
                         class="btn btn-ghost btn-sm" 
-                        {{-- wire:click="toggleDialogIsOpen" --}}
                         onclick="add_members.close()"
                         wire:click="cancel"
                         >
                             Cancel
                         </button>
-                        <button type="submit" class="btn btn-primary btn-sm">
+                        <button wire:submit="addSelected" class="btn btn-primary btn-sm">
                             Add selected
                         </button>
                     </div>
@@ -287,9 +301,10 @@ new class extends Component {
                         @enderror
                     </label>
 
-                    <label class="form-control w-full">
-                        <span class="label-text mb-1 font-medium">Role in module</span>
+                    <div class="form-control w-full">
+                        <label for="add-members-role-paste" class="label-text mb-1 w-fit font-medium">Role in module</label>
                         <select
+                            id="add-members-role-paste"
                             name="role_in_module"
                             class="select select-bordered w-full"
                             required
@@ -301,7 +316,7 @@ new class extends Component {
                                 Instructor
                             </option>
                         </select>
-                    </label>
+                    </div>
 
                     <div class="flex justify-end gap-2">
                         <button type="button" class="btn btn-ghost btn-sm" onclick="add_members.close()">
