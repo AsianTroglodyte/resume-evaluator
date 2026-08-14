@@ -58,10 +58,11 @@ new class extends Component {
 
     public function addSelected()
     {
+
         dd("bruh");
     }
 
-    public function cancel() {
+    public function clearComponentState() {
         $this->toggleDialogIsOpen();
         $this->userQuery = "";
         $this->selectedUsers = [];
@@ -212,8 +213,6 @@ new class extends Component {
                         </div>
                     </div>
 
-
-
                     <div class="form-control w-full">
                         <label for="add-members-role-find" class="label-text mb-1 w-fit font-medium">Role in module</label>
                         <select
@@ -238,7 +237,7 @@ new class extends Component {
                         <button type="button" 
                         class="btn btn-ghost btn-sm" 
                         onclick="add_members.close()"
-                        wire:click="cancel"
+                        wire:click="clearComponentState"
                         >
                             Cancel
                         </button>
@@ -322,7 +321,7 @@ new class extends Component {
                         <button type="button" class="btn btn-ghost btn-sm" onclick="add_members.close()">
                             Cancel
                         </button>
-                        <button type="submit" class="btn btn-primary btn-sm">
+                        <button type="submit" class="btn btn-primary btn-sm" wire:click="toggleDialogIsOpen">
                             Add from list
                         </button>
                     </div>
@@ -330,7 +329,7 @@ new class extends Component {
             </div>
         </div>
     </div>
-    <form method="dialog" class="modal-backdrop">
+    <form method="dialog" class="modal-backdrop" wire:click="toggleDialogIsOpen">
         <button type="submit">close</button>
     </form>
 </dialog>
