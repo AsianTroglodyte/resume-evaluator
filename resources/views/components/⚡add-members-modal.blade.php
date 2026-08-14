@@ -72,8 +72,6 @@ new class extends Component {
                 'no_selected_users' => "you did not select any users",
         ]);}
         forEach ($this->selectedUsers as $selectedUser) {            
-            $selectedUser["id"] = -100;
-            // dd($selectedUser);
             $this->validate([
                 'selectedUsers' => ['required', 'array', 'min:1'],
                 'selectedUsers.*.id' => ['required', 'integer', 'exists:users,id'],
@@ -132,6 +130,10 @@ new class extends Component {
         $this->toggleDialogIsOpen();
         $this->userQuery = "";
         $this->selectedUsers = [];
+    }
+
+    public function parseEmailList() {
+        
     }
 
     public function toggleDialogIsOpen(): void
@@ -216,7 +218,10 @@ new class extends Component {
                     @error("no_selected_users")
                         <span class="label-text-alt text-xs mt-1 text-error">{{ $message }}</span>
                     @enderror
-                    
+                    @error('selectedUsers')
+                        <span class="text-sm text-error">{{ $message }}</span>
+                    @enderror
+
                     <input type="hidden" name="add_mode" value="find" />
 
                     <div class="form-control w-full">
