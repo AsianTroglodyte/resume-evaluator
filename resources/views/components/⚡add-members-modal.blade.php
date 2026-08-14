@@ -50,8 +50,10 @@ new class extends Component {
         ];
     }
 
-    public function deselectUser() {
-
+    public function deselectUser(int $id): void
+    {
+        $filteredArray = array_filter($this->selectedUsers, fn ($selectedUser) => $selectedUser["id"] !== $id);
+        $this->selectedUsers = $filteredArray;
     }
 
     public function cancel() {
@@ -117,16 +119,27 @@ new class extends Component {
                     @csrf
                     <fieldset class="rounded-box border border-base-300 bg-base-200/30 p-3">
                         <legend class="px-1 text-sm font-medium">Selected</legend>
-                        <ul class="max-h-100 space-y-1 overflow-y-auto" data-user-search-results>
+                        <ul class="max-h-100 space-y-0 overflow-y-auto" data-user-search-results>
                         @if (filled($selectedUsers))
                             @foreach ($selectedUsers as $selectedUser)
-                            <li 
-                                class="px-2 text-sm text-base-content/50">
-                                {{ $selectedUser["first_name"]}} {{ $selectedUser["last_name"] }} {{ $selectedUser["email"] }}
+                            <li wire:key="selected-user-{{ $selectedUser['id'] }}">
+                                <button
+                                    type="button"
+                                    class="flex w-full items-center justify-between gap-2 rounded px-2 cursor-pointer
+                                    py-0.5 text-left text-sm text-base-content/80 hover:bg-base-200"
+                                    wire:click="deselectUser({{ $selectedUser['id'] }})"
+                                    aria-label="Remove {{ $selectedUser['first_name'] }} {{ $selectedUser['last_name'] }}"
+                                >
+                                    <span class="min-w-0 truncate">
+                                        {{ $selectedUser['first_name'] }} {{ $selectedUser['last_name'] }}
+                                        <span class="text-base-content/50">{{ $selectedUser['email'] }}</span>
+                                    </span>
+                                    <span class="shrink-0 text-base leading-none" aria-hidden="true">×</span>
+                                </button>
                             </li>
                             @endforeach
                         @elseif (!filled($selectedUsers))
-                            <li 
+                            <li
                                 class="px-2 text-center text-sm text-base-content/50">
                                 Have not selected any users yet
                             </li>
@@ -137,7 +150,7 @@ new class extends Component {
                     <input type="hidden" name="add_mode" value="find" />
 
                     <label class="form-control w-full">
-                        <span class="label-text mb-1 font-medium">Search users</span>
+                        <span class="label-text mb-1 font-medium w-fit">Search users</span>
                         <div class="relative w-full focus-within:[&_#user-combobox-list]:block">
                             <input
                                 id="add-members-user-search"
