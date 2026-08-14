@@ -9,7 +9,7 @@ use App\Models\Module;
 use App\Models\ModuleMembership;
 use Illuminate\Validation\Rule;
 use App\Enums\RoleInModule;
-
+use Illuminate\Validation\ValidationException;
 
 new class extends Component {
     public Module $module;
@@ -17,7 +17,6 @@ new class extends Component {
     public bool $dialogIsOpen = false;
     public $queryResult = [];
     public string $results = "";
-    #[Validate('required')]
     public array $selectedUsers = [];
     public RoleInModule $roleInModule = RoleInModule::Student;
 
@@ -67,22 +66,17 @@ new class extends Component {
 
     public function addSelected()
     {
-        // dd($this->roleInModule);
-        forEach ($this->selectedUsers as $selectedUser) {            
-            // echo $selectedUser;
-            // continue;
+        if ($this->selectedUsers === []) {
+            throw ValidationException::withMessages([
+                'no_selected_users' => "you did not select any users",
+        ]);}
 
-            // $validated = request()->validate([
-            //     'role_in_module' => [
-            //         'required',
-            //         Rule::enum(RoleInModule::class),
-            //     ],
-            //     'new_member_email' => [
-            //         'required',
-            //         'email',
-            //         Rule::exists('users', 'email'),
-            //     ],
-            // ]);
+        forEach ($this->selectedUsers as $selectedUser) {            
+            $this->validate([
+                'selectedUsers' => ['required', 'array', 'min:1'],
+                'selectedUsers.*.id' => ['required', 'integer', 'exists:users,id'],
+                'roleInModule' => ['required', Rule::enum(RoleInModule::class)],
+            ]);
 
             $newUser = User::where('email', $selectedUser["email"])->firstOrFail();
 
@@ -101,7 +95,6 @@ new class extends Component {
                 }
 
                 $moduleMembership->update([
-                    // 'role_in_module' => RoleInModule::from($validated['role_in_module']),
                     'role_in_module' => $this->roleInModule,
                     'status' => 'active',
                     'removed_by_user_id' => null,
@@ -111,12 +104,9 @@ new class extends Component {
             } 
             // If never was a members then we create a module Membership
             else {
-                // dd($this->module->id, $newUser->id);
-
                 ModuleMembership::create([
                     'module_id' => $this->module->id,
                     'user_id' => $newUser->id,
-                    // 'role_in_module' => RoleInModule::tryFrom(request('role_in_module')),
                     'role_in_module' => $this->roleInModule,
                     'status' => 'active',
                     'added_by_user_id' => auth()->id(),
@@ -124,6 +114,7 @@ new class extends Component {
                 ]);
             }
         }
+
         $members = $this->module->members()
             ->orderBy('last_name')
             ->orderBy('first_name')
@@ -220,6 +211,10 @@ new class extends Component {
                         @endif
                         </ul>
                     </fieldset>
+
+                    @error("no_selected_users")
+                        <span class="label-text-alt text-xs mt-1 text-error">{{ $message }}</span>
+                    @enderror
                     
                     <input type="hidden" name="add_mode" value="find" />
 
@@ -290,27 +285,29 @@ new class extends Component {
                             class="select select-bordered w-full @error('role_in_module') select-error @enderror"
                             required
                         >
-                            <option value="{{ RoleInModule::Student->value }}" @selected(old('role_in_module', RoleInModule::Student->value) === $roleInModule)>
+                            <option value="{{ RoleInModule::Student->value }}">
                                 Student
                             </option>
-                            <option value="{{ RoleInModule::Instructor->value }}" @selected(old('role_in_module') === $roleInModule)>
+                            <option value="{{ RoleInModule::Instructor->value }}">
                                 Instructor
                             </option>
                         </select>
-                        @error('role_in_module')
+                        @error('roleInModule')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
                     </div>
 
                     <div class="flex justify-end gap-2">
                         <button type="button" 
-                        class="btn btn-ghost btn-sm" 
-                        onclick="add_members.close()"
-                        wire:click="clearComponentState"
+                            class="btn btn-ghost btn-sm" 
+                            onclick="add_members.close()"
+                            wire:click="clearComponentState" 
                         >
                             Cancel
                         </button>
-                        <button wire:submit="addSelected" class="btn btn-primary btn-sm">
+                        <button 
+                            wire:submit="addSelected" 
+                            class="btn btn-primary btn-sm">
                             Add selected
                         </button>
                     </div>
