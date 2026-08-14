@@ -7,8 +7,9 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\Module;
 use App\Models\ModuleMembership;
-use Illuminate\Validation\Rule;
 use App\Enums\RoleInModule;
+use App\Enums\ModuleMembershipStatus;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 new class extends Component {
@@ -70,8 +71,9 @@ new class extends Component {
             throw ValidationException::withMessages([
                 'no_selected_users' => "you did not select any users",
         ]);}
-
         forEach ($this->selectedUsers as $selectedUser) {            
+            $selectedUser["id"] = -100;
+            // dd($selectedUser);
             $this->validate([
                 'selectedUsers' => ['required', 'array', 'min:1'],
                 'selectedUsers.*.id' => ['required', 'integer', 'exists:users,id'],
@@ -88,7 +90,7 @@ new class extends Component {
 
             // if never was a member we create the membership
             if ($moduleMembership) {
-                if ($moduleMembership->status === 'active') {
+                if ($moduleMembership->status === ModuleMembershipStatus::Active) {
                     throw ValidationException::withMessages([
                         'new_member_email' => 'This user is already an active member of the module.',
                     ]);
@@ -162,7 +164,6 @@ new class extends Component {
             ×
         </button>
     
-
         <header class="space-y-1 pr-10">
             <h3 class="text-2xl font-bold text-primary">Add members</h3>
         </header>
