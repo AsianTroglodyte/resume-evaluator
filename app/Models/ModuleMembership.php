@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModuleMembershipStatus;
 use App\Enums\ModuleStatus;
 use App\Enums\RoleInModule;
 use Database\Factories\ModuleMembershipFactory;
@@ -30,7 +31,7 @@ class ModuleMembership extends Model
     {
         return [
             'removed_at' => 'datetime',
-            'status' => ModuleStatus::class,
+            'status' => ModuleMembershipStatus::class,
             'role_in_module' => RoleInModule::class
         ];
     }

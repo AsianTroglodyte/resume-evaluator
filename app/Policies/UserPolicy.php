@@ -31,10 +31,6 @@ class UserPolicy
             ->exists();
     }
 
-    // return $jobListing->assignments()
-    //      ->whereHas('assignees', fn ($query) => $query->whereKey($user->id))
-    //      ->exists();
-
     /**
      * Determine whether the user can create models.
      */

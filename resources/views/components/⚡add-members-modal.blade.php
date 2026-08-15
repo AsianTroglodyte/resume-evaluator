@@ -1,8 +1,16 @@
+@props([
+    "module"
+    ])
+
 <?php
 use Livewire\Component;
 use App\Models\User;
 use App\Models\Module;
-
+use App\Models\ModuleMembership;
+use App\Enums\RoleInModule;
+use App\Enums\ModuleMembershipStatus;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 new class extends Component {
     public Module $module;
@@ -11,6 +19,8 @@ new class extends Component {
     public $queryResult = [];
     public string $results = "";
     public array $selectedUsers = [];
+    public RoleInModule $roleInModule = RoleInModule::Student;
+    public string $csvString = "";
 
     public function mount(Module $module): void
     {
@@ -58,14 +68,76 @@ new class extends Component {
 
     public function addSelected()
     {
+        if ($this->selectedUsers === []) {
+            throw ValidationException::withMessages([
+                'no_selected_users' => "you did not select any users",
+        ]);}
+        forEach ($this->selectedUsers as $selectedUser) {            
+            $this->validate([
+                'selectedUsers' => ['required', 'array', 'min:1'],
+                'selectedUsers.*.id' => ['required', 'integer', 'exists:users,id'],
+                'roleInModule' => ['required', Rule::enum(RoleInModule::class)],
+            ]);
 
-        dd("bruh");
+            $newUser = User::where('email', $selectedUser["email"])->firstOrFail();
+
+            // check if new potential user was previously a member
+            // if was, then we get the membership record. else null
+            $moduleMembership = ModuleMembership::where('module_id', $this->module->id)
+                ->where('user_id', $newUser->id)
+                ->first();
+
+            // if never was a member we create the membership
+            if ($moduleMembership) {
+                if ($moduleMembership->status === ModuleMembershipStatus::Active) {
+                    throw ValidationException::withMessages([
+                        'new_member_email' => 'This user is already an active member of the module.',
+                    ]);
+                }
+
+                $moduleMembership->update([
+                    'role_in_module' => $this->roleInModule,
+                    'status' => 'active',
+                    'removed_by_user_id' => null,
+                    'removed_at' => null,
+                    'added_by_user_id' => auth()->id(),
+                ]);
+            } 
+            // If never was a members then we create a module Membership
+            else {
+                ModuleMembership::create([
+                    'module_id' => $this->module->id,
+                    'user_id' => $newUser->id,
+                    'role_in_module' => $this->roleInModule,
+                    'status' => 'active',
+                    'added_by_user_id' => auth()->id(),
+                    'removed_by_user_id' => null,
+                ]);
+            }
+        }
+
+        $members = $this->module->members()
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
+
+        return redirect()->route('dashboard.modules.members.index', [
+            'module' => $this->module,
+            'members' => $members,
+        ]);
     }
 
     public function clearComponentState() {
         $this->toggleDialogIsOpen();
         $this->userQuery = "";
         $this->selectedUsers = [];
+    }
+
+    public function parseEmailList() {
+        // extract columns names
+        // $columnNames = explode(',' $this->csvString);
+        // dd($columnNames);
+        dd($this->csvString);
     }
 
     public function toggleDialogIsOpen(): void
@@ -75,11 +147,7 @@ new class extends Component {
 };
 
 ?>
-{{-- dialog markup… wire:model.live="userQuery" on the search input --}}
 
-@php
-    use App\Enums\RoleInModule;
-@endphp
 <div>
 <button type="button" class="btn btn-primary btn-sm shrink-0"
     onclick="add_members.showModal()"
@@ -102,7 +170,6 @@ new class extends Component {
             ×
         </button>
     
-
         <header class="space-y-1 pr-10">
             <h3 class="text-2xl font-bold text-primary">Add members</h3>
         </header>
@@ -118,8 +185,7 @@ new class extends Component {
             />
             <div role="tabpanel" class="tab-content space-y-0 overflow-visible border-base-300 bg-base-100 p-4">
                 <form
-                    method="POST"
-                    action="{{ route('dashboard.modules.members.store', $module) }}"
+                    wire:submit="addSelected"
                     class="flex flex-col gap-4 overflow-visible"
                 >
                     @csrf
@@ -152,7 +218,14 @@ new class extends Component {
                         @endif
                         </ul>
                     </fieldset>
-                    
+
+                    @error("no_selected_users")
+                        <span class="label-text-alt text-xs mt-1 text-error">{{ $message }}</span>
+                    @enderror
+                    @error('selectedUsers')
+                        <span class="text-sm text-error">{{ $message }}</span>
+                    @enderror
+
                     <input type="hidden" name="add_mode" value="find" />
 
                     <div class="form-control w-full">
@@ -213,35 +286,19 @@ new class extends Component {
                         </div>
                     </div>
 
-                    <div class="form-control w-full">
-                        <label for="add-members-role-find" class="label-text mb-1 w-fit font-medium">Role in module</label>
-                        <select
-                            id="add-members-role-find"
-                            name="role_in_module"
-                            class="select select-bordered w-full @error('role_in_module') select-error @enderror"
-                            required
-                        >
-                            <option value="{{ RoleInModule::Student->value }}" @selected(old('role_in_module', RoleInModule::Student->value) === RoleInModule::Student->value)>
-                                Student
-                            </option>
-                            <option value="{{ RoleInModule::Instructor->value }}" @selected(old('role_in_module') === RoleInModule::Instructor->value)>
-                                Instructor
-                            </option>
-                        </select>
-                        @error('role_in_module')
-                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
-                        @enderror
-                    </div>
+                    <x-role-in-module-select id="add-members-role-find" />
 
                     <div class="flex justify-end gap-2">
                         <button type="button" 
-                        class="btn btn-ghost btn-sm" 
-                        onclick="add_members.close()"
-                        wire:click="clearComponentState"
+                            class="btn btn-ghost btn-sm" 
+                            onclick="add_members.close()"
+                            wire:click="clearComponentState" 
                         >
                             Cancel
                         </button>
-                        <button wire:submit="addSelected" class="btn btn-primary btn-sm">
+                        <button 
+                            wire:submit="addSelected" 
+                            class="btn btn-primary btn-sm">
                             Add selected
                         </button>
                     </div>
@@ -272,6 +329,7 @@ new class extends Component {
                             name="emails"
                             rows="8"
                             class="textarea textarea-bordered font-mono text-sm @error('emails') textarea-error @enderror"
+                            wire:model="csvString"
                             placeholder="one@southern.edu&#10;two@southern.edu&#10;&#10;Or paste a CSV column of emails…"
                         >{{ old('emails') }}</textarea>
                         <div class="label-text-alt mt-1 text-base-content/60">
@@ -300,28 +358,16 @@ new class extends Component {
                         @enderror
                     </label>
 
-                    <div class="form-control w-full">
-                        <label for="add-members-role-paste" class="label-text mb-1 w-fit font-medium">Role in module</label>
-                        <select
-                            id="add-members-role-paste"
-                            name="role_in_module"
-                            class="select select-bordered w-full"
-                            required
-                        >
-                            <option value="{{ RoleInModule::Student->value }}" @selected(old('role_in_module', RoleInModule::Student->value) === RoleInModule::Student->value)>
-                                Student
-                            </option>
-                            <option value="{{ RoleInModule::Instructor->value }}" @selected(old('role_in_module') === RoleInModule::Instructor->value)>
-                                Instructor
-                            </option>
-                        </select>
-                    </div>
+                    <x-role-in-module-select id="add-members-role-paste" />
 
                     <div class="flex justify-end gap-2">
                         <button type="button" class="btn btn-ghost btn-sm" onclick="add_members.close()">
                             Cancel
                         </button>
-                        <button type="submit" class="btn btn-primary btn-sm" wire:click="toggleDialogIsOpen">
+                        <button 
+                            type="submit" class="btn btn-primary btn-sm" 
+                            wire:click="toggleDialogIsOpen"
+                            >
                             Add from list
                         </button>
                     </div>
