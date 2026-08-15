@@ -20,6 +20,7 @@ new class extends Component {
     public string $results = "";
     public array $selectedUsers = [];
     public RoleInModule $roleInModule = RoleInModule::Student;
+    public string $csvString = "";
 
     public function mount(Module $module): void
     {
@@ -133,7 +134,10 @@ new class extends Component {
     }
 
     public function parseEmailList() {
-        
+        // extract columns names
+        // $columnNames = explode(',' $this->csvString);
+        // dd($columnNames);
+        dd($this->csvString);
     }
 
     public function toggleDialogIsOpen(): void
@@ -282,26 +286,7 @@ new class extends Component {
                         </div>
                     </div>
 
-                    <div class="form-control w-full">
-                        <label for="add-members-role-find" class="label-text mb-1 w-fit font-medium">Role in module</label>
-                        <select
-                            id="add-members-role-find"
-                            name="roleInModule"
-                            wire:model="roleInModule"
-                            class="select select-bordered w-full @error('role_in_module') select-error @enderror"
-                            required
-                        >
-                            <option value="{{ RoleInModule::Student->value }}">
-                                Student
-                            </option>
-                            <option value="{{ RoleInModule::Instructor->value }}">
-                                Instructor
-                            </option>
-                        </select>
-                        @error('roleInModule')
-                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
-                        @enderror
-                    </div>
+                    <x-role-in-module-select id="add-members-role-find" />
 
                     <div class="flex justify-end gap-2">
                         <button type="button" 
@@ -344,6 +329,7 @@ new class extends Component {
                             name="emails"
                             rows="8"
                             class="textarea textarea-bordered font-mono text-sm @error('emails') textarea-error @enderror"
+                            wire:model="csvString"
                             placeholder="one@southern.edu&#10;two@southern.edu&#10;&#10;Or paste a CSV column of emails…"
                         >{{ old('emails') }}</textarea>
                         <div class="label-text-alt mt-1 text-base-content/60">
@@ -372,28 +358,16 @@ new class extends Component {
                         @enderror
                     </label>
 
-                    <div class="form-control w-full">
-                        <label for="add-members-role-paste" class="label-text mb-1 w-fit font-medium">Role in module</label>
-                        <select
-                            id="add-members-role-paste"
-                            name="role_in_module"
-                            class="select select-bordered w-full"
-                            required
-                        >
-                            <option value="{{ RoleInModule::Student->value }}" @selected(old('role_in_module', RoleInModule::Student->value) === RoleInModule::Student->value)>
-                                Student
-                            </option>
-                            <option value="{{ RoleInModule::Instructor->value }}" @selected(old('role_in_module') === RoleInModule::Instructor->value)>
-                                Instructor
-                            </option>
-                        </select>
-                    </div>
+                    <x-role-in-module-select id="add-members-role-paste" />
 
                     <div class="flex justify-end gap-2">
                         <button type="button" class="btn btn-ghost btn-sm" onclick="add_members.close()">
                             Cancel
                         </button>
-                        <button type="submit" class="btn btn-primary btn-sm" wire:click="toggleDialogIsOpen">
+                        <button 
+                            type="submit" class="btn btn-primary btn-sm" 
+                            wire:click="toggleDialogIsOpen"
+                            >
                             Add from list
                         </button>
                     </div>
