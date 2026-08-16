@@ -4,6 +4,7 @@
 
 <?php
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use App\Models\User;
 use App\Models\Module;
 use App\Models\ModuleMembership;
@@ -12,7 +13,10 @@ use App\Enums\ModuleMembershipStatus;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
+
 new class extends Component {
+    use WithFileUploads;
+
     public Module $module;
     public string $userQuery = "";
     public bool $dialogIsOpen = false;
@@ -21,6 +25,7 @@ new class extends Component {
     public array $selectedUsers = [];
     public RoleInModule $roleInModule = RoleInModule::Student;
     public string $csvString = "";
+    public $emails_csv_file;
 
     public function mount(Module $module): void
     {
@@ -139,46 +144,60 @@ new class extends Component {
 
     public function addFromList() 
     {
-        $this->parseEmailList();
-    }
-
-    public function parseEmailList() 
-    {
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, $this->csvString);
-        rewind($stream);
-        
-        if (trim($this->csvString) === '') throw ValidationException::withMessages([
-            'email_paste' => 'No list content']);
+        rewind($stream);        
 
-        while (($row = fgetcsv($stream)) !== false) {
+        $email_array = $this->parseEmailList($stream);
+        dd($email_array);
+    }
+
+    public function addFromFile() 
+    {
+        $this->validate([
+            'emails_csv_file' => ['nullable', 'file', 'mimes:csv,txt', 'max:128']
+        ]);
+
+        $file = $request->file('document');
+
+        $stream = fopen($file->getRealPath(), 'rb');
+
+        dd($stream);
+
+        $email_array = $this->parseEmailList($stream);
+    }
+
+    public function parseEmailList($stream)
+    {
+
+        if (trim($this->csvString) === '') throw ValidationException::withMessages([
+            'emails_paste' => 'No list content']);
+
+        $rows = [];
+
+        while (($row = fgetcsv($stream, null, ',', '"', '\\') ) !== false) {
             if (count($row) !== 1) throw ValidationException::withMessages([
-                'email_paste' => 'There must be one column for all rows']);
-            if ($row[0] === null) continue;
+                'emails_paste' => 'There must be one column for all rows']);
+            if ($row[0] === null) continue; // don't record empty rows 
+            if (!Validator::make(['email' => $row[0]], ['email' => 'email'])->passes()) 
+                throw ValidationException::withMessages(['emails_paste' => 
+                    'One of the rows do not contain emails']);
+            // $this-validate
             $rows[] = $row;
         }
+
+        // dd($rows);
         
         $hasHeader = strtolower($rows[0][0]) === "email";
         if ($hasHeader) array_shift($rows);
         if ($hasHeader && count($rows) === 1) 
-            throw ValidationException::withMessages(['email_paste' => 'no emails given',]);
-
+            throw ValidationException::withMessages(['emails_paste' => 'no emails given',]);
 
         fclose($stream);
-        
-        // $this->validate([
-        // 'csvString' => [
-        //     'required'
-        //     'regex:'
-        // ]]);
+        $email_array = array_map(fn ($row) => $row[0], $rows);
 
-        dd($rows);
+        return $email_array;
     }
-
-    // name,age,city
-    // Alice,25,New York
-    // Bob,30,Chicago
-    // Charlie,22,Boston
 
     public function toggleDialogIsOpen(): void
     {
@@ -365,14 +384,14 @@ new class extends Component {
                     <label class="form-control w-full">
                         <div class="label-text mb-1 font-medium">Emails</div>
                         <textarea
-                            name="email_paste"
+                            name="emails_paste"
                             rows="8"
                             class="textarea textarea-bordered font-mono text-sm @error('emails') textarea-error @enderror"
                             wire:model="csvString"
                             placeholder="one@southern.edu&#10;two@southern.edu&#10;&#10;Or paste a CSV column of emails…"
                         >{{ old('emails') }}</textarea>
                     </label>
-                    @error('email_paste')
+                    @error('emails_paste')
                         <span class="label-text-alt text-error ">{{ $message }}</span>
                     @enderror
 
@@ -382,14 +401,14 @@ new class extends Component {
                         </span>
                         <input
                             type="file"
-                            name="csv_email_file"
-                            accept=".csv,text/csv"
+                            name="emails_csv_file"
+                            accept=".csv,.text"
                             class="file-input file-input-bordered w-full @error('emails_csv') file-input-error @enderror"
                         />
                         <span class="label-text-alt mt-1 text-base-content/60">
                             Prefer a file with an <code class="text-xs">email</code> column, or a single column of addresses.
                         </span>
-                        @error('csv_email_file')
+                        @error("emails_csv_file")
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
                     </label>
