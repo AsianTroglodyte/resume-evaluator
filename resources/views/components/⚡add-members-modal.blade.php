@@ -162,17 +162,11 @@ new class extends Component {
 
         $stream = fopen($file->getRealPath(), 'rb');
 
-        dd($stream);
-
         $email_array = $this->parseEmailList($stream);
     }
 
     public function parseEmailList($stream)
     {
-
-        if (trim($this->csvString) === '') throw ValidationException::withMessages([
-            'emails_paste' => 'No list content']);
-
         $rows = [];
 
         while (($row = fgetcsv($stream, null, ',', '"', '\\') ) !== false) {
@@ -182,12 +176,12 @@ new class extends Component {
             if (!Validator::make(['email' => $row[0]], ['email' => 'email'])->passes()) 
                 throw ValidationException::withMessages(['emails_paste' => 
                     'One of the rows do not contain emails']);
-            // $this-validate
             $rows[] = $row;
         }
-
-        // dd($rows);
         
+        if ($rows === []) throw ValidationException::withMessages([
+            'emails_paste' => 'No list content']);
+
         $hasHeader = strtolower($rows[0][0]) === "email";
         if ($hasHeader) array_shift($rows);
         if ($hasHeader && count($rows) === 1) 
