@@ -20,7 +20,7 @@ class EvaluationController extends Controller
     public function storeForWorkspace(Request $request, Workspace $workspace)
     {
         $request->validate([
-            'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
         ]);
 
         if ($workspace->hasProcessingEvaluations()) {

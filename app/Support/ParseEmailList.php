@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Support;
+
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+
+class ParseEmailList
+{
+    /**
+     * @param  resource  $stream
+     * @return list<string>
+     */
+    public function __invoke($stream): array
+    {
+        $rows = [];
+
+        while (($row = fgetcsv($stream, null, ',', '"', '\\')) !== false) {
+            if (count($row) !== 1) {
+                throw ValidationException::withMessages([
+                    'emails_paste' => 'There must be one column for all rows',
+                ]);
+            }
+            if ($row[0] === null) { 
+                continue; // don't record empty rows
+            } 
+            if (! Validator::make(['email' => $row[0]], ['email' => 'email'])->passes()) {
+                throw ValidationException::withMessages(
+                    ['emails_paste' => 'One of the rows do not contain emails']);
+            }
+            $rows[] = $row;
+        }
+
+        if ($rows === []) {
+            throw ValidationException::withMessages([
+                'emails_paste' => 'No list content']);
+        }
+
+        $hasHeader = strtolower($rows[0][0]) === 'email';
+        if ($hasHeader) {
+            array_shift($rows);
+        }
+        if ($hasHeader && count($rows) === 1) {
+            throw ValidationException::withMessages(['emails_paste' => 'no emails given']);
+        }
+
+        fclose($stream);
+        $email_array = array_map(fn ($row) => $row[0], $rows);
+
+        return $email_array;
+    }
+}

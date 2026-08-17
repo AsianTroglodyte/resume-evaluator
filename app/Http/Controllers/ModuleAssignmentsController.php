@@ -49,8 +49,6 @@ class ModuleAssignmentsController extends Controller
 
     public function store(Module $module)
     {
-
-        // dd(request()->due_date_enabled);
         $validated = request()->validate([
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
