@@ -1,0 +1,29 @@
+Morgan Lee
+Bridgeport, CT | morgan.lee@example.test | (203) 555-0176
+
+EDUCATION
+Housatonic Community College — A.S. Computer Information Systems, May 2025
+Relevant coursework: Database Fundamentals, Web Development, Network Basics
+
+EXPERIENCE
+IT Help Desk Assistant — Housatonic Community College | Sep 2024 - May 2025
+- Helped students and staff with account and printer problems
+- Worked with the team to keep a list of common fixes up to date
+- Used the ticket system and talked with people by email and in person
+
+Store Associate — East Side Market | Jun 2022 - Aug 2024
+- Assisted customers and handled regular closing tasks
+- Kept track of inventory and entered information into spreadsheets
+
+PROJECTS
+Club Event Tracker | Spring 2025
+- Made a small web app for recording club meetings and attendance
+- Used Python, SQLite, and HTML to save and display information
+- Worked on it with two classmates
+
+Computer Lab Check-In Sheet | Fall 2024
+- Built a basic spreadsheet for tracking lab visitors
+- Added formulas to count daily visits
+
+SKILLS
+Python, basic SQL, HTML, Excel, Google Workspace, Git

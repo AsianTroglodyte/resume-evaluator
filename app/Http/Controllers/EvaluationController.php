@@ -47,7 +47,7 @@ class EvaluationController extends Controller
             $evaluation
         );
 
-        $keepIds = $workspace->evaluations()
+        $keepIds = $workspace->latestEvaluations()
             ->latest('id')
             ->limit(5)
             ->pluck('id');
