@@ -37,4 +37,5 @@ class WorkspaceFactory extends Factory
             'user_id' => $userId
         ]);
     }
+
 }
