@@ -76,7 +76,6 @@ it ('prunes the evaluations beyond the latest five', function () {
     for ($i = 0; $i < 5; $i++) {
         Evaluation::factory()
             ->withWorkspace($workspace->id)
-            ->withStatus(EvaluationStatus::Processing)
             ->create();
     }
 
@@ -101,10 +100,12 @@ it ('rejects a new run while one is processing', function () {
 
     $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt')); 
 
-    Evaluation::factory()->withWorkspace($workspace->id)->create();
+    Evaluation::factory()
+        ->withWorkspace($workspace->id)
+        ->withStatus(EvaluationStatus::Processing)
+        ->create();
     
-    echo "before attempting to evaluate while processing\n";
-    $this->actingAs($user)
+    $response = $this->actingAs($user)
         ->post(route('workspaces.evaluations.store', $workspace),
             ['resume_file' => new UploadedFile(
                 evaluationFixture("sample-resume.pdf"),
@@ -113,9 +114,13 @@ it ('rejects a new run while one is processing', function () {
                 null,
                 true
             )]);
-    echo "after attempting to evaluate while processing\n";
 
-    echo "number of evals: " . count(DB::table('evaluations')->get());
+    
+    $this->assertDatabaseCount('evaluations', 1);
+    $response->assertInvalid([
+        'rate_limit' => 'An evaluation is already processing. Wait for it to complete'
+    ]);
+    // echo "number of evals: " . count(DB::table('evaluations')->get());
 });
 
 it('validates resume file type', function () {
