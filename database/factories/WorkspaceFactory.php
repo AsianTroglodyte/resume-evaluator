@@ -38,4 +38,10 @@ class WorkspaceFactory extends Factory
         ]);
     }
 
+    public function addEvaluation(): static
+    {
+        return $this->state(fn () => [
+            
+        ]);
+    }
 }

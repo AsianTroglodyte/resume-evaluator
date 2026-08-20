@@ -7,8 +7,11 @@ use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
+
+use function Pest\Laravel\actingAs;
 
 uses(RefreshDatabase::class);
 
@@ -64,7 +67,29 @@ it('test: creates processing evaluation; queues the job.',
 ]);
 
 it ('prunes the evaluations beyond the latest five', function () {
+    /** @var TestCase $this */
+    $user = User::factory()->createOne();
+    $workspace = Workspace::factory()->user($user->id)->createOne();
 
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
+
+    for ($i = 0; $i < 5; $i++) {
+        Evaluation::factory()->withWorkspace($workspace->id)->create();
+    };
+
+    $this->actingAs($user)
+        ->post('/workspaces/{workspace}/evaluation', 
+            ['resume_file' => new UploadedFile(
+                evaluationFixture("sample-resume.pdf"),
+                "sample-resume.pdf",
+                "application/pdf",
+                null,
+                true,
+            ),
+            'job_description' => $job_description_text]);
+
+    // echo "number of evals: " . count(DB::table('evaluations')->get());
+    $this->assertDatabaseCount('evaluations', 5);
 });
 
 it ('rejects a new run while one is processing', function () {
