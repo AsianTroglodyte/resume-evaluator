@@ -20,7 +20,7 @@ class EvaluationController extends Controller
     public function storeForWorkspace(Request $request, Workspace $workspace)
     {
         $request->validate([
-            'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
         ]);
 
         if ($workspace->hasProcessingEvaluations()) {
@@ -47,7 +47,7 @@ class EvaluationController extends Controller
             $evaluation
         );
 
-        $keepIds = $workspace->evaluations()
+        $keepIds = $workspace->latestEvaluations()
             ->latest('id')
             ->limit(5)
             ->pluck('id');
@@ -74,7 +74,7 @@ class EvaluationController extends Controller
     public function storeForSubmission(Request $request, Assignment $assignment)
     {
         $request->validate([
-            'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx.txt', 'max:10240'],
         ]);
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');

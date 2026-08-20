@@ -60,6 +60,7 @@ class EvaluateJob implements ShouldQueue
             }
         }
 
+
         if ($response->failed()) {
             $this->evaluation->update([
                 'resume_file_path' => $this->resumeFilePath,

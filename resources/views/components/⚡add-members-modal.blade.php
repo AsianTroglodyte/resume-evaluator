@@ -4,15 +4,20 @@
 
 <?php
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use App\Models\User;
 use App\Models\Module;
 use App\Models\ModuleMembership;
 use App\Enums\RoleInModule;
 use App\Enums\ModuleMembershipStatus;
+use App\Support\ParseEmailList;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
+
 new class extends Component {
+    use WithFileUploads;
+
     public Module $module;
     public string $userQuery = "";
     public bool $dialogIsOpen = false;
@@ -21,10 +26,21 @@ new class extends Component {
     public array $selectedUsers = [];
     public RoleInModule $roleInModule = RoleInModule::Student;
     public string $csvString = "";
+    public $emails_csv_file;
+    public string $listSource = 'paste';
 
     public function mount(Module $module): void
     {
         $this->module = $module;
+    }
+
+    public function updatedListSource(string $value): void
+    {
+        if ($value === 'paste') {
+            $this->emails_csv_file = null;
+        } else {
+            $this->csvString = '';
+        }
     }
 
     public function selectUser(int $id): void
@@ -128,16 +144,37 @@ new class extends Component {
     }
 
     public function clearComponentState() {
-        $this->toggleDialogIsOpen();
         $this->userQuery = "";
         $this->selectedUsers = [];
     }
 
-    public function parseEmailList() {
-        // extract columns names
-        // $columnNames = explode(',' $this->csvString);
-        // dd($columnNames);
-        dd($this->csvString);
+    public function cancel() {
+        $this->toggleDialogIsOpen();
+        $this->clearComponentState();
+    }
+
+    public function addFromList() 
+    {
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, $this->csvString);
+        rewind($stream);        
+
+        $email_array = (new ParseEmailList)($stream);
+        return $email_array;
+        // dd($email_array);
+    }
+
+    public function addFromFile() 
+    {
+        $this->validate([
+            'emails_csv_file' => ['nullable', 'file', 'mimes:csv,txt', 'max:128']
+        ]);
+
+        $file = $request->file('document');
+
+        $stream = fopen($file->getRealPath(), 'rb');
+
+        $email_array = (new ParseEmailList)($stream);
     }
 
     public function toggleDialogIsOpen(): void
@@ -292,7 +329,7 @@ new class extends Component {
                         <button type="button" 
                             class="btn btn-ghost btn-sm" 
                             onclick="add_members.close()"
-                            wire:click="clearComponentState" 
+                            wire:click="cancel" 
                         >
                             Cancel
                         </button>
@@ -310,64 +347,87 @@ new class extends Component {
                 name="add_members_tab"
                 role="tab"
                 class="tab"
-                aria-label="Paste emails"
+                aria-label="Import emails"
                 @checked(old('add_mode', session('add_members_tab')) === 'paste')
             />
             <div role="tabpanel" class="tab-content border-base-300 bg-base-100 p-4">
                 <form
-                    method="POST"
-                    action="{{ route('dashboard.modules.members.store', $module) }}"
                     class="flex flex-col gap-4"
                     enctype="multipart/form-data"
+                    wire:submit="addFromList"
                 >
-                    @csrf
-                    <input type="hidden" name="add_mode" value="paste" />
-
-                    <label class="form-control w-full">
-                        <div class="label-text mb-1 font-medium">Emails</div>
-                        <textarea
-                            name="emails"
-                            rows="8"
-                            class="textarea textarea-bordered font-mono text-sm @error('emails') textarea-error @enderror"
-                            wire:model="csvString"
-                            placeholder="one@southern.edu&#10;two@southern.edu&#10;&#10;Or paste a CSV column of emails…"
-                        >{{ old('emails') }}</textarea>
-                        <div class="label-text-alt mt-1 text-base-content/60">
-                            Existing accounts are added; unknowns are reported for invites later.
+                    <div class="form-control w-full">
+                        <span class="label-text mb-2 font-medium">Import source</span>
+                        <div class="join">
+                            <input
+                                type="radio"
+                                name="list_source"
+                                value="paste"
+                                class="btn join-item btn-sm"
+                                aria-label="Paste text"
+                                wire:model.live="listSource"
+                            />
+                            <input
+                                type="radio"
+                                name="list_source"
+                                value="file"
+                                class="btn join-item btn-sm"
+                                aria-label="Upload file"
+                                wire:model.live="listSource"
+                            />
                         </div>
-                        @error('emails')
-                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
-                        @enderror
-                    </label>
+                    </div>
 
-                    <label class="form-control w-full">
-                        <span class="label-text mb-1 font-medium">
-                            CSV file <span class="font-normal text-base-content/50">(optional)</span>
-                        </span>
-                        <input
-                            type="file"
-                            name="emails_csv"
-                            accept=".csv,text/csv"
-                            class="file-input file-input-bordered w-full @error('emails_csv') file-input-error @enderror"
-                        />
-                        <span class="label-text-alt mt-1 text-base-content/60">
-                            Prefer a file with an <code class="text-xs">email</code> column, or a single column of addresses.
-                        </span>
-                        @error('emails_csv')
+                    @if ($listSource === 'paste')
+                        <label class="form-control w-full">
+                            <div class="label-text mb-1 font-medium">Emails</div>
+                            <textarea
+                                name="emails_paste"
+                                rows="8"
+                                class="textarea textarea-bordered font-mono text-sm @error('emails_paste') textarea-error @enderror"
+                                wire:model="csvString"
+                                placeholder="one@southern.edu&#10;two@southern.edu&#10;&#10;Or paste a CSV column of emails…"
+                            ></textarea>
+                            <div class="label-text-alt mt-1 text-base-content/60">
+                                One email per line, or a single CSV column. Optional header: <code class="text-xs">email</code>.
+                            </div>
+                        </label>
+                        @error('emails_paste')
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        @enderror
+                    @else
+                        <label class="form-control w-full">
+                            <span class="label-text mb-1 font-medium">CSV file</span>
+                            <input
+                                type="file"
+                                wire:model="emails_csv_file"
+                                accept=".csv,.txt,text/csv,text/plain"
+                                class="file-input file-input-bordered w-full @error('emails_csv_file') file-input-error @enderror"
+                            />
+                            <span class="label-text-alt mt-1 text-base-content/60">
+                                One column of addresses, or a header named <code class="text-xs">email</code>.
+                            </span>
+                        </label>
+                        @error('emails_csv_file')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
-                    </label>
+                        <div wire:loading wire:target="emails_csv_file" class="text-sm text-base-content/60">
+                            Uploading…
+                        </div>
+                    @endif
 
                     <x-role-in-module-select id="add-members-role-paste" />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" class="btn btn-ghost btn-sm" onclick="add_members.close()">
+                        <button
+                            type="button"
+                            class="btn btn-ghost btn-sm"
+                            onclick="add_members.close()"
+                            wire:click="cancel"
+                        >
                             Cancel
                         </button>
-                        <button 
-                            type="submit" class="btn btn-primary btn-sm" 
-                            wire:click="toggleDialogIsOpen"
-                            >
+                        <button type="submit" class="btn btn-primary btn-sm">
                             Add from list
                         </button>
                     </div>

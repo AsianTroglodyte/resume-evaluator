@@ -37,4 +37,11 @@ class WorkspaceFactory extends Factory
             'user_id' => $userId
         ]);
     }
+
+    public function addEvaluation(): static
+    {
+        return $this->state(fn () => [
+            
+        ]);
+    }
 }

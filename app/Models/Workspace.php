@@ -26,6 +26,11 @@ class Workspace extends Model
         return $this->hasMany(Evaluation::class)->latest();
     }
 
+    public function latestEvaluations(): HasMany
+    {
+        return $this->hasMany(Evaluation::class)->latest();
+    }
+
     public function hasProcessingEvaluations(): bool
     {
         return $this->evaluations()->where('status', EvaluationStatus::Processing)->exists();

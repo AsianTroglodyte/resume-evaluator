@@ -1,0 +1,26 @@
+Junior Data Operations Assistant — Northstar Health Network
+
+Location: Stamford, CT (three days on site)
+Employment type: Full-time, entry level
+
+About the role
+Northstar Health Network is looking for a junior data operations assistant to support
+our clinical reporting team. You will help maintain internal data tools, respond to
+data-quality requests, and work with analysts and operations staff.
+
+Responsibilities
+- Update and troubleshoot internal reporting tools using SQL and Python scripts
+- Review incoming data files, investigate routine errors, and document recurring issues
+- Build simple dashboards and spreadsheet reports for operations teams
+- Participate in ticket triage and communicate progress to non-technical colleagues
+
+Requirements
+- Associate's or bachelor's degree in information systems, computer science, data analytics, or related field
+- Familiarity with SQL and spreadsheets; basic Python is preferred
+- Ability to organize work, explain issues clearly, and collaborate with a team
+- Interest in data quality, reporting, or healthcare operations
+
+Nice to have
+- Experience with Power BI, Tableau, or another dashboard tool
+- Knowledge of Git, Linux, REST APIs, or automated testing
+- Previous help desk, customer service, or internship experience
