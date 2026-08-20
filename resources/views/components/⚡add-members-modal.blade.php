@@ -194,8 +194,13 @@ new class extends Component {
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, $this->emails_csv_file);
         rewind($stream);
+        // dd($stream);
+        // try {
         $email_array = (new ParseEmailList)($stream);
-        dd("addFromFile");
+        // } catch (ValidationException $exception) {
+        //     throw ValidationException::withMessages(['email_list' => $exception->message]);
+        // };
+
         $this->addUsers($email_array);
     }
 
@@ -408,9 +413,9 @@ new class extends Component {
                         <label class="form-control w-full">
                             <div class="label-text mb-1 font-medium">Emails</div>
                             <textarea
-                                name="emails_paste"
+                                name="email_list"
                                 rows="8"
-                                class="textarea textarea-bordered font-mono text-sm @error('emails_paste') textarea-error @enderror"
+                                class="textarea textarea-bordered font-mono text-sm @error('email_list') textarea-error @enderror"
                                 wire:model="csvString"
                                 placeholder="one@southern.edu&#10;two@southern.edu&#10;&#10;Or paste a CSV column of emails…"
                             ></textarea>
@@ -418,7 +423,7 @@ new class extends Component {
                                 One email per line, or a single CSV column. Optional header: <code class="text-xs">email</code>.
                             </div>
                         </label>
-                        @error('emails_paste')
+                        @error('email_list')
                             <span class="label-text-alt text-error">{{ $message }}</span>
                         @enderror
                     @else
@@ -426,18 +431,18 @@ new class extends Component {
                             <span class="label-text mb-1 font-medium">CSV file</span>
                             <input
                                 type="file"
-                                wire:model="emails_csv_file"
+                                wire:model="email_list"
                                 accept=".csv,.txt,text/csv,text/plain"
-                                class="file-input file-input-bordered w-full @error('emails_csv_file') file-input-error @enderror"
+                                class="file-input file-input-bordered w-full @error('email_list') file-input-error @enderror"
                             />
                             <span class="label-text-alt mt-1 text-base-content/60">
                                 One column of addresses, or a header named <code class="text-xs">email</code>.
                             </span>
                         </label>
-                        @error('emails_csv_file')
+                        @error('email_list')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
-                        <div wire:loading wire:target="emails_csv_file" class="text-sm text-base-content/60">
+                        <div wire:loading wire:target="email_list" class="text-sm text-base-content/60">
                             Uploading…
                         </div>
                     @endif

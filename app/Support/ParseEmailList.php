@@ -20,7 +20,7 @@ class ParseEmailList
         while (($row = fgetcsv($stream, null, ',', '"', '\\')) !== false) {
             if (count($row) !== 1) {
                 throw ValidationException::withMessages([
-                    'emails_paste' => 'There must be one column for all rows',
+                    'email_list' => 'There must be one column for all rows',
                 ]);
             }
 
@@ -36,17 +36,17 @@ class ParseEmailList
                 ['email' => $row[0]], 
                 ['email' => 'email'])->passes()) {
                 throw ValidationException::withMessages(
-                    ['emails_paste' => 'One of the rows do not contain emails']);
+                    ['email_list' => "Rows {$currentRowNum} do not contain emails"]);
             }
             $rows[] = $row;
         }
 
         if (count($rows) === 0) {
             if ($hasHeader) {
-                throw ValidationException::withMessages(['emails_paste' => 'no emails given']);
+                throw ValidationException::withMessages(['email_list' => 'no emails given']);
             }
             if (!$hasHeader) {
-                throw ValidationException::withMessages(['emails_paste' => 'No list content']);
+                throw ValidationException::withMessages(['email_list' => 'No list content']);
             }
         }
 
