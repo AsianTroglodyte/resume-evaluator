@@ -88,14 +88,34 @@ new class extends Component {
             throw ValidationException::withMessages([
                 'no_selected_users' => "you did not select any users",
         ]);}
-        forEach ($this->selectedUsers as $selectedUser) {            
-            $this->validate([
-                'selectedUsers' => ['required', 'array', 'min:1'],
-                'selectedUsers.*.id' => ['required', 'integer', 'exists:users,id'],
-                'roleInModule' => ['required', Rule::enum(RoleInModule::class)],
-            ]);
 
-            $newUser = User::where('email', $selectedUser["email"])->firstOrFail();
+        $email_array = array_map(fn (array $selectedUser) => $selectedUser['email'], $this->selectedUsers);
+        $this->addUsers($this->selectedUsers);
+    }
+
+    public function addUsers(array $emails) {
+
+        $validated = Validator::make(
+            [
+                'emails' => $emails,
+                'roleInModule' => $this->roleInModule,
+            ],
+            [
+                'emails' => ['required', 'array', 'min:1'],
+                'emails.*' => [
+                    'required',
+                    'email',
+                    'distinct',
+                    Rule::exists('users', 'email'),
+                ],
+                'roleInModule' => [
+                    'required',
+                    Rule::enum(RoleInModule::class),
+                ],
+            ])->validate();
+
+        forEach ($validated['emails'] as $email) {
+            $newUser = User::where('email', $email)->firstOrFail();
 
             // check if new potential user was previously a member
             // if was, then we get the membership record. else null
@@ -160,7 +180,7 @@ new class extends Component {
         rewind($stream);        
 
         $email_array = (new ParseEmailList)($stream);
-        return $email_array;
+        $this->addUsers($email_array);
         // dd($email_array);
     }
 
@@ -175,6 +195,7 @@ new class extends Component {
         $stream = fopen($file->getRealPath(), 'rb');
 
         $email_array = (new ParseEmailList)($stream);
+        $this->addUsers($email_array);
     }
 
     public function toggleDialogIsOpen(): void
