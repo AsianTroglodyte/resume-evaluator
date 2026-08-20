@@ -173,11 +173,11 @@ new class extends Component {
         $this->clearComponentState();
     }
 
-    public function addFromList() 
+    public function addFromPastedList() 
     {
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, $this->csvString);
-        rewind($stream);        
+        rewind($stream);
 
         $email_array = (new ParseEmailList)($stream);
         $this->addUsers($email_array);
@@ -186,15 +186,16 @@ new class extends Component {
 
     public function addFromFile() 
     {
-        $this->validate([
-            'emails_csv_file' => ['nullable', 'file', 'mimes:csv,txt', 'max:128']
+        Validator::make(['emails_csv_file' => $this->emails_csv_file],
+        [
+            'emails_csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:1024']
         ]);
 
-        $file = $request->file('document');
-
-        $stream = fopen($file->getRealPath(), 'rb');
-
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, $this->emails_csv_file);
+        rewind($stream);
         $email_array = (new ParseEmailList)($stream);
+        dd("addFromFile");
         $this->addUsers($email_array);
     }
 
@@ -375,7 +376,11 @@ new class extends Component {
                 <form
                     class="flex flex-col gap-4"
                     enctype="multipart/form-data"
-                    wire:submit="addFromList"
+                    @if ($listSource === "paste")
+                        wire:submit="addFromPastedList"
+                    @elseif ($listSource === "file")
+                        wire:submit="addFromFile"
+                    @endif
                 >
                     <div class="form-control w-full">
                         <span class="label-text mb-2 font-medium">Import source</span>
@@ -439,6 +444,7 @@ new class extends Component {
 
                     <x-role-in-module-select id="add-members-role-paste" />
 
+                    
                     <div class="flex justify-end gap-2">
                         <button
                             type="button"
@@ -449,7 +455,11 @@ new class extends Component {
                             Cancel
                         </button>
                         <button type="submit" class="btn btn-primary btn-sm">
-                            Add from list
+                            @if ($listSource === "paste")
+                                Add from pasted list
+                            @elseif ($listSource === "file")
+                                Add from file
+                            @endif
                         </button>
                     </div>
                 </form>
