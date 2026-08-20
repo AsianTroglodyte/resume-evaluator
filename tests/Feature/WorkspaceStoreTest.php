@@ -74,11 +74,14 @@ it ('prunes the evaluations beyond the latest five', function () {
     $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
 
     for ($i = 0; $i < 5; $i++) {
-        Evaluation::factory()->withWorkspace($workspace->id)->create();
-    };
+        Evaluation::factory()
+            ->withWorkspace($workspace->id)
+            ->withStatus(EvaluationStatus::Processing)
+            ->create();
+    }
 
     $this->actingAs($user)
-        ->post('/workspaces/{workspace}/evaluation', 
+        ->post(route('workspaces.evaluations.store', $workspace), 
             ['resume_file' => new UploadedFile(
                 evaluationFixture("sample-resume.pdf"),
                 "sample-resume.pdf",
@@ -88,12 +91,31 @@ it ('prunes the evaluations beyond the latest five', function () {
             ),
             'job_description' => $job_description_text]);
 
-    // echo "number of evals: " . count(DB::table('evaluations')->get());
     $this->assertDatabaseCount('evaluations', 5);
 });
 
 it ('rejects a new run while one is processing', function () {
+    /** @var TestCase $this */
+    $user = User::factory()->createOne();
+    $workspace = Workspace::factory()->user($user->id)->createOne();
 
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt')); 
+
+    Evaluation::factory()->withWorkspace($workspace->id)->create();
+    
+    echo "before attempting to evaluate while processing\n";
+    $this->actingAs($user)
+        ->post(route('workspaces.evaluations.store', $workspace),
+            ['resume_file' => new UploadedFile(
+                evaluationFixture("sample-resume.pdf"),
+                "sample-resume.pdf",
+                "application/pdf",
+                null,
+                true
+            )]);
+    echo "after attempting to evaluate while processing\n";
+
+    echo "number of evals: " . count(DB::table('evaluations')->get());
 });
 
 it('validates resume file type', function () {

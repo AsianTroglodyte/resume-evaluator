@@ -57,4 +57,11 @@ class EvaluationFactory extends Factory
             'workspace_id' => $workspace_id
         ]);
     }
+
+    public function withStatus(EvaluationStatus $evaluationStatus): static
+    {
+        return $this->state(fn (array $attributes)=> [
+            "status" => $evaluationStatus
+        ]);
+    }
 }
