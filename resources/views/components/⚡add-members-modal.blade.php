@@ -127,7 +127,7 @@ new class extends Component {
             if ($moduleMembership) {
                 if ($moduleMembership->status === ModuleMembershipStatus::Active) {
                     throw ValidationException::withMessages([
-                        'new_member_email' => 'This user is already an active member of the module.',
+                        'new_member_email' =>  "$newUser->email is already an active member of the module.",
                     ]);
                 }
 
