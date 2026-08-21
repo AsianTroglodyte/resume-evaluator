@@ -24,21 +24,30 @@ it('adds selected users', function () {
         $component->call('selectUser', $user_id);
     }
 
-    $component->call('addSelected');
+    $component
+        ->call('addSelected')
+        ->assertHasNoErrors();
 
     $user_email_array = array_map(fn ($user) => $user["email"], $userArray);
-    $this->assertDatabaseHas('users', [
-        'email' => $user_email_array
-    ]);
+
+    foreach ($userArray as $user) {
+        $this->assertDatabaseHas('module_memberships', [
+            'module_id' => $module->id,
+            'user_id' => $user['id'],
+            'role_in_module' => RoleInModule::Student->value,
+            'status' => 'active',
+            'added_by_user_id' => $admin->id,
+        ]);
+    }
 });
 
 it('adds users from pasted email list', function () {
 
-});
+})->todo();
 
 it('adds users from email list file', function () {
 
-});
+})->todo();
 
 // function printer(array $thingsToPrint) {
 //     foreach ($thingsToPrint as $key => $thingToPrint) {
