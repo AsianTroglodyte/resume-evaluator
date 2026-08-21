@@ -58,4 +58,11 @@ class UserFactory extends Factory
             'password' => Hash::make($specific_password),
         ]);
     }
+
+    public function email(string $email): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email' => $email,
+        ]);
+    }
 }

@@ -94,7 +94,6 @@ new class extends Component {
     }
 
     public function addUsers(array $emails) {
-
         $validated = Validator::make(
             [
                 'emails' => $emails,
