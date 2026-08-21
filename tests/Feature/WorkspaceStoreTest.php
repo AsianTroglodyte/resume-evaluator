@@ -13,7 +13,7 @@ use Tests\TestCase;
 
 uses(RefreshDatabase::class);
 
-function evaluationFixture(string $filename): string
+function evaluationFixture(string $filename) 
 {
     return base_path("tests/Fixtures/evaluations/{$filename}");
 }
@@ -96,8 +96,6 @@ it ('rejects a new run while one is processing', function () {
     $user = User::factory()->createOne();
     $workspace = Workspace::factory()->user($user->id)->createOne();
 
-    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt')); 
-
     Evaluation::factory()
         ->withWorkspace($workspace->id)
         ->withStatus(EvaluationStatus::Processing)
@@ -113,10 +111,8 @@ it ('rejects a new run while one is processing', function () {
                 true
             )]);
 
-    
     $this->assertDatabaseCount('evaluations', 1);
     $response->assertInvalid([
         'rate_limit' => 'An evaluation is already processing. Wait for it to complete'
     ]);
-    // echo "number of evals: " . count(DB::table('evaluations')->get());
 });
