@@ -25,9 +25,9 @@ it('keeps list with just emails', function () {
     $emails = (new ParseEmailList)(emailStream("one@southern.edu\ntwo@southern.edu"));
 
     expect($emails)->toBe(['one@southern.edu', 'two@southern.edu']);
-})->throws(ValidationException::class);
+});
 
-it('rejects lists that are not a single column', function () {
+it('rejects lists with one or more rows that have cols !== 1', function () {
     (new ParseEmailList)(emailStream("one@southern.edu,extra\n"));
 })->throws(ValidationException::class);
 

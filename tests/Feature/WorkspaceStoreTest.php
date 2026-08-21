@@ -122,7 +122,3 @@ it ('rejects a new run while one is processing', function () {
     ]);
     // echo "number of evals: " . count(DB::table('evaluations')->get());
 });
-
-it('validates resume file type', function () {
-
-});
