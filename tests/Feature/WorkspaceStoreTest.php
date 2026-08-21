@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
-use function Pest\Laravel\actingAs;
-
 uses(RefreshDatabase::class);
 
 function evaluationFixture(string $filename): string
