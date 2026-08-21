@@ -44,7 +44,6 @@ class ParseEmailList
             $rows[] = $row;
         }
 
-        dump("loop ran: ", $loopRan);
         fclose($stream);
 
         $email_array = array_map(fn ($row) => $row[0], $rows);

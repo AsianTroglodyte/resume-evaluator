@@ -53,6 +53,12 @@ new class extends Component {
         }
     }
 
+    public function deselectUser(int $id): void
+    {
+        $filteredArray = array_filter($this->selectedUsers, fn ($selectedUser) => $selectedUser["id"] !== $id);
+        $this->selectedUsers = $filteredArray;
+    }
+
     public function with(): array
     {
         $selectedIds = collect($this->selectedUsers)->pluck('id')->filter()->all();
@@ -76,12 +82,6 @@ new class extends Component {
         ];
     }
 
-    public function deselectUser(int $id): void
-    {
-        $filteredArray = array_filter($this->selectedUsers, fn ($selectedUser) => $selectedUser["id"] !== $id);
-        $this->selectedUsers = $filteredArray;
-    }
-
     public function addSelected()
     {
         if ($this->selectedUsers === []) {
@@ -89,8 +89,8 @@ new class extends Component {
                 'no_selected_users' => "you did not select any users",
         ]);}
 
-        $email_array = array_map(fn (array $selectedUser) => $selectedUser['email'], $this->selectedUsers);
-        $this->addUsers($this->selectedUsers);
+        $email_array = array_map(fn ($selectedUser) => $selectedUser['email'], $this->selectedUsers);
+        $this->addUsers($email_array);
     }
 
     public function addUsers(array $emails) {
@@ -127,7 +127,7 @@ new class extends Component {
             if ($moduleMembership) {
                 if ($moduleMembership->status === ModuleMembershipStatus::Active) {
                     throw ValidationException::withMessages([
-                        'new_member_email' => 'This user is already an active member of the module.',
+                        'new_member_email' =>  "$newUser->email is already an active member of the module.",
                     ]);
                 }
 
@@ -181,7 +181,6 @@ new class extends Component {
 
         $email_array = (new ParseEmailList)($stream);
         $this->addUsers($email_array);
-        // dd($email_array);
     }
 
     public function addFromFile() 
@@ -192,11 +191,10 @@ new class extends Component {
 
         $stream = fopen($this->emails_csv_file->getRealPath(), 'rb');
         $email_array = (new ParseEmailList)($stream);
-        
         $this->addUsers($email_array);
     }
 
-    public function toggleDialogIsOpen(): void
+    public function toggleDialogIsOpen(): void 
     {
         $this->dialogIsOpen = !$this->dialogIsOpen;
     }
