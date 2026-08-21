@@ -17,7 +17,10 @@ class ParseEmailList
 
         $currentRowNum = 0;
         $hasHeader = False;
+        $loopRan = "false";
         while (($row = fgetcsv($stream, null, ',', '"', '\\')) !== false) {
+            $loopRan = "true";
+            echo implode($row);
             if (count($row) !== 1) {
                 throw ValidationException::withMessages([
                     'email_list' => 'There must be one column for all rows',
@@ -41,7 +44,12 @@ class ParseEmailList
             $rows[] = $row;
         }
 
-        if (count($rows) === 0) {
+        dump("loop ran: ", $loopRan);
+        fclose($stream);
+
+        $email_array = array_map(fn ($row) => $row[0], $rows);
+
+        if (count($email_array) === 0) {
             if ($hasHeader) {
                 throw ValidationException::withMessages(['email_list' => 'no emails given']);
             }
@@ -50,8 +58,6 @@ class ParseEmailList
             }
         }
 
-        fclose($stream);
-        $email_array = array_map(fn ($row) => $row[0], $rows);
         return $email_array;
     }
 }

@@ -186,21 +186,13 @@ new class extends Component {
 
     public function addFromFile() 
     {
-        Validator::make(['emails_csv_file' => $this->emails_csv_file],
-        [
+        Validator::make(['emails_csv_file' => $this->emails_csv_file], [
             'emails_csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:1024']
         ]);
 
-        $stream = fopen('php://memory', 'r+');
-        fwrite($stream, $this->emails_csv_file);
-        rewind($stream);
-        // dd($stream);
-        // try {
+        $stream = fopen($this->emails_csv_file->getRealPath(), 'rb');
         $email_array = (new ParseEmailList)($stream);
-        // } catch (ValidationException $exception) {
-        //     throw ValidationException::withMessages(['email_list' => $exception->message]);
-        // };
-
+        
         $this->addUsers($email_array);
     }
 
@@ -431,7 +423,7 @@ new class extends Component {
                             <span class="label-text mb-1 font-medium">CSV file</span>
                             <input
                                 type="file"
-                                wire:model="email_list"
+                                wire:model="emails_csv_file"
                                 accept=".csv,.txt,text/csv,text/plain"
                                 class="file-input file-input-bordered w-full @error('email_list') file-input-error @enderror"
                             />
