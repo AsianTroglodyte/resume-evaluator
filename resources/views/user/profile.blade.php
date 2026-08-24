@@ -1,10 +1,20 @@
-@props([
-    'status' => null
-])
+
+@php
+    $profileNotice = session('profile_notice');
+@endphp
 
 <x-dashboard-layout>
     <x-slot:title>My profile</x-slot:title>
-
+    @if ($profileNotice)
+        <div class="toast toast-top toast-center z-50 toast-auto-dismiss pointer-events-none">
+            <div
+                role="status"
+                class="alert shadow-lg {{ $profileNotice['type'] === 'success' ? 'alert-success' : 'alert-info' }}"
+            >
+                <span>{{ $profileNotice['message'] }}</span>
+            </div>
+        </div>
+    @endif
     <section class="space-y-6">
         <header class="space-y-1">
             <h2 class="text-2xl font-semibold">My profile</h2>
@@ -96,11 +106,4 @@
             </form>
         </article>
     </section>
-    @if($status !== null)
-        <div class="toast toast-top toast-center z-50 toast-auto-dismiss pointer-events-none">
-            <div class="alert alert-warning shadow-lg">
-                <span>{{ $status }}</span>
-            </div>
-        </div>
-    @endif
 </x-dashboard-layout>
