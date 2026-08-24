@@ -26,6 +26,7 @@
         @endunless
         @if($placeholder) placeholder="{{ $placeholder }}" @endif
         @if($autocomplete) autocomplete="{{ $autocomplete }}" @endif
+        @if($hasError) aria-invalid="true" aria-describedby="{{ $id }}-error" @endif
         @required($required)
         {{ $attributes->class([
             'input input-bordered w-full',
@@ -33,6 +34,6 @@
         ])}}
     />
     @error($name)
-        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+        <span id="{{ $id }}-error" class="label-text-alt mt-1 text-error">{{ $message }}</span>
     @enderror
 </label>

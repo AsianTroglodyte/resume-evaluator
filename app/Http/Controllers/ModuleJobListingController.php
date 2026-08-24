@@ -28,15 +28,10 @@ class ModuleJobListingController extends Controller
             'description' => ['required', 'string'],
         ]);
 
-
-        // dd($validated);
-
         $jobListing->update([
             'name' => $validated['name'], 
             'description' => $validated['description'] 
         ]);
-
-        // dd($jobListing);
 
         return redirect()->route('dashboard.modules.show', ['module' => $module]);
     }

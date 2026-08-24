@@ -229,10 +229,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/user/show/{user}', 'show')
             ->name('user.show')
             ->can('view', 'user');
+        Route::patch('/user/profile', 'updatePassword')
+            ->name('user.password.update');
     });
-
-    // Route::redirect('/dashboard/resumes', '/dashboard/workspaces');
-    // Route::redirect('/dashboard/resumes/{id}', '/dashboard/workspaces/{id}');
 
     Route::controller(WorkspaceController::class)->group(function () {
         Route::get('/dashboard/workspaces', 'index')
