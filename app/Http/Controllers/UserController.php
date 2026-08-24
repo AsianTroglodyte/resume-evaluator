@@ -32,12 +32,29 @@ class UserController extends Controller
             'new_password' => ['required', 'different:current_password', Password::min(6), 'confirmed'], 
         ]);
 
-        request()->user->update([
+        request()->user()->update([
             'password' => $validated["new_password"]
         ]);
 
         return redirect(route('user.profile'))
             ->with('status', "Password updated.");
+    }
+
+    public function updateName() {
+        // dd("bruh");
+        // dd(request()->all());
+        $validated = request()->validate([
+            'first_name' => ['required'],
+            'last_name' => ['required'], 
+        ]);
+
+        request()->user()->update([
+            'first_name' => $validated["first_name"],
+            'last_name' => $validated["last_name"]
+        ]);
+
+        return redirect(route('user.profile'))
+            ->with('status', "name updated.");
     }
 }
 

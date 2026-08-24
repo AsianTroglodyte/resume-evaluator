@@ -229,8 +229,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/user/show/{user}', 'show')
             ->name('user.show')
             ->can('view', 'user');
-        Route::patch('/user/profile', 'updatePassword')
+        Route::patch('/user/profile/update-password', 'updatePassword')
             ->name('user.password.update');
+        Route::patch('/user/profile/update-name', 'updateName')
+            ->name('user.name.update');
     });
 
     Route::controller(WorkspaceController::class)->group(function () {

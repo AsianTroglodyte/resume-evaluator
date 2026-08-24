@@ -1,6 +1,7 @@
-@php
-    
-@endphp
+@props([
+    'status' => null
+])
+
 <x-dashboard-layout>
     <x-slot:title>My profile</x-slot:title>
 
@@ -9,6 +10,40 @@
             <h2 class="text-2xl font-semibold">My profile</h2>
             <p class="text-sm text-base-content/70">Your account information.</p>
         </header>
+
+        <article class="rounded-box border border-base-300 bg-base-100 p-6">
+            <header class="mb-4 space-y-1 border-b border-base-300 pb-4">
+                <h3 class="text-lg font-semibold">Name</h3>
+                <p class="text-sm text-base-content/70">Update the name shown on your account.</p>
+            </header>
+
+            <form method="POST" action="{{ route('user.name.update') }}" class="flex max-w-md flex-col gap-5">
+                @csrf
+                @method('PATCH')
+
+                <x-form-input
+                    label="First name"
+                    name="first_name"
+                    autocomplete="given-name"
+                    :value="old('first_name', $user->first_name)"
+                    required
+                />
+
+                <x-form-input
+                    label="Last name"
+                    name="last_name"
+                    autocomplete="family-name"
+                    :value="old('last_name', $user->last_name)"
+                    required
+                />
+
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        Update name
+                    </button>
+                </div>
+            </form>
+        </article>
 
         <article class="rounded-box border border-base-300 bg-base-100 p-6">
             <header class="mb-4 space-y-1 border-b border-base-300 pb-4">
@@ -24,44 +59,48 @@
                 <h3 class="text-lg font-semibold">Password</h3>
                 <p class="text-sm text-base-content/70">Change the password you use to sign in.</p>
             </header>
-                <form method="POST" action="{{ route('user.password.update') }}" class="flex flex-col gap-5">
-                    @csrf
-                    @method("PATCH")
-                    <x-form-input
-                        type="password"
-                        label="Old Password"
-                        name="current_password"
-                        placeholder="Old Password"
-                        autocomplete="given-name"
-                        required
-                    />
-                    <x-form-input
-                        type="password"
-                        label="New Password"
-                        name="new_password"
-                        placeholder="Create Password"
-                        autocomplete="given-name"
-                        required
-                    />
-                    <x-form-input
-                        type="password"
-                        label="New Password Confirmation"
-                        name="new_password_confirmation"
-                        placeholder="Confirm Password"
-                        autocomplete="given-name"
-                        required
-                    />
-                    <button type="submit"
-                            class="btn btn-primary w-fit">
-                        Change password
+
+            <form method="POST" action="{{ route('user.password.update') }}" class="flex max-w-md flex-col gap-5">
+                @csrf
+                @method('PATCH')
+
+                <x-form-input
+                    type="password"
+                    label="Current password"
+                    name="current_password"
+                    autocomplete="current-password"
+                    required
+                />
+
+                <x-form-input
+                    type="password"
+                    label="New password"
+                    name="new_password"
+                    autocomplete="new-password"
+                    required
+                />
+
+                <x-form-input
+                    type="password"
+                    label="Confirm new password"
+                    name="new_password_confirmation"
+                    autocomplete="new-password"
+                    required
+                />
+
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        Update password
                     </button>
-                </form>
+                </div>
             </form>
         </article>
-        {{-- @if ()
-            
-        @else
-            
-        @endif --}}
     </section>
+    @if($status !== null)
+        <div class="toast toast-top toast-center z-50 toast-auto-dismiss pointer-events-none">
+            <div class="alert alert-warning shadow-lg">
+                <span>{{ $status }}</span>
+            </div>
+        </div>
+    @endif
 </x-dashboard-layout>
