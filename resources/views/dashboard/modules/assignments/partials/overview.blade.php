@@ -39,7 +39,7 @@
         class="flex flex-col gap-4 px-4 py-5 sm:px-6"
         method="POST"
         enctype="multipart/form-data"
-        action="{{ route('submissions.evaluations.store', $assignment) }}">
+        action="{{ route('dashboard.modules.assignments.submissions.store', [$module, $assignment]) }}">
         @csrf
         <div class="form-control w-full" > 
             <label class="label-text w-fit" for="resume_file">
@@ -52,7 +52,7 @@
                 class="file-input file-input-bordered w-full"
                 accept=".pdf,.doc,.docx,.txt" />
             <span class="label-text-alt mt-1 text-base-content/60">
-                Accepted formats: PDF, DOC, DOCX
+                Accepted formats: PDF, DOC, DOCX, TXT
             </span>
             @error('resume_file')
             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
@@ -119,7 +119,7 @@
         <form
             method="POST"
             class="mt-4 flex justify-end"
-            action="{{ route('submissions.evaluations.destroy', $assignment) }}"
+            action="{{ route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]) }}"
             onsubmit="return confirm('Remove your submission for this assignment?')">
             @csrf
             @method('DELETE')

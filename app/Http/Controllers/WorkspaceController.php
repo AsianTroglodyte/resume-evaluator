@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EvaluationStatus;
+use App\Jobs\EvaluateJob;
+use App\Models\Evaluation;
 use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class WorkspaceController extends Controller
@@ -40,6 +44,60 @@ class WorkspaceController extends Controller
         ]);
 
         return redirect()->route('dashboard.workspaces.index');
+    }
+
+    public function storeEvaluation(Request $request, Workspace $workspace)
+    {
+        $request->validate([
+            'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
+        ]);
+
+        if ($workspace->hasProcessingEvaluations()) {
+            // dd("rate_limited");
+            throw ValidationException::withMessages([
+                'rate_limit' => 'An evaluation is already processing. Wait for it to complete',
+            ]);
+        }
+
+        $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
+
+        // Create evaluation and set status to processing
+        $evaluation = Evaluation::create([
+            'workspace_id' => $workspace->id,
+            'resume_file_path' => $resumeFilePath,
+            'job_description_text' => $request->job_description,
+            'status' => EvaluationStatus::Processing,
+        ]);
+
+        // Delete any evaluation files past 5
+        EvaluateJob::dispatch(
+            $resumeFilePath,
+            $request->job_description,
+            $evaluation
+        );
+
+        $keepIds = $workspace->latestEvaluations()
+            ->latest('id')
+            ->limit(5)
+            ->pluck('id');
+
+        $stale = $workspace->evaluations()
+            ->whereNotIn('id', $keepIds)
+            ->get(['id', 'resume_file_path']);
+
+        foreach ($stale as $evaluation) {
+            if ($evaluation->resume_file_path) {
+                Storage::disk('local')->delete($evaluation->resume_file_path);
+            }
+        }
+
+        $workspace->evaluations()->whereNotIn('id', $keepIds)->delete();
+
+        return redirect()
+            ->route('dashboard.workspaces.show', $workspace)
+            ->with([
+                'job_description' => request()->job_description,
+            ]);
     }
 
     public function destroy(Workspace $workspace): RedirectResponse
