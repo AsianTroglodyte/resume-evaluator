@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
@@ -229,10 +230,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/user/show/{user}', 'show')
             ->name('user.show')
             ->can('view', 'user');
+        Route::patch('/user/profile/update-password', 'updatePassword')
+            ->name('user.password.update');
+        Route::patch('/user/profile/update-name', 'updateName')
+            ->name('user.name.update');
     });
-
-    // Route::redirect('/dashboard/resumes', '/dashboard/workspaces');
-    // Route::redirect('/dashboard/resumes/{id}', '/dashboard/workspaces/{id}');
 
     Route::controller(WorkspaceController::class)->group(function () {
         Route::get('/dashboard/workspaces', 'index')
@@ -259,12 +261,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('submissions.evaluations.destroy');
     });
 
-    Route::redirect('/dashboard/admin', '/dashboard/admin/users');
+    Route::controller(AdminUserController::class)->group(function () {
+        Route::get('/dashboard/admin/users', 'index')
+            ->name('dashboard.admin.users')
+            ->can('viewAny', User::class);
+    });
+    // ('/dashboard/admin', '/dashboard/admin/users');
 
-    Route::get('/dashboard/admin/users', function () {
-        return view('dashboard.admin.users.index', [
-            'users' => User::query()->orderBy('last_name', 'asc')->orderBy('first_name', 'asc')->get(),
-        ]);
-    })->name('dashboard.admin.users.index')
-        ->can('viewAny', User::class);
+    // Route::get('/dashboard/admin/users', function () {
+    //     return view('dashboard.admin.users.index', [
+    //         'users' => User::query()->orderBy('last_name', 'asc')->orderBy('first_name', 'asc')->get(),
+    //     ]);
+    // })->name('dashboard.admin.users.index')
+    //     ->can('viewAny', User::class);
 });

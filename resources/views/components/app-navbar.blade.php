@@ -45,7 +45,7 @@
                     </li>
                     @if ($isAdmin)
                         <li>
-                            <a href="{{ route('dashboard.admin.users.index') }}"
+                            <a href="{{ route('dashboard.admin.users') }}"
                                @class(['active' => request()->routeIs('dashboard.admin.*')])>
                                 Admin
                             </a>
@@ -82,7 +82,7 @@
                 @if ($isAdmin)
                     <li>
                         <a
-                            href="{{ route('dashboard.admin.users.index') }}"
+                            href="{{ route('dashboard.admin.users') }}"
                             @class(['font-medium', 'active' => request()->routeIs('dashboard.admin.*')])
                             aria-current="{{ request()->routeIs('dashboard.admin.*') ? 'page' : 'false' }}"
                         >
