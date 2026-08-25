@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AdminUserController;
-use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ModuleJobListingController;
@@ -9,6 +8,7 @@ use App\Http\Controllers\ModuleMembersController;
 use App\Http\Controllers\ModuleSettingsController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
 use App\Models\Assignment;
@@ -250,15 +250,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/dashboard/workspaces/{workspace}', 'update')
             ->name('dashboard.workspaces.update')
             ->can('update', 'workspace');
+        Route::post('/dashboard/workspaces/{workspace}', 'storeEvaluation')
+            ->name('dashboard.workspaces.evaluations.store')
+            ->can('update', 'workspace');
     });
 
-    Route::controller(EvaluationController::class)->group(function () {
-        Route::post('/workspaces/{workspace}/evaluation', 'storeForWorkspace')
-            ->name('workspaces.evaluations.store');
-        Route::post('/submissions/{assignment}/evaluation', 'storeForSubmission')
-            ->name('submissions.evaluations.store');
-        Route::delete('/submissions/{assignment}/evaluation', 'destroyForSubmission')
-            ->name('submissions.evaluations.destroy');
+    Route::controller(SubmissionController::class)->group(function () {
+        Route::post('/dashboard/modules/{module}/assignments/{assignment}/', 'storeSubmission')
+            ->scopeBindings()
+            ->name('dashboard.modules.assignments.submissions.store')
+            ->can('submit', 'assignment');
+        Route::delete('/dashboard/modules/{module}/assignments/{assignment}/', 'destroySubmission')
+            ->scopeBindings()
+            ->name('dashboard.modules.assignments.submissions.destroy')
+            ->can('submit', 'assignment');
     });
 
     Route::controller(AdminUserController::class)->group(function () {

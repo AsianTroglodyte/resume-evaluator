@@ -37,6 +37,17 @@ class AssignmentPolicy
             );
     }
 
+    public function submit(User $user, Assignment $assignment): bool
+    {
+        return ! $user->isGlobalAdmin()
+            && ! $user->isInstructorInModule($assignment->module)
+            && $user->isInModule($assignment->module)
+            && (
+                $assignment->assignee_scope === AssigneeScope::Everyone
+                    || $assignment->assignees()->whereKey($user->id)->exists()
+            );
+    }
+
     /**
      * Determine whether the user can create models.
      */

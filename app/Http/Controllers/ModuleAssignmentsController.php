@@ -215,12 +215,10 @@ class ModuleAssignmentsController extends Controller
             ->get()
             ->pluck('resume_file_path');
 
-        foreach ($submissionResumeFilePaths as $submissionResumeFilePath) 
-        {
+        foreach ($submissionResumeFilePaths as $submissionResumeFilePath) {
             Storage::disk('local')->delete($submissionResumeFilePath);
         }
 
-        // dd("submissions: ", $submissionResumeFilePaths);
         $assignment->delete();
 
         return redirect()->route('dashboard.modules.show', [

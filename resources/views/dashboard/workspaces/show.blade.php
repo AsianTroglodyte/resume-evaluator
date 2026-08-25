@@ -69,7 +69,7 @@
                 class="flex flex-col gap-4 px-4 py-5 sm:px-6"
                 method="POST"
                 enctype="multipart/form-data"
-                action="{{ route('workspaces.evaluations.store', $workspace) }}"
+                action="{{ route('dashboard.workspaces.evaluations.store', $workspace) }}"
             >
                 @csrf
                 <label class="form-control w-full">
@@ -88,6 +88,9 @@
                     <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                     @enderror
                 </label>
+                <span class="label-text-alt mt-1 text-base-content/60">
+                    Accepted formats: PDF, DOC, DOCX, TXT
+                </span>
                 <label class="form-control w-full">
                     <span class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></span>
                     <textarea

@@ -400,7 +400,7 @@ new class extends Component {
                                 <textarea
                                     name="email_list"
                                     rows="8"
-                                    class="textarea textarea-bordered font-mono text-sm @error('email_list') textarea-error @enderror"
+                                    class="textarea textarea-bordered ml-1 font-mono text-sm @error('email_list') textarea-error @enderror"
                                     wire:model="csvString"
                                     placeholder="one@southern.edu&#10;two@southern.edu&#10;&#10;Or paste a CSV column of emails…"
                                 ></textarea>
