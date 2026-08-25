@@ -6,7 +6,7 @@
 
         <div>
             <p class="mb-4 text-sm text-base-content/70">View and manage platform accounts.</p>
-            <div>
+            <div class="pb-5">
                 {{ $users->links() }}
             </div>
             <div class="overflow-x-auto rounded-box border border-base-300">
@@ -37,7 +37,7 @@
                     </tbody>
                 </table>
             </div>
-            <div>
+            <div class="pt-5">
                 {{ $users->links() }}
             </div>
         </div>

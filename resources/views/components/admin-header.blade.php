@@ -6,8 +6,8 @@
             <a
                 role="tab"
                 href="{{ route('dashboard.admin.users') }}"
-                class="tab {{ request()->routeIs('dashboard.admin.users.*') ? 'tab-active' : '' }}"
-                aria-current="{{ request()->routeIs('dashboard.admin.users.*') ? 'page' : 'false' }}"
+                class="tab {{ request()->routeIs('dashboard.admin.users*') ? 'tab-active' : '' }}"
+                aria-current="{{ request()->routeIs('dashboard.admin.users*') ? 'page' : 'false' }}"
             >
                 Users
             </a>
