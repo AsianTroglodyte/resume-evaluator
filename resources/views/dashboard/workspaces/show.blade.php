@@ -74,10 +74,16 @@
                 @csrf
                 <label class="form-control w-full">
                     <div class="label-text mb-1 font-medium">Resume file</div>
+                    {{-- <input
+                        type="file"
+                        name="resume_file"
+                        class="file-input" 
+                        /> --}}
                     <input
                         type="file"
                         name="resume_file"
-                        class="file-input" />
+                        class="file-input file-input-bordered w-full"
+                        accept=".pdf,.doc,.docx,.txt" />
                     @error('resume_file')
                     <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                     @enderror

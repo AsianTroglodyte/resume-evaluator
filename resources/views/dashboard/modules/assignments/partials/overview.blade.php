@@ -41,28 +41,37 @@
         enctype="multipart/form-data"
         action="{{ route('submissions.evaluations.store', $assignment) }}">
         @csrf
-        <label class="form-control w-full">
-            <span class="label-text mb-1 font-medium">Resume file</span>
+        <div class="form-control w-full" > 
+            <label class="label-text w-fit" for="resume_file">
+                Resume file
+            </label> 
             <input
-                type="file"
+                id="resume_file"
                 name="resume_file"
+                type="file"
                 class="file-input file-input-bordered w-full"
-                accept=".pdf,.doc,.docx" />
-            <span class="label-text-alt mt-1 text-base-content/60">Accepted formats: PDF, DOC, DOCX</span>
+                accept=".pdf,.doc,.docx,.txt" />
+            <span class="label-text-alt mt-1 text-base-content/60">
+                Accepted formats: PDF, DOC, DOCX
+            </span>
             @error('resume_file')
             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
             @enderror
-        </label>
-        <label class="form-control w-full">
-            <span class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></span>
+        </div>
+        <div class="form-control w-full">
+            <label class="label-text mb-1 font-medium" for="job_description">
+                Job description <span class="font-normal text-base-content/50">(optional)</span>
+            </label>
+            {{-- NOTE all white space including newlines are counted in the text area slot area --}}
             <textarea
+                id="job_description"
                 name="job_description"
                 class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
                 placeholder="Paste a role description for targeted feedback and keyword analysis.">{{ session('job_description') }}</textarea>
             <span class="label-text-alt text-sm text-base-content/60">
                 Leave blank for a general quality evaluation without keyword analysis.
             </span>
-        </label>
+        </div>
         <div class="flex flex-wrap justify-end gap-2">
             <button type="submit" class="btn btn-primary">Submit resume</button>
         </div>

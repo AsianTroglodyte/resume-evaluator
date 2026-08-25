@@ -204,7 +204,7 @@ new class extends Component {
     Add Members
 </button>
 
-<dialog id="add_members" class="modal overflow-visible"
+<dialog id="add_members" class="modal"
     @if ($dialogIsOpen)
         open 
     @endif
@@ -220,10 +220,10 @@ new class extends Component {
         </button>
     
         <header class="space-y-1 pr-10">
-            <h3 class="text-2xl font-bold text-primary">Add members</h3>
+            <h3 class="text-1xl font-bold text-primary">Add members</h3>
         </header>
 
-        <div class="mt-4 tabs tabs-lift overflow-visible">
+        <div class="mt-4 tabs tabs-lift">
             <input
                 type="radio"
                 name="add_members_tab"
@@ -232,54 +232,19 @@ new class extends Component {
                 aria-label="Find people"
                 @checked(old('add_mode', session('add_members_tab', 'find')) !== 'paste')
             />
-            <div role="tabpanel" class="tab-content space-y-0 overflow-visible border-base-300 bg-base-100 p-4">
+            <div role="tabpanel" class="tab-content space-y-0 border-base-300 bg-base-100 p-4">
                 <form
                     wire:submit="addSelected"
-                    class="flex flex-col gap-4 overflow-visible"
+                    class="flex max-h-[calc(100dvh-8rem)] min-h-0 flex-col gap-4"
                 >
                     @csrf
-                    <fieldset class="rounded-box border border-base-300 bg-base-200/30 p-3">
-                        <legend class="px-1 text-sm font-medium">Selected</legend>
-                        <ul class="max-h-100 space-y-0 overflow-y-auto" data-user-search-results>
-                        @if (filled($selectedUsers))
-                            @foreach ($selectedUsers as $selectedUser)
-                            <li wire:key="selected-user-{{ $selectedUser['id'] }}">
-                                <button
-                                    type="button"
-                                    class="flex w-full items-center justify-between gap-2 rounded px-2 cursor-pointer
-                                    py-0.5 text-left text-sm text-base-content/80 hover:bg-base-200"
-                                    wire:click="deselectUser({{ $selectedUser['id'] }})"
-                                    aria-label="Remove {{ $selectedUser['first_name'] }} {{ $selectedUser['last_name'] }}"
-                                >
-                                    <span class="min-w-0 truncate">
-                                        {{ $selectedUser['first_name'] }} {{ $selectedUser['last_name'] }}
-                                        <span class="text-base-content/50">{{ $selectedUser['email'] }}</span>
-                                    </span>
-                                    <span class="shrink-0 text-base leading-none" aria-hidden="true">×</span>
-                                </button>
-                            </li>
-                            @endforeach
-                        @elseif (!filled($selectedUsers))
-                            <li
-                                class="px-2 text-center text-sm text-base-content/50">
-                                Have not selected any users yet
-                            </li>
-                        @endif
-                        </ul>
-                    </fieldset>
-
-                    @error("no_selected_users")
-                        <span class="label-text-alt text-xs mt-1 text-error">{{ $message }}</span>
-                    @enderror
-                    @error('selectedUsers')
-                        <span class="text-sm text-error">{{ $message }}</span>
-                    @enderror
 
                     <input type="hidden" name="add_mode" value="find" />
 
+                    <div class="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
                     <div class="form-control w-full">
                         <label for="add-members-user-search" class="label-text mb-1 w-fit font-medium">Search users</label>
-                        <div class="relative w-full focus-within:[&_#user-combobox-list]:block">
+                        <div class="relative w-full focus-within:[&_#user-combobox-list]:block max-y-50">
                             <input
                                 id="add-members-user-search"
                                 type="search"
@@ -304,6 +269,7 @@ new class extends Component {
                                     role="listbox"
                                     class="absolute left-0 right-0 top-full z-50 mt-1 hidden max-h-48
                                     overflow-y-auto rounded-box border border-base-300 bg-base-100 shadow"
+                                    popover
                                 >
                                     <ul class="menu menu-sm w-full p-0">
                                         @if (count($queryResult) > 100)
@@ -334,7 +300,45 @@ new class extends Component {
                         </div>
                     </div>
 
+                    <div class="space-y-4">
+                        <fieldset class="rounded-box border border-base-300 bg-base-200/30 p-3">
+                            <legend class="px-1 text-sm font-medium">Selected</legend>
+                            <ul class="max-h-72 space-y-0 overflow-y-auto pr-1" data-user-search-results>
+                                @if (filled($selectedUsers))
+                                    @foreach ($selectedUsers as $selectedUser)
+                                        <li wire:key="selected-user-{{ $selectedUser['id'] }}">
+                                            <button
+                                                type="button"
+                                                class="flex w-full cursor-pointer items-center justify-between gap-2 rounded px-2 py-0.5 text-left text-sm text-base-content/80 hover:bg-base-200"
+                                                wire:click="deselectUser({{ $selectedUser['id'] }})"
+                                                aria-label="Remove {{ $selectedUser['first_name'] }} {{ $selectedUser['last_name'] }}"
+                                            >
+                                                <span class="min-w-0 truncate">
+                                                    {{ $selectedUser['first_name'] }} {{ $selectedUser['last_name'] }}
+                                                    <span class="text-base-content/50">{{ $selectedUser['email'] }}</span>
+                                                </span>
+                                                <span class="shrink-0 text-base leading-none" aria-hidden="true">×</span>
+                                            </button>
+                                        </li>
+                                    @endforeach
+                                @else
+                                    <li class="px-2 text-center text-sm text-base-content/50">
+                                        Have not selected any users yet
+                                    </li>
+                                @endif
+                            </ul>
+                        </fieldset>
+
+                        @error('no_selected_users')
+                            <span class="label-text-alt text-xs text-error">{{ $message }}</span>
+                        @enderror
+                        @error('selectedUsers')
+                            <span class="text-sm text-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
                     <x-role-in-module-select id="add-members-role-find" />
+                    </div>
 
                     <div class="flex justify-end gap-2">
                         <button type="button" 
@@ -363,72 +367,74 @@ new class extends Component {
             />
             <div role="tabpanel" class="tab-content border-base-300 bg-base-100 p-4">
                 <form
-                    class="flex flex-col gap-4"
+                    class="flex max-h-[calc(100dvh-8rem)] min-h-0 flex-col gap-4"
                     enctype="multipart/form-data"
                     wire:submit="addFromImport"
                 >
-                    <div class="form-control w-full">
-                        <span class="label-text mb-2 font-medium">Import source</span>
-                        <div class="join">
-                            <input
-                                type="radio"
-                                name="list_source"
-                                value="paste"
-                                class="btn join-item btn-sm"
-                                aria-label="Paste text"
-                                wire:model.live="listSource"
-                            />
-                            <input
-                                type="radio"
-                                name="list_source"
-                                value="file"
-                                class="btn join-item btn-sm"
-                                aria-label="Upload file"
-                                wire:model.live="listSource"
-                            />
-                        </div>
-                    </div>
-
-                    <div @class(['hidden' => $listSource !== 'paste'])>
-                        <label class="form-control w-full">
-                            <div class="label-text mb-1 font-medium">Emails</div>
-                            <textarea
-                                name="email_list"
-                                rows="8"
-                                class="textarea textarea-bordered font-mono text-sm @error('email_list') textarea-error @enderror"
-                                wire:model="csvString"
-                                placeholder="one@southern.edu&#10;two@southern.edu&#10;&#10;Or paste a CSV column of emails…"
-                            ></textarea>
-                            <div class="label-text-alt mt-1 text-base-content/60">
-                                One email per line, or a single CSV column. Optional header: <code class="text-xs">email</code>.
+                    <div class="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+                        <div class="form-control w-full">
+                            <span class="label-text mb-2 font-medium">Import source</span>
+                            <div class="join">
+                                <input
+                                    type="radio"
+                                    name="list_source"
+                                    value="paste"
+                                    class="btn join-item btn-sm"
+                                    aria-label="Paste text"
+                                    wire:model.live="listSource"
+                                />
+                                <input
+                                    type="radio"
+                                    name="list_source"
+                                    value="file"
+                                    class="btn join-item btn-sm"
+                                    aria-label="Upload file"
+                                    wire:model.live="listSource"
+                                />
                             </div>
-                        </label>
-                        @error('email_list')
-                            <span class="label-text-alt text-error">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <div @class(['hidden' => $listSource !== 'file'])>
-                        <label class="form-control w-full">
-                            <span class="label-text mb-1 font-medium">CSV file</span>
-                            <input
-                                type="file"
-                                wire:model="emails_csv_file"
-                                accept=".csv,.txt,text/csv,text/plain"
-                                class="file-input file-input-bordered w-full @error('email_list') file-input-error @enderror"
-                            />
-                            <span class="label-text-alt mt-1 text-base-content/60">
-                                One column of addresses, or a header named <code class="text-xs">email</code>.
-                            </span>
-                        </label>
-                        @error('email_list')
-                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
-                        @enderror
-                        <div wire:loading wire:target="emails_csv_file" class="text-sm text-base-content/60">
-                            Uploading…
                         </div>
-                    </div>
 
-                    <x-role-in-module-select id="add-members-role-paste" />
+                        <div @class(['hidden' => $listSource !== 'paste'])>
+                            <label class="form-control w-full">
+                                <div class="label-text mb-1 font-medium">Emails</div>
+                                <textarea
+                                    name="email_list"
+                                    rows="8"
+                                    class="textarea textarea-bordered font-mono text-sm @error('email_list') textarea-error @enderror"
+                                    wire:model="csvString"
+                                    placeholder="one@southern.edu&#10;two@southern.edu&#10;&#10;Or paste a CSV column of emails…"
+                                ></textarea>
+                                <div class="label-text-alt mt-1 text-base-content/60">
+                                    One email per line, or a single CSV column. Optional header: <code class="text-xs">email</code>.
+                                </div>
+                            </label>
+                            @error('email_list')
+                                <span class="label-text-alt text-error">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div @class(['hidden' => $listSource !== 'file'])>
+                            <label class="form-control w-full">
+                                <span class="label-text mb-1 font-medium">CSV file</span>
+                                <input
+                                    type="file"
+                                    wire:model="emails_csv_file"
+                                    accept=".csv,.txt,text/csv,text/plain"
+                                    class="file-input file-input-bordered w-full @error('email_list') file-input-error @enderror"
+                                />
+                                <span class="label-text-alt mt-1 text-base-content/60">
+                                    One column of addresses, or a header named <code class="text-xs">email</code>.
+                                </span>
+                            </label>
+                            @error('email_list')
+                                <span class="label-text-alt text-error">{{ $message }}</span>
+                            @enderror
+                            <div wire:loading wire:target="emails_csv_file" class="text-sm text-base-content/60">
+                                Uploading…
+                            </div>
+                        </div>
+
+                        <x-role-in-module-select id="add-members-role-paste" />
+                    </div>
 
                     <div class="flex justify-end gap-2">
                         <button
