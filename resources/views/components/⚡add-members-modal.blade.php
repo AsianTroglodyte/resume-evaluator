@@ -209,7 +209,7 @@ new class extends Component {
         open 
     @endif
     >
-    <div class="modal-box w-[92vw] max-w-2xl overflow-visible">
+    <div class="modal-box w-[92vw] max-w-2xl overflow-y-scroll">
         <button
             type="button"
             class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
