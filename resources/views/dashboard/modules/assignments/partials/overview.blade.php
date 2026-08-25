@@ -43,11 +43,16 @@
         @csrf
         <label class="form-control w-full">
             <span class="label-text mb-1 font-medium">Resume file</span>
+            {{-- <input
+                type="file"
+                name="resume_file"
+                class="file-input file-input-bordered w-full"
+                accept=".pdf,.doc,.docx,.txt" /> --}}
             <input
                 type="file"
                 name="resume_file"
                 class="file-input file-input-bordered w-full"
-                accept=".pdf,.doc,.docx" />
+                accept=".pdf,.doc,.docx,.txt" />
             <span class="label-text-alt mt-1 text-base-content/60">Accepted formats: PDF, DOC, DOCX</span>
             @error('resume_file')
             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
