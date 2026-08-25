@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
@@ -260,12 +261,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('submissions.evaluations.destroy');
     });
 
-    Route::redirect('/dashboard/admin', '/dashboard/admin/users');
+    Route::controller(AdminUserController::class)->group(function () {
+        Route::get('/dashboard/admin/users', 'index')
+            ->name('dashboard.admin.users')
+            ->can('viewAny', User::class);
+    });
+    // ('/dashboard/admin', '/dashboard/admin/users');
 
-    Route::get('/dashboard/admin/users', function () {
-        return view('dashboard.admin.users.index', [
-            'users' => User::query()->orderBy('last_name', 'asc')->orderBy('first_name', 'asc')->get(),
-        ]);
-    })->name('dashboard.admin.users.index')
-        ->can('viewAny', User::class);
+    // Route::get('/dashboard/admin/users', function () {
+    //     return view('dashboard.admin.users.index', [
+    //         'users' => User::query()->orderBy('last_name', 'asc')->orderBy('first_name', 'asc')->get(),
+    //     ]);
+    // })->name('dashboard.admin.users.index')
+    //     ->can('viewAny', User::class);
 });

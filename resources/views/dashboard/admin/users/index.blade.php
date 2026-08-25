@@ -6,7 +6,9 @@
 
         <div>
             <p class="mb-4 text-sm text-base-content/70">View and manage platform accounts.</p>
-
+            <div>
+                {{ $users->links() }}
+            </div>
             <div class="overflow-x-auto rounded-box border border-base-300">
                 <table class="table">
                     <thead>
@@ -14,9 +16,6 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Global role</th>
-                            <th>Email verified</th>
-                            <th>Created at</th>
-                            <th>Updated at</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -29,9 +28,6 @@
                                 </td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->global_role }}</td>
-                                <td>{{ $user->email_verified_at?->format('M j, Y g:i A') ?? 'No' }}</td>
-                                <td>{{ $user->created_at?->format('M j, Y g:i A') }}</td>
-                                <td>{{ $user->updated_at?->format('M j, Y g:i A') }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -40,6 +36,9 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            <div>
+                {{ $users->links() }}
             </div>
         </div>
     </section>
