@@ -76,6 +76,9 @@ class EvaluationController extends Controller
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
         ]);
 
+        // $userExistingSubmission = $assignment->submissionFor($request->user());
+        // dd("userExistingSubmission:", $userExistingSubmission);
+
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
         $submission = Submission::create([

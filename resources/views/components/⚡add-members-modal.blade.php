@@ -235,7 +235,7 @@ new class extends Component {
             <div role="tabpanel" class="tab-content space-y-0 border-base-300 bg-base-100 p-4">
                 <form
                     wire:submit="addSelected"
-                    class="flex max-h-[calc(100dvh-12rem)] min-h-0 flex-col gap-4"
+                    class="flex max-h-[calc(100dvh-8rem)] min-h-0 flex-col gap-4"
                 >
                     @csrf
 
@@ -303,7 +303,7 @@ new class extends Component {
                     <div class="space-y-4">
                         <fieldset class="rounded-box border border-base-300 bg-base-200/30 p-3">
                             <legend class="px-1 text-sm font-medium">Selected</legend>
-                            <ul class="max-h-48 space-y-0 overflow-y-auto pr-1" data-user-search-results>
+                            <ul class="max-h-72 space-y-0 overflow-y-auto pr-1" data-user-search-results>
                                 @if (filled($selectedUsers))
                                     @foreach ($selectedUsers as $selectedUser)
                                         <li wire:key="selected-user-{{ $selectedUser['id'] }}">
@@ -367,7 +367,7 @@ new class extends Component {
             />
             <div role="tabpanel" class="tab-content border-base-300 bg-base-100 p-4">
                 <form
-                    class="flex max-h-[calc(100dvh-12rem)] min-h-0 flex-col gap-4"
+                    class="flex max-h-[calc(100dvh-8rem)] min-h-0 flex-col gap-4"
                     enctype="multipart/form-data"
                     wire:submit="addFromImport"
                 >

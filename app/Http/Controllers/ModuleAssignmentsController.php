@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr as SupportArr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ModuleAssignmentsController extends Controller
@@ -209,6 +210,17 @@ class ModuleAssignmentsController extends Controller
 
     public function destroy(Module $module, Assignment $assignment)
     {
+        // $assignment->
+        $submissionResumeFilePaths = $assignment->allEvaluations()
+            ->get()
+            ->pluck('resume_file_path');
+
+        foreach ($submissionResumeFilePaths as $submissionResumeFilePath) 
+        {
+            Storage::disk('local')->delete($submissionResumeFilePath);
+        }
+
+        // dd("submissions: ", $submissionResumeFilePaths);
         $assignment->delete();
 
         return redirect()->route('dashboard.modules.show', [

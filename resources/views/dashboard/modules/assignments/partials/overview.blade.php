@@ -62,13 +62,12 @@
             <label class="label-text mb-1 font-medium" for="job_description">
                 Job description <span class="font-normal text-base-content/50">(optional)</span>
             </label>
+            {{-- NOTE all white space including newlines are counted in the text area slot area --}}
             <textarea
                 id="job_description"
                 name="job_description"
                 class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
-                placeholder="Paste a role description for targeted feedback and keyword analysis.">
-                {{ session('job_description') }}
-            </textarea>
+                placeholder="Paste a role description for targeted feedback and keyword analysis.">{{ session('job_description') }}</textarea>
             <span class="label-text-alt text-sm text-base-content/60">
                 Leave blank for a general quality evaluation without keyword analysis.
             </span>
