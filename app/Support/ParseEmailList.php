@@ -17,9 +17,7 @@ class ParseEmailList
 
         $currentRowNum = 0;
         $hasHeader = False;
-        $loopRan = "false";
         while (($row = fgetcsv($stream, null, ',', '"', '\\')) !== false) {
-            $loopRan = "true";
 
             if (count($row) !== 1) {
                 throw ValidationException::withMessages([
