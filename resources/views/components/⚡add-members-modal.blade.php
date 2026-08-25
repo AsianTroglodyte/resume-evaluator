@@ -94,6 +94,7 @@ new class extends Component {
     }
 
     public function addUsers(array $emails) {
+        
         $validated = Validator::make(
             [
                 'emails' => $emails,
@@ -180,6 +181,7 @@ new class extends Component {
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, $this->csvString);
         rewind($stream);
+        // dd("bruh");
 
         $email_array = (new ParseEmailList)($stream);
         $this->addUsers($email_array);
