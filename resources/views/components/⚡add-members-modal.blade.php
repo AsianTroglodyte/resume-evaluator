@@ -159,6 +159,9 @@ new class extends Component {
         return redirect()->route('dashboard.modules.members.index', [
             'module' => $this->module,
             'members' => $members,
+        ])->with('membershipStatus', [
+            'message' => 'Users Added',
+            'type' => 'success',
         ]);
     }
 

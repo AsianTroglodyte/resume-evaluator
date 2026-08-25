@@ -9,8 +9,7 @@
         <div class="toast toast-top toast-center z-50 toast-auto-dismiss pointer-events-none">
             <div
                 role="status"
-                class="alert shadow-lg {{ $profileNotice['type'] === 'success' ? 'alert-success' : 'alert-info' }}"
-            >
+                class="alert shadow-lg {{ $profileNotice['type'] === 'success' ? 'alert-success' : 'alert-info' }}">
                 <span>{{ $profileNotice['message'] }}</span>
             </div>
         </div>
