@@ -327,7 +327,7 @@
                                 >
                                     <input
                                         type="checkbox"
-                                        class="checkbox checkbox-md mt-0.5 shrink-0"
+                                        class="checkbox checkbox-md rounded-none mt-0.5 shrink-0"
                                         id="user-{{ $user->id }}"
                                         name="assignee_ids[]"
                                         value="{{ $user->id }}"
