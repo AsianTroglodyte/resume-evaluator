@@ -29,8 +29,6 @@ it('adds selected users', function () {
         ->call('addSelected')
         ->assertHasNoErrors();
 
-    $user_email_array = array_map(fn ($user) => $user["email"], $userArray);
-
     foreach ($userArray as $user) {
         $this->assertDatabaseHas('module_memberships', [
             'module_id' => $module->id,
@@ -53,7 +51,7 @@ it('adds users from pasted email list', function () {
     Livewire::test('add-members-modal', ['module' => $module])
         ->set('csvString', join("\n", $userEmailArray))
         ->set('roleInModule', RoleInModule::Student)
-        ->call('addFromPastedList')
+        ->call('addFromImport')
         ->assertHasNoErrors();
 
     // at least admin/creator will also be member 
@@ -85,9 +83,10 @@ it('adds users from email list file', function () {
 
     $userArray = $userCollection->toArray();
     Livewire::test('add-members-modal', ['module' => $module])
+        ->set('listSource', 'file')
         ->set('emails_csv_file', $file)
         ->set('roleInModule', RoleInModule::Student)
-        ->call('addFromFile')
+        ->call('addFromImport')
         ->assertHasNoErrors();
 
     // at least admin/creator will also be member 

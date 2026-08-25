@@ -1,9 +1,21 @@
+@php
+    $membershipStatus = session('membershipStatus');
+@endphp
+
 <x-dashboard-layout>
     <x-slot:title>{{ $module->name }} — Participants</x-slot:title>
 
     <section class="space-y-6">
         <x-module-header :module="$module" />
-
+        @if ($membershipStatus)
+        <div class="toast toast-top toast-center z-50 toast-auto-dismiss pointer-events-none">
+            <div
+                role="status"
+                class="alert shadow-lg {{ $membershipStatus['type'] === 'success' ? 'alert-success' : 'alert-info' }}">
+                <span>{{ $membershipStatus['message'] }}</span>
+            </div>
+        </div>
+        @endif
         <div class="space-y-4">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div class="min-w-0 flex-1 space-y-1">

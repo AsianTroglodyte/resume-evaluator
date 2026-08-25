@@ -36,11 +36,7 @@ class UserController extends Controller
             'password' => $validated['new_password'],
         ]);
 
-        return redirect()->route('user.profile')
-            ->with('profile_notice', [
-                'message' => 'Password updated.',
-                'type' => 'success',
-            ]);
+        return redirect()->route('user.profile');
     }
 
     public function updateName()

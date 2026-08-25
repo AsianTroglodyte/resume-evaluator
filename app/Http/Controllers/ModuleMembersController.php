@@ -6,7 +6,6 @@ use App\Enums\RoleInModule;
 use App\Models\Module;
 use App\Models\ModuleMembership;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -20,7 +19,7 @@ class ModuleMembersController extends Controller
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();
-
+        // dd("bruh");
         return view('dashboard.modules.members.index', [
             'module' => $module,
             'members' => $members,
@@ -107,6 +106,11 @@ class ModuleMembersController extends Controller
                 'removed_at' => now(),
             ]);
 
-        return redirect()->route('dashboard.modules.members.index', $module);
+        return redirect()
+            ->route('dashboard.modules.members.index', $module)
+            ->with('membershipStatus', [
+                'message' => 'User removed.',
+                'type' => 'success',
+            ]);
     }
 }

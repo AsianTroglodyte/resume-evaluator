@@ -34,15 +34,6 @@ new class extends Component {
         $this->module = $module;
     }
 
-    public function updatedListSource(string $value): void
-    {
-        if ($value === 'paste') {
-            $this->emails_csv_file = null;
-        } else {
-            $this->csvString = '';
-        }
-    }
-
     public function selectUser(int $id): void
     {
         $user = User::query()
@@ -94,6 +85,7 @@ new class extends Component {
     }
 
     public function addUsers(array $emails) {
+        
         $validated = Validator::make(
             [
                 'emails' => $emails,
@@ -159,6 +151,9 @@ new class extends Component {
         return redirect()->route('dashboard.modules.members.index', [
             'module' => $this->module,
             'members' => $members,
+        ])->with('membershipStatus', [
+            'message' => 'Users Added',
+            'type' => 'success',
         ]);
     }
 
@@ -172,25 +167,26 @@ new class extends Component {
         $this->clearComponentState();
     }
 
-    public function addFromPastedList() 
+    public function addFromImport() 
     {
-        $stream = fopen('php://memory', 'r+');
-        fwrite($stream, $this->csvString);
-        rewind($stream);
+        if ($this->listSource === "paste") {
+            $stream = fopen('php://memory', 'r+');
+            fwrite($stream, $this->csvString);
+            rewind($stream);
 
-        $email_array = (new ParseEmailList)($stream);
-        $this->addUsers($email_array);
-    }
+            $email_array = (new ParseEmailList)($stream);
+            $this->addUsers($email_array);
+        }
+        else if ($this->listSource === "file") {
+            $validator = Validator::make(['emails_csv_file' => $this->emails_csv_file], [
+                'emails_csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:1024']
+            ])->validate();
 
-    public function addFromFile() 
-    {
-        Validator::make(['emails_csv_file' => $this->emails_csv_file], [
-            'emails_csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:1024']
-        ]);
+            $stream = fopen($this->emails_csv_file->getRealPath(), 'rb');
 
-        $stream = fopen($this->emails_csv_file->getRealPath(), 'rb');
-        $email_array = (new ParseEmailList)($stream);
-        $this->addUsers($email_array);
+            $email_array = (new ParseEmailList)($stream);
+            $this->addUsers($email_array);
+        }
     }
 
     public function toggleDialogIsOpen(): void 
@@ -309,7 +305,6 @@ new class extends Component {
                                     class="absolute left-0 right-0 top-full z-50 mt-1 hidden max-h-48
                                     overflow-y-auto rounded-box border border-base-300 bg-base-100 shadow"
                                 >
-                                {{-- wire:key="user-option-{{ $user->id }}" --}}
                                     <ul class="menu menu-sm w-full p-0">
                                         @if (count($queryResult) > 100)
                                         <li class="px-3 py-2 text-sm text-base-content/70">
@@ -370,11 +365,7 @@ new class extends Component {
                 <form
                     class="flex flex-col gap-4"
                     enctype="multipart/form-data"
-                    @if ($listSource === "paste")
-                        wire:submit="addFromPastedList"
-                    @elseif ($listSource === "file")
-                        wire:submit="addFromFile"
-                    @endif
+                    wire:submit="addFromImport"
                 >
                     <div class="form-control w-full">
                         <span class="label-text mb-2 font-medium">Import source</span>
@@ -398,7 +389,7 @@ new class extends Component {
                         </div>
                     </div>
 
-                    @if ($listSource === 'paste')
+                    <div @class(['hidden' => $listSource !== 'paste'])>
                         <label class="form-control w-full">
                             <div class="label-text mb-1 font-medium">Emails</div>
                             <textarea
@@ -415,7 +406,8 @@ new class extends Component {
                         @error('email_list')
                             <span class="label-text-alt text-error">{{ $message }}</span>
                         @enderror
-                    @else
+                    </div>
+                    <div @class(['hidden' => $listSource !== 'file'])>
                         <label class="form-control w-full">
                             <span class="label-text mb-1 font-medium">CSV file</span>
                             <input
@@ -431,14 +423,13 @@ new class extends Component {
                         @error('email_list')
                             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @enderror
-                        <div wire:loading wire:target="email_list" class="text-sm text-base-content/60">
+                        <div wire:loading wire:target="emails_csv_file" class="text-sm text-base-content/60">
                             Uploading…
                         </div>
-                    @endif
+                    </div>
 
                     <x-role-in-module-select id="add-members-role-paste" />
 
-                    
                     <div class="flex justify-end gap-2">
                         <button
                             type="button"
