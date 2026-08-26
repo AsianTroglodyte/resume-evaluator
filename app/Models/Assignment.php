@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Assignment extends Model
 {
@@ -91,6 +92,12 @@ class Assignment extends Model
     public function submissionFor(User $user): HasOne
     {
         return $this->hasOne(Submission::class)
+            ->where('user_id', $user->id);
+    }
+
+    public function evaluationFor(User $user): HasOneThrough
+    {
+        return $this->hasOneThrough(Evaluation::class, Submission::class)
             ->where('user_id', $user->id);
     }
 

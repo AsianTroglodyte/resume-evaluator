@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\EvaluationStatus;
+use App\Jobs\EvaluateJob;
 use App\Models\Assignment;
 use App\Models\Module;
 use App\Models\ModuleMembership;
@@ -8,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+// use Tests\TestCase;
 
 uses(RefreshDatabase::class);
 
@@ -19,8 +22,6 @@ beforeEach(function (): void {
 test('Submission', function (string $format, string $mime) {
     /** @var TestCase $this */
 
-    Queue::fake();
-    
     $user = User::factory()->create();
     $module = Module::factory()->create();
     $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create();
@@ -45,8 +46,16 @@ test('Submission', function (string $format, string $mime) {
         ])
         ->assertRedirect(route('dashboard.modules.assignments.show', [$module, $assignment]));
     
-    
+    $evaluation = $assignment->evaluationFor($user)->sole(); 
+    // dd($evaluation);
 
+    expect($evaluation->status)->toBe(EvaluationStatus::Processing)
+        ->and(trim($evaluation->job_description_text))->toBe(trim($job_description_text));;
+
+    Queue::assertPushed(
+        EvaluateJob::class,
+        fn (EvaluateJob $job) => $job->evaluation->is($evaluation)
+    );
 })->with([
     'PDF' => ['pdf', 'application/pdf'],
     'legacy Word' => ['doc', 'application/msword'],
@@ -60,7 +69,21 @@ test('Submission', function (string $format, string $mime) {
 
 
 test('Remove Submission', function () {
-    /** @var TestCase $this */
+    /** @var TestCase $this **/
+    $user = User::factory()->create();
+    $module = Module::factory()->create();
+    $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create();
+    
+    ModuleMembership::factory()
+        ->module($module)
+        ->user($user)
+        ->create();
+
+    $job_description_text = file_get_contents(evaluationFixture("sample-job-listing.txt"));
+
+    $this->actingAs($user);
+        // ->post
+    // $
 })->todo();
 
 
