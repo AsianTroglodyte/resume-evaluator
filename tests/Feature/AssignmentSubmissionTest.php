@@ -7,19 +7,19 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-// function evaluationFixture(string $filename) 
-// {
-//     return base_path("tests/Fixtures/evaluations/{$filename}");
-// }
-
+beforeEach(function (): void {
+    Storage::fake('local');
+    Queue::fake();
+});
 
 test('Submission', function (string $format, string $mime) {
     /** @var TestCase $this */
 
-    // Queue::fake();
+    Queue::fake();
     
     $user = User::factory()->create();
     $module = Module::factory()->create();

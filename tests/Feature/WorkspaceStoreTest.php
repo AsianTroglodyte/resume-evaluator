@@ -9,8 +9,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    Storage::fake('local');
+    Queue::fake();
+});
 
 it('creates processing evaluation; queues the job.', 
     function (string $format, string $mime) {
