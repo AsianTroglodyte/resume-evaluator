@@ -256,11 +256,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::controller(SubmissionController::class)->group(function () {
-        Route::post('/dashboard/modules/{module}/assignments/{assignment}/', 'storeSubmission')
+        Route::post('/dashboard/modules/{module}/assignments/{assignment}', 'storeSubmission')
             ->scopeBindings()
             ->name('dashboard.modules.assignments.submissions.store')
             ->can('submit', 'assignment');
-        Route::delete('/dashboard/modules/{module}/assignments/{assignment}/', 'destroySubmission')
+        Route::delete('/dashboard/modules/{module}/assignments/{assignment}', 'destroySubmission')
             ->scopeBindings()
             ->name('dashboard.modules.assignments.submissions.destroy')
             ->can('submit', 'assignment');

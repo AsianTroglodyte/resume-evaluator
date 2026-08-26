@@ -7,18 +7,18 @@ use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-function evaluationFixture(string $filename) 
-{
-    return base_path("tests/Fixtures/evaluations/{$filename}");
-}
+beforeEach(function (): void {
+    Storage::fake('local');
+    Queue::fake();
+});
 
-it('test: creates processing evaluation; queues the job.', 
+it('creates processing evaluation; queues the job.', 
     function (string $format, string $mime) {
     /** @var TestCase $this */
 
@@ -32,7 +32,7 @@ it('test: creates processing evaluation; queues the job.',
     $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
 
     $this->actingAs($user)
-        ->post(route('workspaces.evaluations.store', $workspace), [
+        ->post(route('dashboard.workspaces.evaluations.store', $workspace), [
             'resume_file' => new UploadedFile(
                 evaluationFixture("sample-resume.{$format}"),
                 "sample-resume.{$format}",
@@ -78,7 +78,7 @@ it ('prunes the evaluations beyond the latest five', function () {
     }
 
     $this->actingAs($user)
-        ->post(route('workspaces.evaluations.store', $workspace), 
+        ->post(route('dashboard.workspaces.evaluations.store', $workspace), 
             ['resume_file' => new UploadedFile(
                 evaluationFixture("sample-resume.pdf"),
                 "sample-resume.pdf",
@@ -102,7 +102,7 @@ it ('rejects a new run while one is processing', function () {
         ->create();
     
     $response = $this->actingAs($user)
-        ->post(route('workspaces.evaluations.store', $workspace),
+        ->post(route('dashboard.workspaces.evaluations.store', $workspace),
             ['resume_file' => new UploadedFile(
                 evaluationFixture("sample-resume.pdf"),
                 "sample-resume.pdf",

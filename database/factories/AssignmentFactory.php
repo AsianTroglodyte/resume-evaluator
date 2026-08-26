@@ -6,13 +6,10 @@ use App\Enums\AssigneeScope;
 use App\Enums\JobListingSource;
 use App\Enums\ModuleJobListingScope;
 use App\Models\Assignment;
-use App\Models\AssignmentAllowedJobListings;
-use App\Models\AssignmentAssignees;
 use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
