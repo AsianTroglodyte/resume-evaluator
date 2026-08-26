@@ -49,4 +49,6 @@ class ModuleFactory extends Factory
     {
         return $this->state(fn () => ['created_by_user_id' => $user->id]);
     }
+
+    // public function withUsers() {}
 }

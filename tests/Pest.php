@@ -41,6 +41,11 @@ expect()->extend('toBeOne', function () {
 |
 */
 
+function evaluationFixture(string $filename) 
+{
+    return base_path("tests/Fixtures/evaluations/{$filename}");
+}
+
 function something()
 {
     // ..
