@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\submission;
+use App\Models\Assignment;
+use App\Models\Submission;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +20,24 @@ class SubmissionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            "user_id" => User::factory(),
+            "assignment_id" => Assignment::factory(),
+            "assignment_version" => 1,
+            "due_date_snapshot" => null,
         ];
+    }
+
+    public function withUser(User $user): static
+    {
+        return $this->state(fn (array $attributes) => [
+            "user_id" => $user->id
+        ]);
+    }
+
+    public function withAssignment(Assignment $assignment): static
+    {
+        return $this->state(fn (array $attributes) => [
+            "assignment_id" => $assignment->id
+        ]);
     }
 }
