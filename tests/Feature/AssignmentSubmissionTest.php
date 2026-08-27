@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AssigneeScope;
 use App\Enums\EvaluationStatus;
 use App\Jobs\EvaluateJob;
 use App\Models\Assignment;
@@ -67,7 +68,7 @@ test('Submission', function (string $format, string $mime) {
 
 
 
-test('Remove Submission', function (string $format, string $mime) {
+test('Remove Submission', function () {
     /** @var TestCase $this **/
 
     $admin = User::factory()->admin()->create();
@@ -82,8 +83,6 @@ test('Remove Submission', function (string $format, string $mime) {
     Storage::put($evalFilePath, 'Contents');
     
     Storage::assertExists($evalFilePath);
-    // dd($evalFilePath);
-    // expect()
 
     $this->actingAs($user)
         ->delete(route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]))
@@ -93,6 +92,32 @@ test('Remove Submission', function (string $format, string $mime) {
         ->and(Evaluation::where('id', $evaluation->id)->first())->toBe(null);
 
     Storage::assertMissing($evalFilePath);
+});
+
+
+test("denies submission to an unassigned student", function () {
+    /** @var TestCase **/
+    $admin = User::factory()->admin()->create();
+    $unassignedMember = User::factory()->create();
+    $module = Module::factory()->createdBy($admin)->withMembers($unassignedMember)->create();
+    // NOTE: we did not assign the Member to the assignment
+    $assignment = Assignment::factory()->forModule($module)->create([
+        'assignee_scope' => AssigneeScope::Selected
+    ]);
+
+    $job_description_text = file_get_contents(evaluationFixture("sample-job-listing.txt"));
+
+    $this->actingAs($unassignedMember)
+        ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
+            'resume_file' => new UploadedFile(
+                evaluationFixture("sample-resume.pdf"),
+                "sample-resume.pdf",
+                'application/pdf',
+                null,
+                true,),
+                'job_description' => $job_description_text,
+            ])
+        ->assertForbidden();
 });
 
 
