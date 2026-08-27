@@ -26,6 +26,7 @@ class EvaluationFactory extends Factory
             'resume_text' => fake()->paragraphs(3, true),
             'job_listing_id' => null,
             'job_description_text' => fake()->optional()->paragraphs(2, true),
+            'resume_file_path' => 'resumes/tmp/'.fake()->uuid().'.pdf',
             'status' => EvaluationStatus::Completed,
             'failure_reason' => null,
             'evaluation_data' => [

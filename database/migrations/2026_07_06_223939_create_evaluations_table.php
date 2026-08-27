@@ -19,7 +19,7 @@ return new class extends Migration
             // of the eloquent ORM. we must then enforce app-side.
             $table->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('submission_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->string('resume_file_path')->nullable();
+            $table->string('resume_file_path');
             $table->text('resume_text')->nullable();
             $table->foreignId('job_listing_id')->nullable()->constrained('job_listings')->nullOnDelete();
             $table->text('job_description_text')->nullable();

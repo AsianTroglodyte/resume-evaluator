@@ -57,7 +57,7 @@ class ModuleFactory extends Factory
     {
         $users = Collection::wrap($users);
 
-        return $this->afterCreating(function (Module $module) use ($users, $admin): void {
+        return $this->afterCreating(function (Module $module) use ($users): void {
             $module->members()->attach($users->pluck('id'), [
                 'role_in_module' => RoleInModule::Student,
                 'status' => ModuleMembershipStatus::Active,
@@ -65,16 +65,4 @@ class ModuleFactory extends Factory
             ]);
         });
     }
-
-    // $table->string('role_in_module');
-    // $table->string('status');
-    // $table->foreignId('added_by_user_id')->constrained('users');
-
-    // public function withUsers(Collection|array|User $users): static
-    // {
-    //     $users = Collection::wrap($users);
-    //     return $this->afterCreating(function (Assignment $assignment) use ($users): void {
-    //         $assignment->allAssignees()->attach($users->pluck('id'));
-    //     });
-    // }
 }
