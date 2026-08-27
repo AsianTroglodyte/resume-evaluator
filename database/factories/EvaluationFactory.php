@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\EvaluationStatus;
 use App\Models\Evaluation;
+use App\Models\Submission;
 use App\Models\Workspace;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,6 +22,7 @@ class EvaluationFactory extends Factory
     {
         return [
             'workspace_id' => Workspace::factory(),
+            'submission_id' => null,
             'resume_text' => fake()->paragraphs(3, true),
             'job_listing_id' => null,
             'job_description_text' => fake()->optional()->paragraphs(2, true),
@@ -51,17 +53,34 @@ class EvaluationFactory extends Factory
         ]);
     }
 
-    public function withWorkspace(int $workspace_id): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'workspace_id' => $workspace_id
-        ]);
-    }
-
+    
     public function withStatus(EvaluationStatus $evaluationStatus): static
     {
         return $this->state(fn (array $attributes)=> [
             "status" => $evaluationStatus
+        ]);
+    }
+
+    public function withWorkspace(int $workspace_id): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'workspace_id' => $workspace_id,
+            'submission_id' => null
+        ]);
+    }
+
+    public function withSubmission(?Submission $submission = null): static
+    {
+        if ($submission === null){ 
+            return $this->state(fn (array $attribute) => [
+                'workspace_id' => null,
+                'submission_id' => Submission::factory()
+            ]);
+        }
+
+        return $this->state(fn (array $attribute) => [
+            'workspace_id' => null,
+            'submission_id' => $submission->id
         ]);
     }
 }

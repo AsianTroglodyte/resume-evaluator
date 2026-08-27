@@ -2,10 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Enums\ModuleMembershipStatus;
+use App\Enums\RoleInModule;
 use App\Models\Module;
 use App\Models\ModuleMembership;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Collection;
 
 /**
  * @extends Factory<Module>
@@ -50,5 +53,28 @@ class ModuleFactory extends Factory
         return $this->state(fn () => ['created_by_user_id' => $user->id]);
     }
 
-    // public function withUsers() {}
+    public function withMembers(Collection|array|User $users): static
+    {
+        $users = Collection::wrap($users);
+
+        return $this->afterCreating(function (Module $module) use ($users, $admin): void {
+            $module->members()->attach($users->pluck('id'), [
+                'role_in_module' => RoleInModule::Student,
+                'status' => ModuleMembershipStatus::Active,
+                'added_by_user_id' => $module->created_by_user_id
+            ]);
+        });
+    }
+
+    // $table->string('role_in_module');
+    // $table->string('status');
+    // $table->foreignId('added_by_user_id')->constrained('users');
+
+    // public function withUsers(Collection|array|User $users): static
+    // {
+    //     $users = Collection::wrap($users);
+    //     return $this->afterCreating(function (Assignment $assignment) use ($users): void {
+    //         $assignment->allAssignees()->attach($users->pluck('id'));
+    //     });
+    // }
 }

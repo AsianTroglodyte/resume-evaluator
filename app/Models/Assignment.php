@@ -71,7 +71,6 @@ class Assignment extends Model
     public function assignmentAllowedJobListings(): HasMany
     {
         return $this->hasMany(AssignmentAllowedJobListings::class);
-
     }
 
     public function module(): BelongsTo
