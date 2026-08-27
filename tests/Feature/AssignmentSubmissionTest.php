@@ -2,6 +2,7 @@
 
 use App\Enums\AssigneeScope;
 use App\Enums\EvaluationStatus;
+use App\Enums\ModuleMembershipStatus;
 use App\Jobs\EvaluateJob;
 use App\Models\Assignment;
 use App\Models\Evaluation;
@@ -121,3 +122,34 @@ test("denies submission to an unassigned student", function () {
 });
 
 
+test("denies submission to a removed student", function () {
+    /** @var TestCase **/
+    $admin = User::factory()->admin()->create();
+    $removedMember = User::factory()->create();
+    $module = Module::factory()->createdBy($admin)->withMembers($removedMember)->create();
+    // NOTE: we did not assign the Member to the assignment
+    $assignment = Assignment::factory()->forModule($module)->withUsers($removedMember)->create([
+        'assignee_scope' => AssigneeScope::Selected
+    ]);
+
+    // $membership
+    $membershipRecord = ModuleMembership::where('id', $removedMember->id)->first();
+    // in an actual removal we do a ton more changes. only concerned about status here.
+    $membershipRecord->update(['status' => ModuleMembershipStatus::Removed]);
+
+    // dd($membershipRecord);
+
+    $job_description_text = file_get_contents(evaluationFixture("sample-job-listing.txt"));
+
+    $this->actingAs($removedMember)
+        ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
+            'resume_file' => new UploadedFile(
+                evaluationFixture("sample-resume.pdf"),
+                "sample-resume.pdf",
+                'application/pdf',
+                null,
+                true,),
+                'job_description' => $job_description_text,
+            ])
+        ->assertForbidden();
+});
