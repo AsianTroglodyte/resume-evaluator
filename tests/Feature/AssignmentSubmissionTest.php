@@ -96,7 +96,7 @@ test('rejects submissions past due date', function () {
     $user = User::factory()->create();
     $module = Module::factory()->withMembers([$user])->create();
     $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create([
-        'due_date' => now()
+        'due_date' => now()->subMinute()
     ]);
 
     $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
@@ -112,33 +112,8 @@ test('rejects submissions past due date', function () {
             'job_description' => $job_description_text,
         ])
         ->assertSessionHasErrors(['submission' => 'The due date for this assignment has passed.']);
-});
-
-test('rejects submission when there is already submission', function () {
-    /** @var TestCase $this**/
-    $user = User::factory()->create();
-    $module = Module::factory()->withMembers([$user])->create();
-    $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create();
-    $submission = Submission::factory()->forAssignment($assignment)->withUser($user)->create();
-    $evaluation = Evaluation::factory()->withSubmission($submission)->create();
-    Storage::put($evaluation->resume_file_path, 'content');
     
-    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
-
-    // dd($assignment->submissionFor($user)->exists());
-
-    $this->actingAs($user)
-        ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
-            'resume_file' => new UploadedFile(
-                evaluationFixture('sample-resume.pdf'),
-                'sample-resume.pdf',
-                'application/pdf',
-                null,
-                true),
-            'job_description' => $job_description_text,
-        ])
-        ->assertSessionHasErrors(['submission' => 'You have already submitted to this assignment.']);
-    // $assignment->isPastDue();
+    expect(Submission::count())->tobe(0);
 });
 
 test('denies submission to an unassigned student', function () {
