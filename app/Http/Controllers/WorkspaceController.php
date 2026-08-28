@@ -9,7 +9,6 @@ use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class WorkspaceController extends Controller
@@ -52,12 +51,7 @@ class WorkspaceController extends Controller
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
         ]);
 
-        if ($workspace->hasProcessingEvaluations()) {
-            // dd("rate_limited");
-            throw ValidationException::withMessages([
-                'rate_limit' => 'An evaluation is already processing. Wait for it to complete',
-            ]);
-        }
+        $workspace->ensureCanStartEvaluation();
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 

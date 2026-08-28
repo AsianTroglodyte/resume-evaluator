@@ -14,7 +14,7 @@ class RetryEvaluation
             'status' => EvaluationStatus::Processing,
         ]);
 
-        dd($evaluation->status);
+        // dd($evaluation->status);
 
         EvaluateJob::dispatch(
             $evaluation->resume_file_path,

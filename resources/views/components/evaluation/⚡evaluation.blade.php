@@ -1,13 +1,15 @@
 <?php
 use App\Enums\EvaluationStatus;
 use App\Models\Evaluation;
+use App\Models\Workspace;
 use Livewire\Component;
 use App\Actions\RetryEvaluation;
+use Illuminate\Validation\ValidationException;
 
 new class extends Component
 {
     public Evaluation $evaluation;
-
+    public Workspace $workspace;
     public bool $isOpen = false;
 
     public function mount(Evaluation $evaluation): void
@@ -31,12 +33,16 @@ new class extends Component
 
     public function retryEvaluation(): void
     {
-        // $this->authorize('retry', $evaluation);
-
-        // dd("retry evaluation ran");
-        app(RetryEvaluation::class)($this->evaluation);
-        $this->loadEvaluation();
-        // return back();
+        try {
+            $this->workspace->ensureCanStartEvaluation();
+            app(RetryEvaluation::class)($this->evaluation);
+            $this->loadEvaluation();
+        } catch (ValidationException $e) {
+            $this->dispatch(
+                'evaluation-blocked',
+                message: $e->validator->errors()->first('evaluation'),
+            );
+        }
     }
 };
 ?>

@@ -2,6 +2,7 @@
 
 use App\Enums\EvaluationStatus;
 use App\Models\Evaluation;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
@@ -34,6 +35,27 @@ it('refreshes evaluation status while polling', function () {
         ->call('loadEvaluation')
         ->assertSet('evaluation.status', EvaluationStatus::Completed)
         ->assertSee('completed', false);
+});
+
+it('dispatches evaluation-blocked when retry is blocked by a processing evaluation', function () {
+    $workspace = Workspace::factory()->create();
+
+    Evaluation::factory()
+        ->withWorkspace($workspace->id)
+        ->withStatus(EvaluationStatus::Processing)
+        ->create();
+
+    $failedEvaluation = Evaluation::factory()
+        ->failed()
+        ->withWorkspace($workspace->id)
+        ->create();
+
+    Livewire::test('evaluation.evaluation', [
+        'evaluation' => $failedEvaluation,
+        'workspace' => $workspace,
+    ])
+        ->call('retryEvaluation')
+        ->assertDispatched('evaluation-blocked', message: 'An evaluation is already processing. Wait for it to complete.');
 });
 
 it('polls from a stable root element while processing', function () {
