@@ -2,6 +2,7 @@
 use App\Enums\EvaluationStatus;
 use App\Models\Evaluation;
 use Livewire\Component;
+use App\Actions\RetryEvaluation;
 
 new class extends Component
 {
@@ -16,7 +17,11 @@ new class extends Component
 
     public function loadEvaluation(): void
     {
-        $this->evaluation->refresh();
+        $fresh = $this->evaluation->fresh();
+
+        if ($fresh) {
+            $this->evaluation = $fresh;
+        }
     }
 
     public function toggleExpanded(): void
@@ -28,8 +33,9 @@ new class extends Component
     {
         // $this->authorize('retry', $evaluation);
 
-        dd("retry evaluation ran");
+        // dd("retry evaluation ran");
         app(RetryEvaluation::class)($this->evaluation);
+        $this->loadEvaluation();
         // return back();
     }
 };
@@ -54,8 +60,14 @@ new class extends Component
     };
 @endphp
 
+<div
+    class="w-full"
+    @if ($evaluation->status === EvaluationStatus::Processing)
+        wire:poll.1s.keep-alive="loadEvaluation"
+    @endif
+>
 @if ($evaluation->status === EvaluationStatus::Failed)
-<article class="w-full rounded-box border border-error/30 bg-error/5 p-4 sm:p-5">
+<article class="rounded-box border border-error/30 bg-error/5 p-4 sm:p-5">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div class="flex min-w-0 items-start gap-3">
             <div class="grid size-10 shrink-0 place-items-center rounded-full bg-error/15 text-error">
@@ -100,13 +112,8 @@ new class extends Component
     </div>
 </article>
 @else
-<div
-    @if ($evaluation->status === EvaluationStatus::Processing)
-        wire:poll.1s="loadEvaluation"
-    @endif
->
 <details
-    class="collapse collapse-arrow w-full rounded-box border border-base-300 bg-base-100"
+    class="collapse collapse-arrow rounded-box border border-base-300 bg-base-100"
     @if ($isOpen)
         open
     @endif
@@ -252,5 +259,5 @@ new class extends Component
             @endif
     </div>
 </details>
-</div>
 @endif
+</div>

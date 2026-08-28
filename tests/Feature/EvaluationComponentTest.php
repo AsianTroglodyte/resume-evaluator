@@ -32,5 +32,17 @@ it('refreshes evaluation status while polling', function () {
 
     $component
         ->call('loadEvaluation')
-        ->assertSet('evaluation.status', EvaluationStatus::Completed);
+        ->assertSet('evaluation.status', EvaluationStatus::Completed)
+        ->assertSee('completed', false);
+});
+
+it('polls from a stable root element while processing', function () {
+    $evaluation = Evaluation::factory()->create([
+        'status' => EvaluationStatus::Processing,
+    ]);
+
+    $html = Livewire::test('evaluation.evaluation', ['evaluation' => $evaluation])->html();
+
+    expect($html)->toContain('wire:poll.1s.keep-alive="loadEvaluation"');
+    expect($html)->not->toMatch('/<details[^>]*wire:poll/');
 });
