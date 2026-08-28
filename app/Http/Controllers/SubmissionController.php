@@ -20,7 +20,7 @@ class SubmissionController extends Controller
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
 
         ]);
-
+        
         if ($assignment->isPastDue()) {
             throw ValidationException::withMessages([
                 'submission' => 'The due date for this assignment has passed.',
@@ -32,6 +32,7 @@ class SubmissionController extends Controller
                 'submission' => 'You have already submitted to this assignment.',
             ]);
         }
+
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 

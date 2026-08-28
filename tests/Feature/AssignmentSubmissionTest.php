@@ -73,7 +73,7 @@ test('Remove Submission', function () {
     $user = User::factory()->create();
     $module = Module::factory()->createdBy($admin)->withMembers([$user])->create();
     $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create();
-    $submission = Submission::factory()->withAssignment($assignment)->withUser($user)->create();
+    $submission = Submission::factory()->forAssignment($assignment)->withUser($user)->create();
     $evaluation = Evaluation::factory()->withSubmission($submission)->create();
 
     $evalFilePath = $evaluation->resume_file_path;
@@ -111,7 +111,33 @@ test('rejects submissions past due date', function () {
                 true),
             'job_description' => $job_description_text,
         ])
-        ->assertSessionHasErrors(['submission']);
+        ->assertSessionHasErrors(['submission' => 'The due date for this assignment has passed.']);
+});
+
+test('rejects submission when there is already submission', function () {
+    /** @var TestCase $this**/
+    $user = User::factory()->create();
+    $module = Module::factory()->withMembers([$user])->create();
+    $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create();
+    $submission = Submission::factory()->forAssignment($assignment)->withUser($user)->create();
+    $evaluation = Evaluation::factory()->withSubmission($submission)->create();
+    Storage::put($evaluation->resume_file_path, 'content');
+    
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
+
+    // dd($assignment->submissionFor($user)->exists());
+
+    $this->actingAs($user)
+        ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
+            'resume_file' => new UploadedFile(
+                evaluationFixture('sample-resume.pdf'),
+                'sample-resume.pdf',
+                'application/pdf',
+                null,
+                true),
+            'job_description' => $job_description_text,
+        ])
+        ->assertSessionHasErrors(['submission' => 'You have already submitted to this assignment.']);
     // $assignment->isPastDue();
 });
 
@@ -206,7 +232,7 @@ test("cannote delete another another student's submission", function () {
     $assignment = Assignment::factory()->forModule($module)->withUsers([$owner, $otherStudent])->create();
 
     $submission = Submission::factory()
-        ->withAssignment($assignment)
+        ->forAssignment($assignment)
         ->withUser($owner)
         ->create();
 
@@ -225,7 +251,7 @@ test('rejects a second submission from the same student', function () {
     $user = User::factory()->create();
     $module = Module::factory()->withMembers($user)->create();
     $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create();
-    Submission::factory()->withAssignment($assignment)->withUser($user)->create();
+    Submission::factory()->forAssignment($assignment)->withUser($user)->create();
 
     $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
 

@@ -34,7 +34,7 @@ class SubmissionFactory extends Factory
         ]);
     }
 
-    public function withAssignment(Assignment $assignment): static
+    public function forAssignment(Assignment $assignment): static
     {
         return $this->state(fn (array $attributes) => [
             "assignment_id" => $assignment->id
