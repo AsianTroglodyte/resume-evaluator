@@ -34,7 +34,6 @@ new class extends Component
     public function retryEvaluation(): void
     {
         try {
-            $this->workspace->ensureCanStartEvaluation();
             app(RetryEvaluation::class)($this->evaluation);
             $this->loadEvaluation();
         } catch (ValidationException $e) {
