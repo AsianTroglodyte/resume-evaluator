@@ -134,7 +134,7 @@ test("denies submission to a removed student", function () {
 
     // $membership
     $membershipRecord = ModuleMembership::where('module_id', $module->id)
-        ->where('id', $removedMember->id)
+        ->where('user_id', $removedMember->id)
         ->first();
     // in an actual removal we do a ton more changes. only concerned about status here.
     $membershipRecord->update(['status' => ModuleMembershipStatus::Removed]);
