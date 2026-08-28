@@ -46,6 +46,10 @@ _Avoid_: Learner, participant
 The primary teaching container for members, optional groups, assignments, and module-scoped job listings.
 _Avoid_: class, course (unless intentionally mapped in UI copy)
 
+**Module provisioning**:
+Global admins **create** modules as platform provisioning (`modules.created_by_user_id` records who provisioned the shell). That does **not** grant module-local role or membership. Instructors and students are added **explicitly** via `module_memberships`. A newly provisioned module may have zero members until someone is added.
+_Avoid_: Treating `created_by_user_id` as instructor membership, auto-enrolling the creator as instructor on create
+
 **Group**:
 An optional cohort within a module (e.g. IT vs CS) used to scope assignment eligibility and/or which job listings students see. A module with no groups behaves as a single implicit “everyone” cohort.
 _Avoid_: section, team, cohort (unless mapped as UI copy for Group)
@@ -121,8 +125,8 @@ A user may have at most one membership row per module.
 _Avoid_: Multi-role duplicate memberships
 
 **Instructor Presence Invariant**:
-A module must always have at least one instructor; removing or demoting the last instructor is disallowed.
-_Avoid_: Instructorless module
+A module must always have at least one instructor **once teaching workflows are in use**; removing or demoting the last instructor is disallowed. Provisioning may briefly leave a module without any members; add at least one instructor before the module is operational.
+_Avoid_: Instructorless module during active teaching, inferring instructor from `created_by_user_id`
 
 **Freeze-History / Apply-Forward**:
 Rule changes affect future submissions only; existing submissions remain valid under their original snapshot.
