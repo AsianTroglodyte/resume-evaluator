@@ -6,6 +6,7 @@ use App\Enums\EvaluationStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Validation\ValidationException;
 
 class Workspace extends Model
 {
@@ -34,5 +35,15 @@ class Workspace extends Model
     public function hasProcessingEvaluations(): bool
     {
         return $this->evaluations()->where('status', EvaluationStatus::Processing)->exists();
+    }
+
+    public function ensureCanStartEvaluation(): void
+    {
+        $hasProcessingEvaluations = $this->evaluations()->where('status', EvaluationStatus::Processing)->exists();
+        if ($hasProcessingEvaluations) {
+            throw ValidationException::withMessages([
+                'evaluation' => 'An evaluation is already processing. Wait for it to complete.',
+            ]);
+        }
     }
 }

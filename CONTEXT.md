@@ -9,6 +9,17 @@ This system is an LMS-style platform for assignment-driven resume evaluation. It
 
 Personal workspaces are **not** part of the assignment submit path.
 
+## Polished MVP (current ship target)
+
+Ship when assignment and practice flows work end-to-end with tests: eligibility, ownership, due dates, one submission per student, policy snapshots on submit, failed-eval retry, module membership, and instructor submission review.
+
+**Explicitly deferred post-MVP** (do not build for the initial ship):
+
+- **Resubmission** — no in-place resubmit, no withdraw-and-resubmit UI, no instructor `allow_resubmission` toggle. One submission per student per assignment for polished MVP. The `allow_resubmission` column and `destroySubmission` route remain as scaffolding for later.
+- **Assignment user overrides** — per-student due-date extensions and exemptions. MVP uses **assignment-level** `due_date` only. The `assignment_user_overrides` migration is unused scaffolding; do not wire UI, policies, or submit logic against it until promoted.
+- **TA role** — instructors cover submission review.
+- **Groups, claims, and listing capacity** — see ADR `0007`; paste-JD submit ships first (see MVP table below).
+
 ## Language
 
 ### Identity & Access
@@ -34,6 +45,10 @@ _Avoid_: Learner, participant
 **Module**:
 The primary teaching container for members, optional groups, assignments, and module-scoped job listings.
 _Avoid_: class, course (unless intentionally mapped in UI copy)
+
+**Module provisioning**:
+Global admins **create** modules as platform provisioning (`modules.created_by_user_id` records who provisioned the shell). That does **not** grant module-local role or membership. Instructors and students are added **explicitly** via `module_memberships`. A newly provisioned module may have zero members until someone is added.
+_Avoid_: Treating `created_by_user_id` as instructor membership, auto-enrolling the creator as instructor on create
 
 **Group**:
 An optional cohort within a module (e.g. IT vs CS) used to scope assignment eligibility and/or which job listings students see. A module with no groups behaves as a single implicit “everyone” cohort.
@@ -87,9 +102,9 @@ _Avoid_: Attempt record (for MVP), workspace snapshot, evaluation-as-submit-unit
 The automated feedback pipeline invoked when a submission is created or updated. Same eval-service as practice; results are **owned by the submission-backed `evaluations` row** and frozen for instructor/student review. Re-running on resubmit updates that evaluation in place; practice runs in workspaces are unrelated.
 _Avoid_: Pre-submit qualifying evaluation, evaluation picker
 
-**Resubmission**:
-An update to the existing submission record (new resume, refresh policy snapshot, re-evaluate the linked evaluation in place). Whether resubmit is allowed is an **assignment** policy (`allow_resubmission`), not a counter on the submission.
-_Avoid_: New attempt row (for MVP), `resubmission_count`
+**Resubmission** (post-MVP):
+An update to the existing submission record (new resume, refresh policy snapshot, re-evaluate the linked evaluation in place). Whether resubmit is allowed is an **assignment** policy (`allow_resubmission`), not a counter on the submission. **Not in polished MVP** — students get one submit per assignment; `allow_resubmission` defaults to false and has no UI until promoted.
+_Avoid_: New attempt row (for MVP), `resubmission_count`, resubmit/withdraw controls in polished MVP
 
 **Assignment Version**:
 A monotonic version incremented only when submission-validity rules change.
@@ -99,6 +114,10 @@ _Avoid_: Edit count, revision number (for cosmetic edits)
 Submission-time persisted rule fields used to audit that submission under frozen historical behavior.
 _Avoid_: Live rule lookup only
 
+**Assignment User Override** (post-MVP):
+A per-student exception to assignment due date or resubmission policy (e.g. extended deadline, exempt from due date, forced allow/deny resubmit). **Not in polished MVP** — all students on an assignment share the same `due_date`; resubmission is deferred entirely.
+_Avoid_: Per-student policy in MVP, wiring `assignment_user_overrides` for ship
+
 ### Invariants
 
 **Single Membership Invariant**:
@@ -106,8 +125,8 @@ A user may have at most one membership row per module.
 _Avoid_: Multi-role duplicate memberships
 
 **Instructor Presence Invariant**:
-A module must always have at least one instructor; removing or demoting the last instructor is disallowed.
-_Avoid_: Instructorless module
+A module must always have at least one instructor **once teaching workflows are in use**; removing or demoting the last instructor is disallowed. Provisioning may briefly leave a module without any members; add at least one instructor before the module is operational.
+_Avoid_: Instructorless module during active teaching, inferring instructor from `created_by_user_id`
 
 **Freeze-History / Apply-Forward**:
 Rule changes affect future submissions only; existing submissions remain valid under their original snapshot.
@@ -141,10 +160,12 @@ After run/submit, redirect to the **detail page** (practice evaluation entry or 
 **Instructor submission access**:
 Instructors see submissions at **all evaluation statuses** (`processing`, `failed`, `completed`, or no submission yet). Evaluation output renders when complete; status is visible throughout. Student-only: retry and resubmit.
 
-### MVP vs later (job listings)
+### MVP vs later
 
-| | **MVP** | **Later** |
+| | **Polished MVP** | **Later** |
 |---|---|---|
+| Due date | Assignment-level `due_date` only | Per-student **assignment user overrides** (extensions, exemptions) |
+| Resubmission | **Not in polished MVP** — one submit per student; `allow_resubmission` column kept for later | In-place resubmit, withdraw-and-resubmit, instructor toggle |
 | Groups | Optional groups within a module; omit ⇒ everyone cohort | Instructor claim override / audit, richer group tooling |
 | On-site listing selection | **Claim** allowed listing (FCFS, capacity on claim); then submit resume | Same model |
 | External / paste JD | Paste at submit when assignment instructions require it | Same |

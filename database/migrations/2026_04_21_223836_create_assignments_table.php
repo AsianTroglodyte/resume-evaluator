@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('job_listing_source');
             $table->string('module_job_listing_scope')->nullable();
             $table->boolean('allow_resubmission');
+            $table->timestamps();
         });
     }
 

@@ -10,6 +10,7 @@ use App\Models\Module;
 use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class SubmissionController extends Controller
 {
@@ -17,7 +18,21 @@ class SubmissionController extends Controller
     {
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
+
         ]);
+        
+        if ($assignment->isPastDue()) {
+            throw ValidationException::withMessages([
+                'submission' => 'The due date for this assignment has passed.',
+            ]);
+        }
+
+        if ($assignment->submissionFor($request->user())->exists()) {
+            throw ValidationException::withMessages([
+                'submission' => 'You have already submitted to this assignment.',
+            ]);
+        }
+
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
@@ -25,7 +40,7 @@ class SubmissionController extends Controller
             'user_id' => $request->user()->id,
             'assignment_id' => $assignment->id,
             'assignment_version' => '1',
-            'due_date_snapshot' => null,
+            'due_date_snapshot' => $assignment->due_date,
         ]);
 
         $evaluation = Evaluation::create([

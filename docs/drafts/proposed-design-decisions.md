@@ -44,6 +44,8 @@ Kept for history. Prefer ADRs for current rules. Job-description sources below a
 
 ### Open (not decided / later)
 
+- **Assignment user overrides** — per-student due-date extensions and exemptions (`assignment_user_overrides`). **Post-MVP**; polished MVP uses assignment-level `due_date` only.
+- **Resubmission** — `allow_resubmission` policy, in-place resubmit, and withdraw-and-resubmit UI. **Post-MVP**; polished MVP is one submit per student.
 - Full instructor claim override + audit (post-MVP).
 - Interview scheduling (out of scope).
 - Exact `group_id` attachment on job listings vs filter-only via assignment attachment — refine when implementing groups.

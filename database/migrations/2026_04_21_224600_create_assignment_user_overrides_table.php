@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('assignment_user_overrides', function (Blueprint $table) {
+            // Post-MVP scaffolding only — not wired in polished MVP (see CONTEXT.md).
             $table->id();
             $table->foreignId('assignment_id')->constrained('assignments')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users');

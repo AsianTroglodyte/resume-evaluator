@@ -123,6 +123,7 @@
                 @forelse ($workspace->evaluations as $evaluation)
                     <livewire:evaluation.evaluation
                         :$evaluation
+                        :$workspace
                         :wire:key="$evaluation->id"
                     />
                 @empty
@@ -196,14 +197,11 @@
         </section>
     </section>
 
-    @error('rate_limit')
-        <div class="toast toast-top toast-center z-50 toast-auto-dismiss pointer-events-none">
-            <div class="alert alert-warning shadow-lg">
-                <span>{{ $message }}</span>
-            </div>
-        </div>
+    @error('evaluation')
+        <x-toast type="warning">{{ $message }}</x-toast>
     @enderror
 
+    <x-toast type="warning" event="evaluation-blocked" />
     <script>
         document.querySelectorAll('[data-workspace-rename]').forEach((root) => {
             const viewBlock = root.querySelector('[data-rename-view]');

@@ -14,6 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+
 // use Tests\TestCase;
 
 uses(RefreshDatabase::class);
@@ -25,12 +26,11 @@ beforeEach(function (): void {
 
 test('Submission', function (string $format, string $mime) {
     /** @var TestCase $this */
-
     $user = User::factory()->create();
     $module = Module::factory()->withMembers($user)->create();
     $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create();
 
-    $job_description_text = file_get_contents(evaluationFixture("sample-job-listing.txt"));
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
 
     $this->actingAs($user)
         ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
@@ -44,9 +44,9 @@ test('Submission', function (string $format, string $mime) {
             'job_description' => $job_description_text,
         ])
         ->assertRedirect(route('dashboard.modules.assignments.show', [$module, $assignment]));
-    
-    $evaluation = $assignment->evaluationFor($user)->sole(); 
-    $submission = $assignment->submissionFor($user)->sole(); 
+
+    $evaluation = $assignment->evaluationFor($user)->sole();
+    $submission = $assignment->submissionFor($user)->sole();
     // dd($evaluation);
 
     expect($evaluation->status)->toBe(EvaluationStatus::Processing)
@@ -62,27 +62,23 @@ test('Submission', function (string $format, string $mime) {
     'legacy Word' => ['doc', 'application/msword'],
     'Word document' => [
         'docx',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     ],
     'plain text' => ['txt', 'text/plain'],
 ]);
 
-
-
 test('Remove Submission', function () {
-    /** @var TestCase $this **/
-
+    /** @var TestCase $this * */
     $admin = User::factory()->admin()->create();
     $user = User::factory()->create();
     $module = Module::factory()->createdBy($admin)->withMembers([$user])->create();
     $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create();
-    $submission = Submission::factory()->withAssignment($assignment)->withUser($user)->create();
+    $submission = Submission::factory()->forAssignment($assignment)->withUser($user)->create();
     $evaluation = Evaluation::factory()->withSubmission($submission)->create();
-    
 
     $evalFilePath = $evaluation->resume_file_path;
     Storage::put($evalFilePath, 'Contents');
-    
+
     Storage::assertExists($evalFilePath);
 
     $this->actingAs($user)
@@ -95,41 +91,64 @@ test('Remove Submission', function () {
     Storage::assertMissing($evalFilePath);
 });
 
+test('rejects submissions past due date', function () {
+    /** @var TestCase $this**/
+    $user = User::factory()->create();
+    $module = Module::factory()->withMembers([$user])->create();
+    $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create([
+        'due_date' => now()->subMinute()
+    ]);
 
-test("denies submission to an unassigned student", function () {
-    /** @var TestCase **/
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
+
+    $this->actingAs($user)
+        ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
+            'resume_file' => new UploadedFile(
+                evaluationFixture('sample-resume.pdf'),
+                'sample-resume.pdf',
+                'application/pdf',
+                null,
+                true),
+            'job_description' => $job_description_text,
+        ])
+        ->assertSessionHasErrors(['submission' => 'The due date for this assignment has passed.']);
+    
+    expect(Submission::count())->tobe(0);
+});
+
+test('denies submission to an unassigned student', function () {
+    /** @var TestCase * */
     $admin = User::factory()->admin()->create();
     $unassignedMember = User::factory()->create();
     $module = Module::factory()->createdBy($admin)->withMembers($unassignedMember)->create();
     // NOTE: we did not assign the Member to the assignment
     $assignment = Assignment::factory()->forModule($module)->create([
-        'assignee_scope' => AssigneeScope::Selected
+        'assignee_scope' => AssigneeScope::Selected,
     ]);
 
-    $job_description_text = file_get_contents(evaluationFixture("sample-job-listing.txt"));
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
 
     $this->actingAs($unassignedMember)
         ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
             'resume_file' => new UploadedFile(
-                evaluationFixture("sample-resume.pdf"),
-                "sample-resume.pdf",
+                evaluationFixture('sample-resume.pdf'),
+                'sample-resume.pdf',
                 'application/pdf',
                 null,
-                true,),
-                'job_description' => $job_description_text,
-            ])
+                true),
+            'job_description' => $job_description_text,
+        ])
         ->assertForbidden();
 });
 
-
-test("denies submission to a removed student", function () {
-    /** @var TestCase **/
+test('denies submission to a removed student', function () {
+    /** @var TestCase * */
     $admin = User::factory()->admin()->create();
     $removedMember = User::factory()->create();
     $module = Module::factory()->createdBy($admin)->withMembers($removedMember)->create();
     // NOTE: we did not assign the Member to the assignment
     $assignment = Assignment::factory()->forModule($module)->withUsers($removedMember)->create([
-        'assignee_scope' => AssigneeScope::Selected
+        'assignee_scope' => AssigneeScope::Selected,
     ]);
 
     // $membership
@@ -139,62 +158,61 @@ test("denies submission to a removed student", function () {
     // in an actual removal we do a ton more changes. only concerned about status here.
     $membershipRecord->update(['status' => ModuleMembershipStatus::Removed]);
 
-    $job_description_text = file_get_contents(evaluationFixture("sample-job-listing.txt"));
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
 
     $this->actingAs($removedMember)
         ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
             'resume_file' => new UploadedFile(
-                evaluationFixture("sample-resume.pdf"),
-                "sample-resume.pdf",
+                evaluationFixture('sample-resume.pdf'),
+                'sample-resume.pdf',
                 'application/pdf',
                 null,
-                true,),
-                'job_description' => $job_description_text,
-            ])
+                true, ),
+            'job_description' => $job_description_text,
+        ])
         ->assertForbidden();
 });
 
-
-test("insructors and global admins can always create & delete own submissions on assignments.", function () {
-    /** @var TestCase **/
+test('insructors and global admins can always create & delete own submissions on assignments.', function () {
+    /** @var TestCase * */
     $admin = User::factory()->admin()->create();
     $instructor = User::factory()->create();
     $module = Module::factory()->createdBy($admin)->withInstructor($instructor)->create();
     $assignment = Assignment::factory()->forModule($module)->create();
 
-    $job_description_text = file_get_contents(evaluationFixture("sample-job-listing.txt"));
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
     $this->actingAs($admin)
         ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
             'resume_file' => new UploadedFile(
-                evaluationFixture("sample-resume.pdf"), "sample-resume.pdf", 'application/pdf', null, true,),
-                'job_description' => $job_description_text,
-            ])
+                evaluationFixture('sample-resume.pdf'), 'sample-resume.pdf', 'application/pdf', null, true, ),
+            'job_description' => $job_description_text,
+        ])
         ->assertRedirect(route('dashboard.modules.assignments.show', [$module, $assignment]));
 
     $this->actingAs($instructor)
         ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
             'resume_file' => new UploadedFile(
-                evaluationFixture("sample-resume.pdf"), "sample-resume.pdf", 'application/pdf', null, true,),
-                'job_description' => $job_description_text,
-            ])
+                evaluationFixture('sample-resume.pdf'), 'sample-resume.pdf', 'application/pdf', null, true, ),
+            'job_description' => $job_description_text,
+        ])
         ->assertRedirect(route('dashboard.modules.assignments.show', [$module, $assignment]));
     // NOTE: we did not assign the Member to the assignment
 });
 
 test("cannote delete another another student's submission", function () {
-    /** @var TestCase **/
+    /** @var TestCase * */
     $owner = User::factory()->create();
     $otherStudent = User::factory()->create();
     $module = Module::factory()->withMembers([$owner, $otherStudent])->create();
     $assignment = Assignment::factory()->forModule($module)->withUsers([$owner, $otherStudent])->create();
 
     $submission = Submission::factory()
-        ->withAssignment($assignment)
+        ->forAssignment($assignment)
         ->withUser($owner)
         ->create();
 
     $evaluation = Evaluation::factory()->withSubmission($submission)->create();
-    Storage::put($evaluation->resume_file_path, "content");
+    Storage::put($evaluation->resume_file_path, 'content');
 
     $this->actingAs($otherStudent)
         ->delete(route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]))
@@ -204,6 +222,26 @@ test("cannote delete another another student's submission", function () {
     Storage::assertExists($evaluation->resume_file_path);
 });
 
+test('rejects a second submission from the same student', function () {
+    $user = User::factory()->create();
+    $module = Module::factory()->withMembers($user)->create();
+    $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create();
+    Submission::factory()->forAssignment($assignment)->withUser($user)->create();
 
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
 
-// test("")
+    $this->actingAs($user)
+        ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
+            'resume_file' => new UploadedFile(
+                evaluationFixture('sample-resume.pdf'),
+                'sample-resume.pdf',
+                'application/pdf',
+                null,
+                true,
+            ),
+            'job_description' => $job_description_text,
+        ])
+        ->assertSessionHasErrors('submission');
+
+    expect($assignment->submissionFor($user)->count())->toBe(1);
+});

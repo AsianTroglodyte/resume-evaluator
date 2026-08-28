@@ -11,7 +11,11 @@ class ModuleController extends Controller
     //
     public function index()
     {
-        $modules = request()->user()->modulesPartOf()->get();
+        $user = request()->user();
+
+        $modules = $user->isGlobalAdmin()
+            ? Module::query()->orderBy('name')->get()
+            : $user->modulesPartOf()->get();
 
         return view('dashboard.modules.index', [
             'modules' => $modules,
@@ -48,12 +52,12 @@ class ModuleController extends Controller
             'name' => ['required', 'min:3'],
         ]);
 
-        Module::create([
+        $module = Module::create([
             'name' => request('name'),
             'created_by_user_id' => auth()->id(),
         ]);
 
-        return redirect()->route('dashboard.modules.index');
+        return redirect()->route('dashboard.modules.show', $module);
     }
 
     public function destroy(Module $module)

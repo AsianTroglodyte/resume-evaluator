@@ -63,7 +63,6 @@ class ModuleAssignmentsController extends Controller
                 Rule::enum(ModuleJobListingScope::class)],
             'assignee_scope' => ['required',
                 Rule::enum(AssigneeScope::class)],
-            'allow_resubmission' => ['required', 'boolean'],
             'job_listing_ids' => ['array',
                 Rule::requiredIf(fn () => request('module_job_listing_scope') === ModuleJobListingScope::Selected->value)],
             'job_listing_ids.*' => [
@@ -90,7 +89,6 @@ class ModuleAssignmentsController extends Controller
             'job_listing_source',
             'module_job_listing_scope',
             'assignee_scope',
-            'allow_resubmission',
         ]);
         $assignment = $module->assignments()->create([
             // ...$validated,
@@ -102,7 +100,7 @@ class ModuleAssignmentsController extends Controller
             'assignee_scope' => AssigneeScope::from($assignmentInfo['assignee_scope']),
             'job_listing_source' => JobListingSource::from($assignmentInfo['job_listing_source']),
             'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
-            'allow_resubmission' => $assignmentInfo['allow_resubmission'],
+            'allow_resubmission' => false,
         ]);
 
         $jobListingIds = $validated['job_listing_ids'] ?? [];
@@ -177,7 +175,6 @@ class ModuleAssignmentsController extends Controller
             'job_listing_source',
             'module_job_listing_scope',
             'assignee_scope',
-            'allow_resubmission',
         ]);
 
         $assignment->update([
@@ -189,7 +186,7 @@ class ModuleAssignmentsController extends Controller
             'assignee_scope' => AssigneeScope::from($assignmentInfo['assignee_scope']),
             'job_listing_source' => JobListingSource::from($assignmentInfo['job_listing_source']),
             'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
-            'allow_resubmission' => $assignmentInfo['allow_resubmission'],
+            'allow_resubmission' => false,
         ]);
 
         // dd($assignment);
