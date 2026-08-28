@@ -268,6 +268,11 @@ class DatabaseSeeder extends Seeder
                 'module_job_listing_scope' => ModuleJobListingScope::Selected,
             ]);
 
+        // assignment due date tester
+        Assignment::factory()->forModule($module)->create([
+            'title' => 'Overdue Assignment',
+            'due_date' => now()]);
+
         return $testUser;
     }
 }

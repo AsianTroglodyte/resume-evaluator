@@ -100,6 +100,11 @@ class Assignment extends Model
             ->where('user_id', $user->id);
     }
 
+    public function isPastDue(): bool
+    {
+        return $this->due_date?->isPast() ?? false;
+    }
+
     // public function (User $user): HasOne
     // {
     //     return $this->hasOne(Submission::class)

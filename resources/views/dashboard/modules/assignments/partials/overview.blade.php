@@ -72,6 +72,9 @@
                 Leave blank for a general quality evaluation without keyword analysis.
             </span>
         </div>
+        @error('submission')
+            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+        @enderror
         <div class="flex flex-wrap justify-end gap-2">
             <button type="submit" class="btn btn-primary">Submit resume</button>
         </div>

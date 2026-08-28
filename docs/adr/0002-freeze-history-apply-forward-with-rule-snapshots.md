@@ -24,6 +24,7 @@ With ADR `0006`, resume and job context are evaluation inputs on the 1:1 submiss
 - Auditing “what assignment rules applied” uses the submission row; auditing “what resume/JD were evaluated” uses the evaluation row.
 - No dual JD/listing columns to keep in sync between `submissions` and `evaluations`.
 - Workspace practice continues to snapshot listing-backed JD on `evaluations` only.
+- **Polished MVP:** `due_date_snapshot` comes from the assignment’s `due_date` at submit/resubmit time only. Per-student assignment user overrides (`assignment_user_overrides`) are **post-MVP** — the table may exist as scaffolding but must not be wired into submit logic until promoted.
 
 ## Related
 
