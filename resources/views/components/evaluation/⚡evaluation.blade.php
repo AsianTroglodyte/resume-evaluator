@@ -23,6 +23,15 @@ new class extends Component
     {
         $this->isOpen = ! $this->isOpen;
     }
+
+    public function retryEvaluation(): void
+    {
+        // $this->authorize('retry', $evaluation);
+
+        dd("retry evaluation ran");
+        app(RetryEvaluation::class)($this->evaluation);
+        // return back();
+    }
 };
 ?>
 
@@ -45,17 +54,66 @@ new class extends Component
     };
 @endphp
 
-<details
-    class="collapse collapse-arrow w-full rounded-box border border-base-300 bg-base-100"
+@if ($evaluation->status === EvaluationStatus::Failed)
+<article class="w-full rounded-box border border-error/30 bg-error/5 p-4 sm:p-5">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="flex min-w-0 items-start gap-3">
+            <div class="grid size-10 shrink-0 place-items-center rounded-full bg-error/15 text-error">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    class="size-5"
+                    aria-hidden="true">
+                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="min-w-0 flex flex-col gap-1">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="font-semibold">
+                        {{ $evaluation->created_at->toDayDateTimeString() }}
+                    </span>
+                    <span class="status-badge-{{ $evaluation->id }} badge badge-sm {{ $statusBadgeClass }}">
+                        {{ $evaluation->status->value }}
+                    </span>
+                </div>
+                <p class="text-sm text-base-content/80">
+                    {{ $evaluation->failure_reason ?: 'Something went wrong while processing your resume.' }}
+                </p>
+                <p class="text-xs text-base-content/60">
+                    Retry runs the same resume and job description again.
+                </p>
+            </div>
+        </div>
+        <button
+            type="button"
+            class="btn btn-outline btn-error btn-sm shrink-0"
+            wire:click="retryEvaluation"
+            wire:loading.attr="disabled"
+            wire:target="retryEvaluation">
+            <span wire:loading.remove wire:target="retryEvaluation">Retry evaluation</span>
+            <span
+                wire:loading
+                wire:target="retryEvaluation"
+                class="loading loading-spinner loading-sm"></span>
+        </button>
+    </div>
+</article>
+@else
+<div
     @if ($evaluation->status === EvaluationStatus::Processing)
         wire:poll.1s="loadEvaluation"
     @endif
+>
+<details
+    class="collapse collapse-arrow w-full rounded-box border border-base-300 bg-base-100"
     @if ($isOpen)
         open
     @endif
 >
-    <summary class="collapse-title min-h-0 cursor-pointer py-4"
-        wire:click="toggleExpanded"
+    <summary
+        class="collapse-title min-h-0 cursor-pointer py-4 list-none marker:content-none [&::-webkit-details-marker]:hidden"
+        wire:click.prevent="toggleExpanded"
     >
         <div class="flex flex-wrap items-center justify-between gap-3 pr-6">
             <div class="flex min-w-0 flex-col gap-1">
@@ -70,10 +128,6 @@ new class extends Component
                 @if ($summary)
                     <p class="truncate text-sm font-normal text-base-content/60">
                         {{ $summary }}
-                    </p>
-                @elseif ($evaluation->status === EvaluationStatus::Failed)
-                    <p class="truncate text-sm font-normal text-error">
-                        {{ $evaluation->failure_reason ?: 'Evaluation failed.' }}
                     </p>
                 @endif
             </div>
@@ -93,14 +147,7 @@ new class extends Component
     </summary>
 
     <div class="collapse-content space-y-4">
-        @if ($evaluation->status === EvaluationStatus::Failed)
-        <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
-            <p class="text-sm text-error">
-                {{ $evaluation->failure_reason ?: 'Evaluation failed.' }}
-            </p>
-        </div>
-        @else
-            @if (! empty($warnings))
+        @if (! empty($warnings))
                 <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
                     <p class="text-sm font-semibold text-base-content">
                         Completeness checks ({{ count($warnings) }})
@@ -203,6 +250,7 @@ new class extends Component
                     </ul>
                 </div>
             @endif
-        @endif
     </div>
 </details>
+</div>
+@endif
