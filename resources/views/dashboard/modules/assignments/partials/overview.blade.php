@@ -122,6 +122,19 @@
                 </div>
             </dl>
         </div>
+        <form
+            method="POST"
+            class="mt-4 flex justify-end"
+            action="{{ route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]) }}"
+            onsubmit="return confirm('Remove your submission for this assignment?')">
+            @csrf
+            @method('DELETE')
+            <button
+                type="submit"
+                class="btn btn-outline btn-error btn-sm">
+                Remove submission
+            </button>
+        </form>
     </section>
     @elseif ($submission === null && $assignment->isPastDue())
     <section class="mt-6 border-t border-base-300 pt-6" aria-labelledby="past-due-heading">
