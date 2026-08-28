@@ -21,12 +21,12 @@ class ModuleAssignmentsController extends Controller
     public function create(Module $module)
     {
         $job_listings = $module->jobListings;
-        $users = $module->members;
+        $assignableMembers = $module->assignableMembers;
 
         return view('dashboard.modules.assignments.create', [
             'module' => $module,
             'job_listings' => $job_listings,
-            'users' => $users,
+            'assignableMembers' => $assignableMembers,
         ]);
     }
 
