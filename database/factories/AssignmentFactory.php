@@ -35,7 +35,7 @@ class AssignmentFactory extends Factory
             'assignee_scope' => AssigneeScope::Everyone,
             'job_listing_source' => JobListingSource::External,
             'module_job_listing_scope' => ModuleJobListingScope::All,
-            'allow_resubmission' => true,
+            'allow_resubmission' => false,
         ];
     }
 
@@ -50,7 +50,7 @@ class AssignmentFactory extends Factory
     }
 
     /**
-     * @param JobListing|list<JobListing> $jobListings
+     * @param  JobListing|list<JobListing>  $jobListings
      */
     public function withJobListings(Collection|array|JobListing $jobListings): static
     {
@@ -62,7 +62,7 @@ class AssignmentFactory extends Factory
     }
 
     /**
-     * @param User|list<User> $users
+     * @param  User|list<User>  $users
      */
     public function withUsers(Collection|array|User $users): static
     {

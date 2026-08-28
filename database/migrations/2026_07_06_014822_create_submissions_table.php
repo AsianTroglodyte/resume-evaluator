@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('submissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("user_id")->constrained();
-            $table->foreignId("assignment_id")->constrained()->cascadeOnDelete();
-            $table->unsignedInteger("assignment_version");
-            $table->timestamp("due_date_snapshot")->nullable();
-            $table->timestamps();
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('assignment_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('assignment_version');
+            $table->timestamp('due_date_snapshot')->nullable();
             $table->unique(['user_id', 'assignment_id']);
+            $table->timestamps();
         });
     }
 

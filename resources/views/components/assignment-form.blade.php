@@ -68,22 +68,6 @@
                     @enderror
                 </label>
 
-                <label class="flex w-fit cursor-pointer items-center gap-3 mt-4">
-                    <input type="hidden" name="allow_resubmission" value="0" />
-                    <input
-                        type="checkbox"
-                        name="allow_resubmission"
-                        class="toggle"
-                        value="1"
-                        @checked(old('allow_resubmission', $assignment?->allow_resubmission ))
-                        {{-- checked --}}
-                    />
-                    <span class="label-text">Allow resubmissions</span>
-                    @error('allow_resubmission')
-                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
-                    @enderror
-                </label>
-
                 <div class="mt-4 flex flex-col gap-2 [&:not(:has(#due-date-enabled:checked))_.due-date-input]:hidden">
                     <label class="flex w-fit cursor-pointer items-center gap-3">
                         <input type="hidden" name="due_date_enabled" value="0"/>

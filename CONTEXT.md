@@ -11,11 +11,12 @@ Personal workspaces are **not** part of the assignment submit path.
 
 ## Polished MVP (current ship target)
 
-Ship when assignment and practice flows work end-to-end with tests: eligibility, ownership, due dates, duplicate/resubmit rules, policy snapshots on submit, failed-eval retry, module membership, and instructor submission review.
+Ship when assignment and practice flows work end-to-end with tests: eligibility, ownership, due dates, one submission per student, policy snapshots on submit, failed-eval retry, module membership, and instructor submission review.
 
 **Explicitly deferred post-MVP** (do not build for the initial ship):
 
-- **Assignment user overrides** — per-student due-date extensions, exemptions, or resubmission exceptions. MVP uses **assignment-level** `due_date` and `allow_resubmission` only. The `assignment_user_overrides` migration is unused scaffolding; do not wire UI, policies, or submit logic against it until promoted.
+- **Resubmission** — no in-place resubmit, no withdraw-and-resubmit UI, no instructor `allow_resubmission` toggle. One submission per student per assignment for polished MVP. The `allow_resubmission` column and `destroySubmission` route remain as scaffolding for later.
+- **Assignment user overrides** — per-student due-date extensions and exemptions. MVP uses **assignment-level** `due_date` only. The `assignment_user_overrides` migration is unused scaffolding; do not wire UI, policies, or submit logic against it until promoted.
 - **TA role** — instructors cover submission review.
 - **Groups, claims, and listing capacity** — see ADR `0007`; paste-JD submit ships first (see MVP table below).
 
@@ -97,9 +98,9 @@ _Avoid_: Attempt record (for MVP), workspace snapshot, evaluation-as-submit-unit
 The automated feedback pipeline invoked when a submission is created or updated. Same eval-service as practice; results are **owned by the submission-backed `evaluations` row** and frozen for instructor/student review. Re-running on resubmit updates that evaluation in place; practice runs in workspaces are unrelated.
 _Avoid_: Pre-submit qualifying evaluation, evaluation picker
 
-**Resubmission**:
-An update to the existing submission record (new resume, refresh policy snapshot, re-evaluate the linked evaluation in place). Whether resubmit is allowed is an **assignment** policy (`allow_resubmission`), not a counter on the submission.
-_Avoid_: New attempt row (for MVP), `resubmission_count`
+**Resubmission** (post-MVP):
+An update to the existing submission record (new resume, refresh policy snapshot, re-evaluate the linked evaluation in place). Whether resubmit is allowed is an **assignment** policy (`allow_resubmission`), not a counter on the submission. **Not in polished MVP** — students get one submit per assignment; `allow_resubmission` defaults to false and has no UI until promoted.
+_Avoid_: New attempt row (for MVP), `resubmission_count`, resubmit/withdraw controls in polished MVP
 
 **Assignment Version**:
 A monotonic version incremented only when submission-validity rules change.
@@ -110,7 +111,7 @@ Submission-time persisted rule fields used to audit that submission under frozen
 _Avoid_: Live rule lookup only
 
 **Assignment User Override** (post-MVP):
-A per-student exception to assignment due date or resubmission policy (e.g. extended deadline, exempt from due date, forced allow/deny resubmit). **Not in polished MVP** — all students on an assignment share the same `due_date` and `allow_resubmission`. Do not implement override UI or submit-time override resolution until explicitly promoted.
+A per-student exception to assignment due date or resubmission policy (e.g. extended deadline, exempt from due date, forced allow/deny resubmit). **Not in polished MVP** — all students on an assignment share the same `due_date`; resubmission is deferred entirely.
 _Avoid_: Per-student policy in MVP, wiring `assignment_user_overrides` for ship
 
 ### Invariants
@@ -159,7 +160,8 @@ Instructors see submissions at **all evaluation statuses** (`processing`, `faile
 
 | | **Polished MVP** | **Later** |
 |---|---|---|
-| Due date & resubmission | Assignment-level `due_date` and `allow_resubmission` only | Per-student **assignment user overrides** (extensions, exemptions, resubmission exceptions) |
+| Due date | Assignment-level `due_date` only | Per-student **assignment user overrides** (extensions, exemptions) |
+| Resubmission | **Not in polished MVP** — one submit per student; `allow_resubmission` column kept for later | In-place resubmit, withdraw-and-resubmit, instructor toggle |
 | Groups | Optional groups within a module; omit ⇒ everyone cohort | Instructor claim override / audit, richer group tooling |
 | On-site listing selection | **Claim** allowed listing (FCFS, capacity on claim); then submit resume | Same model |
 | External / paste JD | Paste at submit when assignment instructions require it | Same |

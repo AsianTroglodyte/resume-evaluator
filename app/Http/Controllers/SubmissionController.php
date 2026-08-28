@@ -27,6 +27,12 @@ class SubmissionController extends Controller
             ]);
         }
 
+        if ($assignment->submissionFor($request->user())->exists()) {
+            throw ValidationException::withMessages([
+                'submission' => 'You have already submitted to this assignment.',
+            ]);
+        }
+
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
         $submission = Submission::create([

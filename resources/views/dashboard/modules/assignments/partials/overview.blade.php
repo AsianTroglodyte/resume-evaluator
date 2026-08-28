@@ -17,14 +17,34 @@
             </dd>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-3">
-            <div>
-                <dt class="font-medium">Due date</dt>
-                <dd class="mt-1">{{ $assignment->due_date?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
-            </div>
-            <div>
-                <dt class="font-medium">Resubmission</dt>
-                <dd class="mt-1">{{ $assignment->allow_resubmission ? 'Allowed' : 'Not allowed' }}</dd>
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div @class([
+                'rounded-lg border p-3',
+                'border-error/30 bg-error/5' => $assignment->due_date && $assignment->isPastDue(),
+            ])>
+                @if ($assignment->due_date && $assignment->isPastDue())
+                    <div class="flex items-start gap-2.5">
+                        <div class="grid size-8 shrink-0 place-items-center rounded-full bg-error/15 text-error">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                class="size-4"
+                                aria-hidden="true">
+                                <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-medium text-error">Due date passed</p>
+                            <p class="mt-0.5 text-base-content/80">
+                                {{ $assignment->due_date->format('M j, Y g:i A') }}
+                            </p>
+                        </div>
+                    </div>
+                @else
+                    <dt class="font-medium">Due date</dt>
+                    <dd class="mt-1">{{ $assignment->due_date?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
+                @endif
             </div>
             <div>
                 <dt class="font-medium">Job listing source</dt>
@@ -33,8 +53,7 @@
         </div>
     </dl>
 
-
-    @if ($submission === null)
+    @if ($submission === null && ! $assignment->isPastDue())
     <form
         class="flex flex-col gap-4 px-4 py-5 sm:px-6"
         method="POST"
@@ -79,7 +98,7 @@
             <button type="submit" class="btn btn-primary">Submit resume</button>
         </div>
     </form>
-    @else
+    @elseif($submission !== null)
     <section class="mt-6 border-t border-base-300 pt-6" aria-labelledby="submission-heading">
         <div class="rounded-box border border-success/30 bg-success/5 p-5 sm:p-6">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -119,19 +138,31 @@
                 </div>
             </dl>
         </div>
-        <form
-            method="POST"
-            class="mt-4 flex justify-end"
-            action="{{ route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]) }}"
-            onsubmit="return confirm('Remove your submission for this assignment?')">
-            @csrf
-            @method('DELETE')
-            <button
-                type="submit"
-                class="btn btn-outline btn-error btn-sm">
-                Remove submission
-            </button>
-        </form>
+    </section>
+    @elseif ($submission === null && $assignment->isPastDue())
+    <section class="mt-6 border-t border-base-300 pt-6" aria-labelledby="past-due-heading">
+        <div class="rounded-box border border-error/30 bg-error/5 p-5 sm:p-6">
+            <div class="flex items-start gap-3">
+                <div class="grid size-10 shrink-0 place-items-center rounded-full bg-error/15 text-error">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        class="size-5"
+                        aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 id="past-due-heading" class="font-semibold">Submissions closed</h3>
+                    <p class="mt-1 text-sm text-base-content/70">
+                        The due date for this assignment was
+                        {{ $assignment->due_date->format('M j, Y g:i A') }}.
+                        New submissions are no longer accepted.
+                    </p>
+                </div>
+            </div>
+        </div>
     </section>
     @endif
     @if ($evaluation !== null)
