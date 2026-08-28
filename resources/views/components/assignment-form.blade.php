@@ -1,7 +1,7 @@
 @props([
     'method' => 'POST',
     'module',
-    'users',
+    'assignableMembers',
     'job_listings',
     'assignment' => null,
 ])
@@ -319,27 +319,27 @@
                         <legend class="label-text font-medium">Select members</legend>
 
                         <ul class="list max-h-150 overflow-y-auto bg-base-100">
-                            @forelse ($users as $user)
+                            @forelse ($assignableMembers as $assignableMember)
                             <li>
                                 <label
                                     class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200"
-                                    for="user-{{ $user->id }}"
+                                    for="user-{{ $assignableMember->id }}"
                                 >
                                     <input
                                         type="checkbox"
                                         class="checkbox checkbox-md rounded-none mt-0.5 shrink-0"
-                                        id="user-{{ $user->id }}"
+                                        id="user-{{ $assignableMember->id }}"
                                         name="assignee_ids[]"
-                                        value="{{ $user->id }}"
-                                        @checked(in_array( $user->id, 
+                                        value="{{ $assignableMember->id }}"
+                                        @checked(in_array( $assignableMember->id, 
                                         old(
                                             'assignee_ids', 
                                             $assignment?->assignees->pluck('id')->toArray()
                                             ?? [])))
                                     />
                                     <span class="min-w-0 font-medium">
-                                        {{ $user->first_name }} {{ $user->last_name }} -
-                                        {{ $user->email }}
+                                        {{ $assignableMember->first_name }} {{ $assignableMember->last_name }} -
+                                        {{ $assignableMember->email }}
                                     </span>
                                 </label>
                             </li>

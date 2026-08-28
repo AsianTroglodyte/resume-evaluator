@@ -21,12 +21,12 @@ class ModuleAssignmentsController extends Controller
     public function create(Module $module)
     {
         $job_listings = $module->jobListings;
-        $users = $module->members;
+        $assignableMembers = $module->assignableMembers;
 
         return view('dashboard.modules.assignments.create', [
             'module' => $module,
             'job_listings' => $job_listings,
-            'users' => $users,
+            'assignableMembers' => $assignableMembers,
         ]);
     }
 
@@ -77,7 +77,8 @@ class ModuleAssignmentsController extends Controller
                 'integer',
                 Rule::exists('module_memberships', 'user_id')
                     ->where('module_id', $module->id)
-                    ->where('status', 'active')],
+                    ->where('status', 'active')
+                    ->where('role_in_module', RoleInModule::Student)],
         ]);
 
         $validated['due_date'] = $validated['due_date_enabled'] ? $validated['due_date'] : null;
@@ -139,7 +140,6 @@ class ModuleAssignmentsController extends Controller
 
     public function update(Module $module, Assignment $assignment)
     {
-
         $validated = request()->validate([
             'title' => ['required', 'string', 'min:3', 'max:255'],
             // made by an actual instructor/admin
@@ -164,7 +164,8 @@ class ModuleAssignmentsController extends Controller
                 'integer',
                 Rule::exists('module_memberships', 'user_id')
                     ->where('module_id', $module->id)
-                    ->where('status', 'active')],
+                    ->where('status', 'active')
+                    ->where('role_in_module', RoleInModule::Student)],
         ]);
 
         $validated['due_date'] = $validated['due_date_enabled'] ? $validated['due_date'] : null;

@@ -47,6 +47,11 @@ class Module extends Model
         return $this->usersWithMembership(status: 'active');
     }
 
+    public function assignableMembers(): BelongsToMany
+    {
+        return $this->usersWithMembership(status: 'active', role: RoleInModule::Student);
+    }
+
     public function removedMembers(): BelongsToMany
     {
         return $this->usersWithMembership(status: 'removed');

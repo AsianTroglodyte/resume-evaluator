@@ -65,4 +65,18 @@ class ModuleFactory extends Factory
             ]);
         });
     }
+
+    public function withInstructor(Collection|array|User $users): static
+    {
+        $users = Collection::wrap($users);
+
+        return $this->afterCreating(function (Module $module) use ($users): void {
+            $module->members()->attach($users->pluck('id'), [
+                'role_in_module' => RoleInModule::Instructor,
+                'status' => ModuleMembershipStatus::Active,
+                'added_by_user_id' => $module->created_by_user_id
+            ]);
+        });
+    }
+
 }
