@@ -181,28 +181,28 @@ test("insructors and global admins can always create & delete own submissions on
     // NOTE: we did not assign the Member to the assignment
 });
 
-// test("cannote delete another another student's submission", function () {
-//     /** @var TestCase **/
-//     $owner = User::factory()->create();
-//     $otherStudent = User::factory()->create();
-//     $module = Module::factory()->withMembers([$owner, $otherStudent])->create();
-//     $assignment = Assignment::factory()->forModule($module)->withUsers([$owner, $otherStudent]);
+test("cannote delete another another student's submission", function () {
+    /** @var TestCase **/
+    $owner = User::factory()->create();
+    $otherStudent = User::factory()->create();
+    $module = Module::factory()->withMembers([$owner, $otherStudent])->create();
+    $assignment = Assignment::factory()->forModule($module)->withUsers([$owner, $otherStudent])->create();
 
-//     $submission = Submission::factory()
-//         ->withAssignment($assignment)
-//         ->withUser($owner)
-//         ->create();
+    $submission = Submission::factory()
+        ->withAssignment($assignment)
+        ->withUser($owner)
+        ->create();
 
-//     $evaluation = Evaluation::factory()->withSubmission($submission)->create();
-//     Storage::put($evaluation->resume_file_path, "content");
+    $evaluation = Evaluation::factory()->withSubmission($submission)->create();
+    Storage::put($evaluation->resume_file_path, "content");
 
-//     $this->actingAs($otherStudent)
-//         ->delete(route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]))
-//         ->assertRedirect();
+    $this->actingAs($otherStudent)
+        ->delete(route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]))
+        ->assertRedirect(route('dashboard.modules.assignments.show', [$module, $assignment]));
 
-//     expect(Submission::find($submission->id))->not->toBe(null);
-//     Storage::assertExists($evaluation->resume_file_path);
-// });
+    expect(Submission::find($submission->id))->not->toBeNull();
+    Storage::assertExists($evaluation->resume_file_path);
+});
 
 
 
