@@ -18,33 +18,17 @@
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <div @class([
-                'rounded-lg border p-3',
-                'border-error/30 bg-error/5' => $assignment->due_date && $assignment->isPastDue(),
-            ])>
-                @if ($assignment->due_date && $assignment->isPastDue())
-                    <div class="flex items-start gap-2.5">
-                        <div class="grid size-8 shrink-0 place-items-center rounded-full bg-error/15 text-error">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                                class="size-4"
-                                aria-hidden="true">
-                                <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="font-medium text-error">Due date passed</p>
-                            <p class="mt-0.5 text-base-content/80">
-                                {{ $assignment->due_date->format('M j, Y g:i A') }}
-                            </p>
-                        </div>
-                    </div>
-                @else
-                    <dt class="font-medium">Due date</dt>
-                    <dd class="mt-1">{{ $assignment->due_date?->format('M j, Y g:i A') ?? 'No due date' }}</dd>
-                @endif
+            <div>
+                <dt @class(['font-medium', 'text-error' => $assignment->due_date && $assignment->isPastDue()])>
+                    @if ($assignment->due_date && $assignment->isPastDue())
+                        Due date passed
+                    @else
+                        Due date
+                    @endif
+                </dt>
+                <dd class="mt-1">
+                    {{ $assignment->due_date?->format('M j, Y g:i A') ?? 'No due date' }}
+                </dd>
             </div>
             <div>
                 <dt class="font-medium">Job listing source</dt>

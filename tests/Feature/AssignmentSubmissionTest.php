@@ -91,6 +91,30 @@ test('Remove Submission', function () {
     Storage::assertMissing($evalFilePath);
 });
 
+test('rejects submissions past due date', function () {
+    /** @var TestCase $this**/
+    $user = User::factory()->create();
+    $module = Module::factory()->withMembers([$user])->create();
+    $assignment = Assignment::factory()->forModule($module)->withUsers($user)->create([
+        'due_date' => now()
+    ]);
+
+    $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
+
+    $this->actingAs($user)
+        ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
+            'resume_file' => new UploadedFile(
+                evaluationFixture('sample-resume.pdf'),
+                'sample-resume.pdf',
+                'application/pdf',
+                null,
+                true),
+            'job_description' => $job_description_text,
+        ])
+        ->assertSessionHasErrors(['submission']);
+    // $assignment->isPastDue();
+});
+
 test('denies submission to an unassigned student', function () {
     /** @var TestCase * */
     $admin = User::factory()->admin()->create();
@@ -110,7 +134,7 @@ test('denies submission to an unassigned student', function () {
                 'sample-resume.pdf',
                 'application/pdf',
                 null,
-                true, ),
+                true),
             'job_description' => $job_description_text,
         ])
         ->assertForbidden();

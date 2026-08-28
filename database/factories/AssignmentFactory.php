@@ -32,6 +32,7 @@ class AssignmentFactory extends Factory
             'title' => 'Assignment '.$this->faker->unique()->numberBetween(1, 10_000),
             'description' => $this->faker->paragraph(),
             'due_date' => now()->addWeek(),
+
             'assignee_scope' => AssigneeScope::Everyone,
             'job_listing_source' => JobListingSource::External,
             'module_job_listing_scope' => ModuleJobListingScope::All,
