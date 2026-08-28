@@ -118,7 +118,7 @@ test("denies submission to an unassigned student", function () {
                 true,),
                 'job_description' => $job_description_text,
             ])
-        ->assertForbidden(route('dashboard.modules.assignments.show', [$module, $assignment]));
+        ->assertForbidden();
 });
 
 
@@ -151,7 +151,7 @@ test("denies submission to a removed student", function () {
                 true,),
                 'job_description' => $job_description_text,
             ])
-        ->assertForbidden(route('dashboard.modules.assignments.show', [$module, $assignment]));
+        ->assertForbidden();
 });
 
 
@@ -169,7 +169,7 @@ test("insructors and global admins can always create & delete own submissions on
                 evaluationFixture("sample-resume.pdf"), "sample-resume.pdf", 'application/pdf', null, true,),
                 'job_description' => $job_description_text,
             ])
-        ->assertRedirect();
+        ->assertRedirect(route('dashboard.modules.assignments.show', [$module, $assignment]));
 
     $this->actingAs($instructor)
         ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
@@ -177,7 +177,7 @@ test("insructors and global admins can always create & delete own submissions on
                 evaluationFixture("sample-resume.pdf"), "sample-resume.pdf", 'application/pdf', null, true,),
                 'job_description' => $job_description_text,
             ])
-        ->assertRedirect();
+        ->assertRedirect(route('dashboard.modules.assignments.show', [$module, $assignment]));
     // NOTE: we did not assign the Member to the assignment
 });
 
