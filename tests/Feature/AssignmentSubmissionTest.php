@@ -153,3 +153,55 @@ test("denies submission to a removed student", function () {
             ])
         ->assertForbidden();
 });
+
+
+test("denies insructors and global admins from submitting and deleting submissions.", function () {
+    /** @var TestCase **/
+    $admin = User::factory()->admin()->create();
+    $instructor = User::factory()->create();
+    $module = Module::factory()->createdBy($admin)->withInstructor($instructor)->create();
+    $assignment = Assignment::factory()->forModule($module)->create();
+
+    $job_description_text = file_get_contents(evaluationFixture("sample-job-listing.txt"));
+    $this->actingAs($admin)
+        ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
+            'resume_file' => new UploadedFile(
+                evaluationFixture("sample-resume.pdf"), "sample-resume.pdf", 'application/pdf', null, true,),
+                'job_description' => $job_description_text,
+            ])
+        ->assertForbidden();
+
+    $this->actingAs($instructor)
+        ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
+            'resume_file' => new UploadedFile(
+                evaluationFixture("sample-resume.pdf"), "sample-resume.pdf", 'application/pdf', null, true,),
+                'job_description' => $job_description_text,
+            ])
+        ->assertForbidden();
+    // NOTE: we did not assign the Member to the assignment
+})->toDo();
+
+test("cannote delete another another student's submission", function () {
+    /** @var TestCase **/
+    $admin = User::factory()->admin()->create();
+    $removedMember = User::factory()->create();
+    $module = Module::factory()->createdBy($admin)->withMembers($removedMember)->create();
+
+    // $this->actingAs(admin)
+    //     ->delete();
+    // NOTE: we did not assign the Member to the assignment
+
+})->todo();
+
+test("returns 404 when assignemtn is request beneath a different module", function () {
+    /** @var TestCase **/
+    $admin = User::factory()->admin()->create();
+    $removedMember = User::factory()->create();
+    $module = Module::factory()->createdBy($admin)->withMembers($removedMember)->create();
+    // NOTE: we did not assign the Member to the assignment
+    $assignment = Assignment::factory()->forModule($module)->withUsers($removedMember)->create([
+        'assignee_scope' => AssigneeScope::Selected
+    ]);
+})->todo();
+
+// test("")
