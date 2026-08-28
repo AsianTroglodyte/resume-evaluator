@@ -118,7 +118,7 @@ test("denies submission to an unassigned student", function () {
                 true,),
                 'job_description' => $job_description_text,
             ])
-        ->assertForbidden();
+        ->assertForbidden(route('dashboard.modules.assignments.show', [$module, $assignment]));
 });
 
 
@@ -133,11 +133,11 @@ test("denies submission to a removed student", function () {
     ]);
 
     // $membership
-    $membershipRecord = ModuleMembership::where('id', $removedMember->id)->first();
+    $membershipRecord = ModuleMembership::where('module_id', $module->id)
+        ->where('id', $removedMember->id)
+        ->first();
     // in an actual removal we do a ton more changes. only concerned about status here.
     $membershipRecord->update(['status' => ModuleMembershipStatus::Removed]);
-
-    // dd($membershipRecord);
 
     $job_description_text = file_get_contents(evaluationFixture("sample-job-listing.txt"));
 
@@ -151,11 +151,11 @@ test("denies submission to a removed student", function () {
                 true,),
                 'job_description' => $job_description_text,
             ])
-        ->assertForbidden();
+        ->assertForbidden(route('dashboard.modules.assignments.show', [$module, $assignment]));
 });
 
 
-test("denies insructors and global admins from submitting and deleting submissions.", function () {
+test("insructors and global admins can always create & delete own submissions on assignments.", function () {
     /** @var TestCase **/
     $admin = User::factory()->admin()->create();
     $instructor = User::factory()->create();
@@ -169,7 +169,7 @@ test("denies insructors and global admins from submitting and deleting submissio
                 evaluationFixture("sample-resume.pdf"), "sample-resume.pdf", 'application/pdf', null, true,),
                 'job_description' => $job_description_text,
             ])
-        ->assertForbidden();
+        ->assertRedirect();
 
     $this->actingAs($instructor)
         ->post(route('dashboard.modules.assignments.submissions.store', [$module, $assignment]), [
@@ -177,31 +177,33 @@ test("denies insructors and global admins from submitting and deleting submissio
                 evaluationFixture("sample-resume.pdf"), "sample-resume.pdf", 'application/pdf', null, true,),
                 'job_description' => $job_description_text,
             ])
-        ->assertForbidden();
+        ->assertRedirect();
     // NOTE: we did not assign the Member to the assignment
-})->toDo();
+});
 
-test("cannote delete another another student's submission", function () {
-    /** @var TestCase **/
-    $admin = User::factory()->admin()->create();
-    $removedMember = User::factory()->create();
-    $module = Module::factory()->createdBy($admin)->withMembers($removedMember)->create();
+// test("cannote delete another another student's submission", function () {
+//     /** @var TestCase **/
+//     $owner = User::factory()->create();
+//     $otherStudent = User::factory()->create();
+//     $module = Module::factory()->withMembers([$owner, $otherStudent])->create();
+//     $assignment = Assignment::factory()->forModule($module)->withUsers([$owner, $otherStudent]);
 
-    // $this->actingAs(admin)
-    //     ->delete();
-    // NOTE: we did not assign the Member to the assignment
+//     $submission = Submission::factory()
+//         ->withAssignment($assignment)
+//         ->withUser($owner)
+//         ->create();
 
-})->todo();
+//     $evaluation = Evaluation::factory()->withSubmission($submission)->create();
+//     Storage::put($evaluation->resume_file_path, "content");
 
-test("returns 404 when assignemtn is request beneath a different module", function () {
-    /** @var TestCase **/
-    $admin = User::factory()->admin()->create();
-    $removedMember = User::factory()->create();
-    $module = Module::factory()->createdBy($admin)->withMembers($removedMember)->create();
-    // NOTE: we did not assign the Member to the assignment
-    $assignment = Assignment::factory()->forModule($module)->withUsers($removedMember)->create([
-        'assignee_scope' => AssigneeScope::Selected
-    ]);
-})->todo();
+//     $this->actingAs($otherStudent)
+//         ->delete(route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]))
+//         ->assertRedirect();
+
+//     expect(Submission::find($submission->id))->not->toBe(null);
+//     Storage::assertExists($evaluation->resume_file_path);
+// });
+
+
 
 // test("")
