@@ -1,12 +1,13 @@
 <?php
 
+use App\Actions\RetryEvaluation;
 use App\Enums\EvaluationStatus;
-use App\Models\Assignment;
+use App\Jobs\EvaluateJob;
 use App\Models\Evaluation;
-use App\Models\Module;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
@@ -74,46 +75,60 @@ it('polls from a stable root element while processing', function () {
 
 // --- Evaluation::ensureCanRetry() ---
 it('blocks workspace retry when another evaluation is processing', function() {
-    $user = User::factory()->create();
-    $workspace = Workspace::factory()->withUser($user)->create();
-    $evaluation = Evaluation::factory()
+    $workspace = Workspace::factory()->create();
+    Evaluation::factory()
         ->withWorkspace($workspace)
-        ->withStatus(EvaluationStatus::Processing)->create();
+        ->withStatus(EvaluationStatus::Processing)
+        ->create();
+    $failedEvaluation = Evaluation::factory()->failed()->withWorkspace($workspace)->create();
 
-    $evaluation->ensureCanRetry();
-})->throws(ValidationException::class);
+    $failedEvaluation->ensureCanRetry();    
+})->throws(
+    ValidationException::class, 
+    'An evaluation is already processing. Wait for it to complete.'
+);
 
 it('allows workspace retry when none are processing', function() {
     $user = User::factory()->create();
     $workspace = Workspace::factory()->withUser($user)->create();
-    $evaluation = Evaluation::factory()
+    $failedEvaluation = Evaluation::factory()
         ->withWorkspace($workspace)
         ->withStatus(EvaluationStatus::Failed)->create();
-    $evaluation = Evaluation::factory()
-        ->withWorkspace($workspace)
-        ->withStatus(EvaluationStatus::Completed)->create();
 
-    expect(fn () => $evaluation->ensureCanRetry())->not->toThrow(ValidationException::class);
+    expect(fn () => $failedEvaluation->ensureCanRetry())->not->toThrow(ValidationException::class);
 });
 
 it('blocks submission retry while processing', function() {
-    $user = User::factory()->create();
-    $workspace = Workspace::factory()->withUser($user)->create();
-    $evaluation = Evaluation::factory()
-        ->withWorkspace($workspace)
+    $processingEvaluation = Evaluation::factory()
+        ->withSubmission()
         ->withStatus(EvaluationStatus::Processing)->create();
-
-    expect(fn () => $evaluation->ensureCanRetry())->toThrow(ValidationException::class);
-});
+        $processingEvaluation->ensureCanRetry();
+})->throws(
+    ValidationException::class,
+    'This evaluation is already processing.'
+);
 
 it('rejects retry when evaluation has no context', function() {
-
+    
 })->toDo();
 
 // --- RetryEvaluation ---
 it('retries a failed workspace evaluation', function() {
+    Queue::fake();
+    $user = User::factory()->create();
+    $workspace = Workspace::factory()->withUser($user)->create();
+    $failedEvaluation = Evaluation::factory()
+        ->withWorkspace($workspace)
+        ->withStatus(EvaluationStatus::Failed)->create();
 
-})->toDo();
+    app(RetryEvaluation::class)($failedEvaluation);
+
+    expect($failedEvaluation->fresh()->status)->toBe(EvaluationStatus::Processing);
+    Queue::assertPushed(
+        EvaluateJob::class,
+        fn (EvaluateJob $job) => $job->evaluation->is($failedEvaluation)
+    );
+});
 
 it('retries a failed submission evaluation', function() {
 
