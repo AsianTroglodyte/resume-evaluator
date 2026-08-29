@@ -3,7 +3,10 @@
 use App\Actions\RetryEvaluation;
 use App\Enums\EvaluationStatus;
 use App\Jobs\EvaluateJob;
+use App\Models\Assignment;
 use App\Models\Evaluation;
+use App\Models\Module;
+use App\Models\Submission;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -108,9 +111,16 @@ it('blocks submission retry while processing', function() {
     'This evaluation is already processing.'
 );
 
+
 it('rejects retry when evaluation has no context', function() {
+    $evaluation = Evaluation::factory()->create([
+        'workspace_id' => null,
+        'submission_id' => null,
+        'status' => EvaluationStatus::Failed,
+    ]);
     
-})->toDo();
+    $evaluation->ensureCanRetry();
+})->throws(ValidationException::class, 'This evaluation cannot be retried.');    
 
 // --- RetryEvaluation ---
 it('retries a failed workspace evaluation', function() {
@@ -131,7 +141,26 @@ it('retries a failed workspace evaluation', function() {
 });
 
 it('retries a failed submission evaluation', function() {
+    Queue::fake();
+    $user = User::factory()->create();
+    $module = Module::factory()->withMembers($user)->create();
+    $assignment = Assignment::factory()->forModule($module)->create();
+    $submission = Submission::factory()
+        ->forAssignment($assignment)
+        ->withUser($user)
+        ->create();
+    $failedEvaluation = Evaluation::factory()
+        ->withSubmission($submission)
+        ->failed()
+        ->create();
 
-})->toDo();
+    app(RetryEvaluation::class)($failedEvaluation);
+
+    expect($failedEvaluation->fresh()->status)->toBe(EvaluationStatus::Processing);
+    Queue::assertPushed(
+        EvaluateJob::class,
+        fn (EvaluateJob $job) => $job->evaluation->is($failedEvaluation)
+    );
+});
 
 
