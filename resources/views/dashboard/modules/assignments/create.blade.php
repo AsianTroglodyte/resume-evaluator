@@ -5,6 +5,6 @@
         method="POST" 
         :$module
         :$job_listings
-        :$assignableMember
+        :$assignableMembers
         />
 </x-dashboard-layout>
