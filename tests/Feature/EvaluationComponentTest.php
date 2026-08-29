@@ -2,8 +2,10 @@
 
 use App\Enums\EvaluationStatus;
 use App\Models\Evaluation;
+use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -41,13 +43,13 @@ it('dispatches evaluation-blocked when retry is blocked by a processing evaluati
     $workspace = Workspace::factory()->create();
 
     Evaluation::factory()
-        ->withWorkspace($workspace->id)
+        ->withWorkspace($workspace)
         ->withStatus(EvaluationStatus::Processing)
         ->create();
 
     $failedEvaluation = Evaluation::factory()
         ->failed()
-        ->withWorkspace($workspace->id)
+        ->withWorkspace($workspace)
         ->create();
 
     Livewire::test('evaluation.evaluation', [
@@ -67,3 +69,37 @@ it('polls from a stable root element while processing', function () {
     expect($html)->toContain('wire:poll.1s.keep-alive="loadEvaluation"');
     expect($html)->not->toMatch('/<details[^>]*wire:poll/');
 });
+
+// --- Evaluation::ensureCanRetry() ---
+it('blocks workspace retry when another evaluation is processing', function() {
+    $user = User::factory()->create();
+    $workspace = Workspace::factory()->withUser($user)->create();
+    $evaluation = Evaluation::factory()
+        ->withWorkspace($workspace)
+        ->withStatus(EvaluationStatus::Processing)->create();
+
+    $evaluation->ensureCanRetry();
+})->throws(ValidationException::class);
+
+it('allows workspace retry when none are processing', function() {
+
+})->toDo();
+
+it('blocks submission retry while processing', function() {
+
+})->toDo();
+
+it('rejects retry when evaluation has no context', function() {
+
+})->toDo();
+
+// --- RetryEvaluation ---
+it('retries a failed workspace evaluation', function() {
+
+})->toDo();
+
+it('retries a failed submission evaluation', function() {
+
+})->toDo();
+
+

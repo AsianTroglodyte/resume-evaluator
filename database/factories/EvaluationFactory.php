@@ -62,10 +62,10 @@ class EvaluationFactory extends Factory
         ]);
     }
 
-    public function withWorkspace(int $workspace_id): static
+    public function withWorkspace(Workspace $workspace): static
     {
         return $this->state(fn (array $attributes) => [
-            'workspace_id' => $workspace_id,
+            'workspace_id' => $workspace->id,
             'submission_id' => null
         ]);
     }

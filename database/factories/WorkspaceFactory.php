@@ -31,10 +31,10 @@ class WorkspaceFactory extends Factory
         ]);
     }
 
-    public function user(int $userId): static 
+    public function withUser(User $user): static 
     {
         return $this->state(fn (array $attributes) => [
-            'user_id' => $userId
+            'user_id' => $user->id
         ]);
     }
 
