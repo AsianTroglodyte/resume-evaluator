@@ -82,8 +82,17 @@ it('blocks workspace retry when another evaluation is processing', function() {
 })->throws(ValidationException::class);
 
 it('allows workspace retry when none are processing', function() {
+    $user = User::factory()->create();
+    $workspace = Workspace::factory()->withUser($user)->create();
+    $evaluation = Evaluation::factory()
+        ->withWorkspace($workspace)
+        ->withStatus(EvaluationStatus::Failed)->create();
+    $evaluation = Evaluation::factory()
+        ->withWorkspace($workspace)
+        ->withStatus(EvaluationStatus::Completed)->create();
 
-})->toDo();
+    expect(fn () => $evaluation->ensureCanRetry())->not->toThrow(ValidationException::class);
+});
 
 it('blocks submission retry while processing', function() {
 
