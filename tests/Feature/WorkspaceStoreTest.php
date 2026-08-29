@@ -24,7 +24,7 @@ it('creates processing evaluation; queues the job.',
         Queue::fake();
 
         $user = User::factory()->createOne();
-        $workspace = Workspace::factory()->user($user->id)->createOne();
+        $workspace = Workspace::factory()->withUser($user->id)->createOne();
 
         // foreach ($fileExtensions as $fileExtension) {
 
@@ -66,7 +66,7 @@ it('creates processing evaluation; queues the job.',
 it('prunes the evaluations beyond the latest five', function () {
     /** @var TestCase $this */
     $user = User::factory()->createOne();
-    $workspace = Workspace::factory()->user($user->id)->createOne();
+    $workspace = Workspace::factory()->withUser($user->id)->createOne();
 
     $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
 
@@ -93,7 +93,7 @@ it('prunes the evaluations beyond the latest five', function () {
 it('rejects a new run while one is processing', function () {
     /** @var TestCase $this */
     $user = User::factory()->createOne();
-    $workspace = Workspace::factory()->user($user->id)->createOne();
+    $workspace = Workspace::factory()->withUser($user->id)->createOne();
 
     Evaluation::factory()
         ->withWorkspace($workspace->id)
