@@ -123,7 +123,6 @@
                 @forelse ($workspace->evaluations as $evaluation)
                     <livewire:evaluation.evaluation
                         :$evaluation
-                        :$workspace
                         :wire:key="$evaluation->id"
                     />
                 @empty

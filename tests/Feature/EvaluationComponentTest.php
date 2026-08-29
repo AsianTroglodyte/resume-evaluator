@@ -52,7 +52,6 @@ it('dispatches evaluation-blocked when retry is blocked by a processing evaluati
 
     Livewire::test('evaluation.evaluation', [
         'evaluation' => $failedEvaluation,
-        'workspace' => $workspace,
     ])
         ->call('retryEvaluation')
         ->assertDispatched('evaluation-blocked', message: 'An evaluation is already processing. Wait for it to complete.');

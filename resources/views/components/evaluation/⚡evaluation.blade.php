@@ -1,7 +1,6 @@
 <?php
 use App\Enums\EvaluationStatus;
 use App\Models\Evaluation;
-use App\Models\Workspace;
 use Livewire\Component;
 use App\Actions\RetryEvaluation;
 use Illuminate\Validation\ValidationException;
@@ -9,7 +8,6 @@ use Illuminate\Validation\ValidationException;
 new class extends Component
 {
     public Evaluation $evaluation;
-    public Workspace $workspace;
     public bool $isOpen = false;
 
     public function mount(Evaluation $evaluation): void
