@@ -1,7 +1,9 @@
 <?php
 
 use App\Enums\EvaluationStatus;
+use App\Models\Assignment;
 use App\Models\Evaluation;
+use App\Models\Module;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,8 +97,14 @@ it('allows workspace retry when none are processing', function() {
 });
 
 it('blocks submission retry while processing', function() {
+    $user = User::factory()->create();
+    $workspace = Workspace::factory()->withUser($user)->create();
+    $evaluation = Evaluation::factory()
+        ->withWorkspace($workspace)
+        ->withStatus(EvaluationStatus::Processing)->create();
 
-})->toDo();
+    expect(fn () => $evaluation->ensureCanRetry())->toThrow(ValidationException::class);
+});
 
 it('rejects retry when evaluation has no context', function() {
 
