@@ -37,6 +37,9 @@ class Workspace extends Model
         return $this->evaluations()->where('status', EvaluationStatus::Processing)->exists();
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function ensureCanStartEvaluation(): void
     {
         $hasProcessingEvaluations = $this->evaluations()->where('status', EvaluationStatus::Processing)->exists();

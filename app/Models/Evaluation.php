@@ -6,6 +6,8 @@ use App\Enums\EvaluationStatus;
 use Database\Factories\EvaluationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\ValidationException;
 
 class Evaluation extends Model
 {
@@ -31,5 +33,34 @@ class Evaluation extends Model
             'evaluation_data' => 'array',
             'status' => EvaluationStatus::class,
         ];
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function ensureCanRetry(): void
+    {
+        if ($this->workspace_id !== null) {
+            $this->workspace()->firstOrFail()->ensureCanStartEvaluation();
+            return;
+        }
+
+        if ($this->submission_id !== null) {
+            if ($this->status === EvaluationStatus::Processing) {
+                throw ValidationException::withMessages([
+                    'evaluation' => 'This evaluation is already processing.',
+                ]);
+            }
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'evaluation' => 'This evaluation cannot be retried.',
+        ]);
+    }
+
+    public function workspace(): BelongsTo
+    {
+        return $this->belongsTo(Workspace::class);
     }
 }
