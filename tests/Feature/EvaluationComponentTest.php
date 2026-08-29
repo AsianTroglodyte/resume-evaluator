@@ -111,9 +111,16 @@ it('blocks submission retry while processing', function() {
     'This evaluation is already processing.'
 );
 
+
 it('rejects retry when evaluation has no context', function() {
+    $evaluation = Evaluation::factory()->create([
+        'workspace_id' => null,
+        'submission_id' => null,
+        'status' => EvaluationStatus::Failed,
+    ]);
     
-})->toDo();
+    $evaluation->ensureCanRetry();
+})->throws(ValidationException::class, 'This evaluation cannot be retried.');    
 
 // --- RetryEvaluation ---
 it('retries a failed workspace evaluation', function() {
@@ -138,10 +145,14 @@ it('retries a failed submission evaluation', function() {
     $user = User::factory()->create();
     $module = Module::factory()->withMembers($user)->create();
     $assignment = Assignment::factory()->forModule($module)->create();
-    $submission = Submission::factory()->forAssignment($assignment)->create();
+    $submission = Submission::factory()
+        ->forAssignment($assignment)
+        ->withUser($user)
+        ->create();
     $failedEvaluation = Evaluation::factory()
         ->withSubmission($submission)
-        ->withStatus(EvaluationStatus::Failed)->create();
+        ->failed()
+        ->create();
 
     app(RetryEvaluation::class)($failedEvaluation);
 
