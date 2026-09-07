@@ -24,7 +24,7 @@ it('creates processing evaluation; queues the job.',
         Queue::fake();
 
         $user = User::factory()->createOne();
-        $workspace = Workspace::factory()->withUser($user->id)->createOne();
+        $workspace = Workspace::factory()->withUser($user)->createOne();
 
         // foreach ($fileExtensions as $fileExtension) {
 
@@ -66,13 +66,13 @@ it('creates processing evaluation; queues the job.',
 it('prunes the evaluations beyond the latest five', function () {
     /** @var TestCase $this */
     $user = User::factory()->createOne();
-    $workspace = Workspace::factory()->withUser($user->id)->createOne();
+    $workspace = Workspace::factory()->withUser($user)->createOne();
 
     $job_description_text = file_get_contents(evaluationFixture('sample-job-listing.txt'));
 
     for ($i = 0; $i < 5; $i++) {
         Evaluation::factory()
-            ->withWorkspace($workspace->id)
+            ->withWorkspace($workspace)
             ->create();
     }
 
@@ -93,10 +93,10 @@ it('prunes the evaluations beyond the latest five', function () {
 it('rejects a new run while one is processing', function () {
     /** @var TestCase $this */
     $user = User::factory()->createOne();
-    $workspace = Workspace::factory()->withUser($user->id)->createOne();
+    $workspace = Workspace::factory()->withUser($user)->createOne();
 
     Evaluation::factory()
-        ->withWorkspace($workspace->id)
+        ->withWorkspace($workspace)
         ->withStatus(EvaluationStatus::Processing)
         ->create();
 
@@ -114,4 +114,14 @@ it('rejects a new run while one is processing', function () {
     $response->assertInvalid([
         'evaluation' => 'An evaluation is already processing. Wait for it to complete.',
     ]);
+});
+
+it("students", function () {
+    /** @var TestCase $this*/
+    $loggedInUser = User::factory()->create();
+    $loggedOutUser = User::factory()->create();
+
+    $workspace = Workspace::factory()->withUser($loggedOutUser)->create();
+
+
 });
