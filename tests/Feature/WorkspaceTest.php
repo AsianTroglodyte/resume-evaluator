@@ -116,7 +116,7 @@ it('rejects a new run while one is processing', function () {
     ]);
 });
 
-it("Workspace create evaluation properly authorized", function () {
+it("authorizes workspace create evaluation properly", function () {
     /** @var TestCase $this*/
     $unauthorizedUser = User::factory()->create();
     $authorizedUser = User::factory()->create();
@@ -152,7 +152,7 @@ it("Workspace create evaluation properly authorized", function () {
     expect(count(Storage::disk('local')->allFiles()))->toBe(1);
 });
 
-it("Workspace deletion properly authorized", function () {
+it("authorizes workspace deletion properly", function () {
     /** @var TestCase $this*/
     $unauthorizedUser = User::factory()->create();
     $authorizedUser = User::factory()->create();
@@ -172,7 +172,7 @@ it("Workspace deletion properly authorized", function () {
     // Database::;
 });
 
-it("Workspace update properly authorized", function () {
+it("authorizes workspace update properly", function () {
     /** @var TestCase $this*/
     $unauthorizedUser = User::factory()->create();
     $authorizedUser = User::factory()->create();
@@ -192,7 +192,7 @@ it("Workspace update properly authorized", function () {
         ->assertRedirect();
 });
 
-it("Workspace show properly authorized", function () {
+it("authorizes workspace show properly", function () {
     /** @var TestCase $this*/
     $unauthorizedUser = User::factory()->create();
     $authorizedUser = User::factory()->create();
