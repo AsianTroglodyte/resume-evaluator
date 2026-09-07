@@ -116,12 +116,34 @@ it('rejects a new run while one is processing', function () {
     ]);
 });
 
-it("students", function () {
+it("Workspace create evaluation properly authorized", function () {
     /** @var TestCase $this*/
     $loggedInUser = User::factory()->create();
     $loggedOutUser = User::factory()->create();
+    $admin = User::factory()->admin()->create();
 
     $workspace = Workspace::factory()->withUser($loggedOutUser)->create();
 
+    $response = $this->actingAs($loggedInUser)
+        ->post(route('dashboard.workspaces.evaluations.store', $workspace),
+            ['resume_file' => new UploadedFile(
+                evaluationFixture('sample-resume.pdf'),
+                'sample-resume.pdf',
+                'application/pdf',
+                null,
+                true
+        )])->assertForbidden();
 
+    $response = $this->actingAs($admin)
+        ->post(route('dashboard.workspaces.evaluations.store', $workspace),
+            ['resume_file' => new UploadedFile(
+                evaluationFixture('sample-resume.pdf'),
+                'sample-resume.pdf',
+                'application/pdf',
+                null,
+                true
+        )])->assertForbidden();
+
+    Queue::assertCount(0);
+    expect(Storage::disk('local')->allFiles())->toBeEmpty();
 });
