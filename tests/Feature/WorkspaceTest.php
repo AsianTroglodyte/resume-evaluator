@@ -191,3 +191,21 @@ it("Workspace update properly authorized", function () {
         ["workspace_name" => "new Name"])
         ->assertRedirect();
 });
+
+it("Workspace show properly authorized", function () {
+    /** @var TestCase $this*/
+    $unauthorizedUser = User::factory()->create();
+    $authorizedUser = User::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $workspace = Workspace::factory()->withUser($authorizedUser)->create();
+
+    foreach ([$unauthorizedUser, $admin] as $user) {
+        $this->actingAs($user)
+            ->get(route('dashboard.workspaces.show', $workspace))
+            ->assertForbidden();
+    }
+
+    $this->actingAs($authorizedUser)
+        ->patch(route('dashboard.workspaces.show', $workspace))
+        ->assertRedirect();
+});
