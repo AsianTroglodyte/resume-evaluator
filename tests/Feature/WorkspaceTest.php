@@ -123,8 +123,8 @@ it("authorizes workspace create evaluation properly", function () {
     $admin = User::factory()->admin()->create();
     $workspace = Workspace::factory()->withUser($authorizedUser)->create();
 
-    foreach ([$authorizedUser, $admin] as $user) {
-        $this->actingAs($admin)
+    foreach ([$unauthorizedUser, $admin] as $user) {
+        $this->actingAs($user)
             ->post(route('dashboard.workspaces.evaluations.store', $workspace),
                 ['resume_file' => new UploadedFile(
                     evaluationFixture('sample-resume.pdf'),
@@ -164,12 +164,13 @@ it("authorizes workspace deletion properly", function () {
             ->delete(route('dashboard.workspaces.destroy', $workspace))
             ->assertForbidden();
     }
+    $this->assertDatabaseHas('workspaces', ['id' => $workspace->id]);
 
     $this->actingAs($authorizedUser)
         ->delete(route('dashboard.workspaces.destroy', $workspace))
         ->assertRedirect();
     
-    // Database::;
+    $this->assertDatabaseMissing('workspaces', ['id' => $workspace->id]);
 });
 
 it("authorizes workspace update properly", function () {
@@ -182,14 +183,16 @@ it("authorizes workspace update properly", function () {
     foreach ([$unauthorizedUser, $admin] as $user) {
         $this->actingAs($user)
             ->patch(route('dashboard.workspaces.update', $workspace),
-            ["workspace_name" => "new Name"])
+            ["workspace_name" => "new name"])
             ->assertForbidden();
     }
 
     $this->actingAs($authorizedUser)
         ->patch(route('dashboard.workspaces.update', $workspace),
-        ["workspace_name" => "new Name"])
+        ["workspace_name" => "new name"])
         ->assertRedirect();
+
+    expect($workspace->fresh()->name)->toBe("new name");
 });
 
 it("authorizes workspace show properly", function () {
@@ -206,6 +209,7 @@ it("authorizes workspace show properly", function () {
     }
 
     $this->actingAs($authorizedUser)
-        ->patch(route('dashboard.workspaces.show', $workspace))
-        ->assertRedirect();
+        ->get(route('dashboard.workspaces.show', $workspace))
+        ->assertSuccessful();
 });
+
