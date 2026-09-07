@@ -118,32 +118,76 @@ it('rejects a new run while one is processing', function () {
 
 it("Workspace create evaluation properly authorized", function () {
     /** @var TestCase $this*/
-    $loggedInUser = User::factory()->create();
-    $loggedOutUser = User::factory()->create();
+    $unauthorizedUser = User::factory()->create();
+    $authorizedUser = User::factory()->create();
     $admin = User::factory()->admin()->create();
+    $workspace = Workspace::factory()->withUser($authorizedUser)->create();
 
-    $workspace = Workspace::factory()->withUser($loggedOutUser)->create();
-
-    $response = $this->actingAs($loggedInUser)
-        ->post(route('dashboard.workspaces.evaluations.store', $workspace),
-            ['resume_file' => new UploadedFile(
-                evaluationFixture('sample-resume.pdf'),
-                'sample-resume.pdf',
-                'application/pdf',
-                null,
-                true
-        )])->assertForbidden();
-
-    $response = $this->actingAs($admin)
-        ->post(route('dashboard.workspaces.evaluations.store', $workspace),
-            ['resume_file' => new UploadedFile(
-                evaluationFixture('sample-resume.pdf'),
-                'sample-resume.pdf',
-                'application/pdf',
-                null,
-                true
-        )])->assertForbidden();
+    foreach ([$authorizedUser, $admin] as $user) {
+        $this->actingAs($admin)
+            ->post(route('dashboard.workspaces.evaluations.store', $workspace),
+                ['resume_file' => new UploadedFile(
+                    evaluationFixture('sample-resume.pdf'),
+                    'sample-resume.pdf',
+                    'application/pdf',
+                    null,
+                    true
+            )])->assertForbidden();
+    }
 
     Queue::assertCount(0);
     expect(Storage::disk('local')->allFiles())->toBeEmpty();
+
+    $this->actingAs($authorizedUser)
+        ->post(route('dashboard.workspaces.evaluations.store', $workspace),
+            ['resume_file' => new UploadedFile(
+                evaluationFixture('sample-resume.pdf'),
+                'sample-resume.pdf',
+                'application/pdf',
+                null,
+                true
+        )])->assertRedirect();
+
+    Queue::assertCount(1);
+    expect(count(Storage::disk('local')->allFiles()))->toBe(1);
+});
+
+it("Workspace deletion properly authorized", function () {
+    /** @var TestCase $this*/
+    $unauthorizedUser = User::factory()->create();
+    $authorizedUser = User::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $workspace = Workspace::factory()->withUser($authorizedUser)->create();
+
+    foreach ([$unauthorizedUser, $admin] as $user) {
+        $this->actingAs($user)
+            ->delete(route('dashboard.workspaces.destroy', $workspace))
+            ->assertForbidden();
+    }
+
+    $this->actingAs($authorizedUser)
+        ->delete(route('dashboard.workspaces.destroy', $workspace))
+        ->assertRedirect();
+    
+    // Database::;
+});
+
+it("Workspace update properly authorized", function () {
+    /** @var TestCase $this*/
+    $unauthorizedUser = User::factory()->create();
+    $authorizedUser = User::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $workspace = Workspace::factory()->withUser($authorizedUser)->create();
+
+    foreach ([$unauthorizedUser, $admin] as $user) {
+        $this->actingAs($user)
+            ->patch(route('dashboard.workspaces.update', $workspace),
+            ["workspace_name" => "new Name"])
+            ->assertForbidden();
+    }
+
+    $this->actingAs($authorizedUser)
+        ->patch(route('dashboard.workspaces.update', $workspace),
+        ["workspace_name" => "new Name"])
+        ->assertRedirect();
 });
