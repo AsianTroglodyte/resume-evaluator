@@ -44,7 +44,6 @@ class EvaluateJob implements ShouldQueue
                 ->post('/evaluate', [
                     'job_description' => $this->jobDescription,
                 ]);
-            
         } catch (ConnectionException) {
             $this->evaluation->update([
                 'resume_file_path' => $this->resumeFilePath,

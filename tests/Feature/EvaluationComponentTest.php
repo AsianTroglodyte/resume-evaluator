@@ -162,4 +162,3 @@ it('retries a failed submission evaluation', function() {
         fn (EvaluateJob $job) => $job->evaluation->is($failedEvaluation)
     );
 });
-
