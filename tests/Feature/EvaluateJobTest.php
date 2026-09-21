@@ -46,25 +46,30 @@ test('Evaluate Job goes through.', function () {
 });
 
 
-// test('.', function () {
-//     Http::fake([
-//         '*evaluate' => Http::failedConnection()
-//     ]);
+test('Failed connection.', function () {
+    Http::fake([
+        '*evaluate' => Http::failedConnection()
+    ]);
 
-//     $evaluation = Evaluation::factory()
-//         ->withStatus(EvaluationStatus::Processing)
-//         ->create();
+    $evaluation = Evaluation::factory()
+        ->withStatus(EvaluationStatus::Processing)
+        ->create();
 
-//     EvaluateJob::dispatchSync( // or ->handle() — see below
-//         'resumes/tmp/sample-resume.pdf',
-//         'test job description',
-//         $evaluation
-//     );
+    Storage::disk('local')->put(
+        'resumes/tmp/sample-resume.pdf',
+        file_get_contents(evaluationFixture('sample-resume.pdf'))
+    );
 
-//     $evaluation->refresh();
+    EvaluateJob::dispatchSync( // or ->handle() — see below
+        'resumes/tmp/sample-resume.pdf',
+        'test job description',
+        $evaluation
+    );
 
-//     expect($evaluation->status)->toBe(EvaluationStatus::Failed)
-//         ->and($evaluation->failure_reason)->toBe('Evaluation service seems to be down')
-//         ->and($evaluation->resume_text)->toBe('')
-//         ->and($evaluation->evaluation_data)->toBeNull();
-// });
+    $evaluation->refresh();
+
+    expect($evaluation->status)->toBe(EvaluationStatus::Failed)
+        ->and($evaluation->failure_reason)->toBe('Evaluation service seems to be down.')
+        ->and($evaluation->resume_text)->toBe('')
+        ->and($evaluation->evaluation_data)->toBeNull();
+});
