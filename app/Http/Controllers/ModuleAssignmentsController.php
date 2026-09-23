@@ -236,7 +236,7 @@ class ModuleAssignmentsController extends Controller
             ? $module->members()->wherePivot('role_in_module', RoleInModule::Student->value)->get()
             : $assignment->assignees;
 
-        $submissionsByUserId = $assignment->allSubmissions()
+        $submissionsByUserId = $assignment->submissions()
             ->with('evaluation')
             ->whereIn('user_id', $roster->pluck('id'))
             ->get()

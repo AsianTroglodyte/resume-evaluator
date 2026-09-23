@@ -85,4 +85,15 @@ class SubmissionController extends Controller
                 'job_description' => request()->job_description,
             ]);
     }
+
+    public function show(Module $module, Assignment $assignment, Submission $submission) {
+        // return redirect()
+        //     ->route('dashboard.modules.assignments.show', [$submission->assignment->module, $submission->assignment])
+        //     ->with([
+        //         'job_description' => request()->job_description,
+        // ]);
+        return view('dashboard.modules.assignments.submissions.show', [
+            'submission' => $submission
+        ]);
+    }
 }

@@ -78,7 +78,7 @@ class Assignment extends Model
         return $this->belongsTo(Module::class);
     }
 
-    public function allSubmissions(): HasMany
+    public function submissions(): HasMany
     {
         return $this->hasMany(Submission::class);
     }
