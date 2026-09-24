@@ -163,3 +163,30 @@ it('retries a failed submission evaluation', function() {
     );
 });
 
+
+it('Manual Retry.', function () {
+    Queue::fake();
+    $user1 = User::factory()->create();
+    $user2 = User::factory()->create();
+    $user3 = User::factory()->create();
+    $module = Module::factory()->withMembers([$user1, $user2, $user3])->create();
+    $assignment = Assignment::factory()->forModule($module)->create();
+    $submission = Submission::factory()
+        ->forAssignment($assignment)
+        ->withUser($user1)
+        ->create();
+    $failedEvaluation = Evaluation::factory()
+        ->withSubmission($submission)
+        ->failed()
+        ->create();
+
+    $component = Livewire::test('evaluation.evaluation', [$failedEvaluation]);
+
+    $component->call("retryEvaluation");
+
+    expect($failedEvaluation->fresh()->status)->toBe(EvaluationStatus::Processing);
+    Queue::assertPushed(
+        EvaluateJob::class,
+        fn (EvaluateJob $job) => $job->evaluation->is($failedEvaluation)
+    );
+});

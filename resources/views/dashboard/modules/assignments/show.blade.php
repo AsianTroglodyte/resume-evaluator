@@ -65,7 +65,12 @@ $evaluation = $submission?->evaluation;
                                     default => 'badge-outline',
                                 };
                             @endphp
-                            <tr>
+                            <tr
+                                @if ($rowSubmission)
+                                    onclick="window.location.href='{{ route('dashboard.modules.assignments.submissions.show', [$module, $assignment, $rowSubmission]) }}'"
+                                    class="cursor-pointer hover"
+                                @endif
+                            >
                                 <td>
                                     <div class="font-medium">{{ $row['user']->first_name }} {{ $row['user']->last_name }}</div>
                                     <div class="text-xs text-base-content/60">{{ $row['user']->email }}</div>

@@ -20,7 +20,7 @@ class WorkspaceFactory extends Factory
     {
         return [
             'name' => fake()->jobTitle(),
-            'user_id' => User::factory()->create([])
+            'user_id' => User::factory()->create()
         ];
     }
 
