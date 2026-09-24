@@ -5,7 +5,9 @@ namespace App\Models;
 use Database\Factories\SubmissionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+
 
 class Submission extends Model
 {
@@ -23,8 +25,14 @@ class Submission extends Model
     {
         return $this->hasOne(Evaluation::class);
     }
-    // public function submission(): HasOne
-    // {
-    //     return $this->hasOne(Submission::class);
-    // }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function assignment(): BelongsTo
+    {
+        return $this->belongsTo(Assignment::class);
+    }
 }

@@ -1,106 +1,49 @@
-{{--
-    UI-ONLY PREVIEW — instructor view of a single assignment submission.
-    All data below is hardcoded dummy data. Nothing here is wired to a
-    controller, route, model, or policy yet.
---}}
 @php
-    $student = [
-        'name' => 'Jordan Rivera',
-        'email' => 'jordan.rivera@example.edu',
-    ];
+    use App\Enums\EvaluationStatus;
 
-    $assignment = [
-        'title' => 'Resume for Software Internship',
-        'module_name' => 'CS Senior Seminar',
-    ];
+    $student = $submission->user;
+    $studentName = $student->first_name . " " . $student->last_name;
 
-    $submission = [
-        'submitted_on' => 'Sep 18, 2026 2:41 PM',
-        'assignment_version' => '1',
-        'due_date_snapshot' => 'Sep 20, 2026 11:59 PM',
-    ];
+    $assignment = $submission->assignment;
 
-    // One of: 'completed', 'processing', 'failed'
-    $evaluationStatus = 'completed';
 
-    $statusBadgeClass = match ($evaluationStatus) {
-        'completed' => 'badge-success',
-        'failed' => 'badge-error',
+    $evaluation = $submission->evaluation;
+    $data = is_array($evaluation->evaluation_data) ? $evaluation->evaluation_data : [];
+    $matchedKeywords = $data['matched_keywords'] ?? [];
+    $missingKeywords = $data['missing_keywords'] ?? [];
+    $aiPhrases = $data['ai_phrases'] ?? [];
+    $enrichment = $data['enrichment'] ?? null;
+    $warnings = $data['warnings'] ?? [];
+    $keywordMatch = $data['keyword_match'] ?? null;
+    $hasKeywordFeedback = count(array_filter($matchedKeywords, 'is_string')) > 0
+        || count(array_filter($missingKeywords, 'is_string')) > 0;
+    $summary = $enrichment['analysis_summary'] ?? null;
+
+    $statusBadgeClass = match ($evaluation->status) {
+        EvaluationStatus::Completed => 'badge-success',
+        EvaluationStatus::Failed => 'badge-error',
         default => 'badge-ghost',
     };
+    
+    $evaluationStatus = $evaluation->status->value;
 
-    $keywordMatch = 78;
-
-    $jobDescription = <<<'TEXT'
-    We are seeking a software engineering intern to join our platform team.
-    Responsibilities include building REST APIs, writing automated tests,
-    and collaborating on feature design. Required: Python, SQL, Git.
-    Preferred: Docker, CI/CD, React.
-    TEXT;
-
-    $resumeText = <<<'TEXT'
-    Jordan Rivera
-    jordan.rivera@example.edu · (555) 010-2048
-
-    EDUCATION
-    B.S. Computer Science, State University — Expected 2027
-
-    EXPERIENCE
-    Software Engineering Intern, Acme Corp (Summer 2025)
-    - Built internal reporting dashboard used by 3 teams
-    - Wrote unit tests raising coverage from 40% to 72%
-
-    PROJECTS
-    Paging Visualizer — React app simulating virtual memory paging
-    TEXT;
-
-    $summary = 'Solid technical foundation with clear project work. Bullets would '
-        . 'benefit from more quantified impact and stronger action verbs.';
-
-    $itemsToEnrich = [
-        [
-            'title' => 'Software Engineering Intern',
-            'subtitle' => 'Acme Corp',
-            'current_description' => [
-                'Built internal reporting dashboard used by 3 teams',
-            ],
-            'weakness_reason' => 'Describe the technologies used and the business impact.',
-        ],
-    ];
-
-    $questions = [
-        [
-            'question' => 'What measurable outcome did the reporting dashboard drive?',
-            'placeholder' => 'Reduced weekly reporting time by 6 hours across 3 teams',
-        ],
-    ];
-
-    $matchedKeywords = ['Python', 'SQL', 'Git', 'REST APIs', 'automated tests'];
-    $missingKeywords = ['Docker', 'CI/CD', 'React'];
-
-    $aiPhrases = [
-        ['phrase' => 'responsible for', 'suggestion' => 'led / built / owned'],
-    ];
-
-    $warnings = [
-        'No professional summary or objective detected.',
-    ];
 @endphp
 
 <x-dashboard-layout>
-    <x-slot:title>Submission · {{ $student['name'] }}</x-slot:title>
+    <x-slot:title>Submission · {{ $studentName}}</x-slot:title>
 
     <section class="space-y-6">
         {{-- Header --}}
         <header class="space-y-1">
-            <a href="#" class="link link-primary text-sm">
-                &larr; Back to {{ $assignment['title'] }}
+            <a href="{{ route('dashboard.modules.assignments.show', 
+                [$assignment->module, $assignment]) }}" class="link link-primary text-sm">
+                &larr; Back to {{ $assignment->title }}
             </a>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h2 class="text-2xl font-semibold">{{ $student['name'] }}</h2>
+                    <h2 class="text-2xl font-semibold">{{ $studentName }}</h2>
                     <p class="mt-1 text-sm text-base-content/70">
-                        {{ $student['email'] }} · {{ $assignment['module_name'] }}
+                        {{ $student->email }} · {{ $assignment->module->name }}
                     </p>
                 </div>
                 <span class="badge badge-outline {{ $statusBadgeClass }} shrink-0">
@@ -119,15 +62,15 @@
             <dl class="grid gap-4 text-sm sm:grid-cols-3">
                 <div>
                     <dt class="text-base-content/60">Submitted on</dt>
-                    <dd class="mt-1 font-medium">{{ $submission['submitted_on'] }}</dd>
+                    <dd class="mt-1 font-medium">{{ $submission->created_at }}</dd>
                 </div>
                 <div>
                     <dt class="text-base-content/60">Assignment version</dt>
-                    <dd class="mt-1 font-medium">{{ $submission['assignment_version'] }}</dd>
+                    <dd class="mt-1 font-medium">{{ $submission->assignment_version }}</dd>
                 </div>
                 <div>
                     <dt class="text-base-content/60">Due date (snapshot)</dt>
-                    <dd class="mt-1 font-medium">{{ $submission['due_date_snapshot'] }}</dd>
+                    <dd class="mt-1 font-medium">{{ $submission->due_date_snapshot }}</dd>
                 </div>
             </dl>
         </article>
@@ -139,7 +82,9 @@
                     <h3 class="text-lg font-semibold">Resume</h3>
                     <p class="text-sm text-base-content/70">Extracted resume text.</p>
                 </header>
-                <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">{{ $resumeText }}</pre>
+                <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">
+                    {{ $evaluation->resume_text}}
+                </pre>
             </article>
 
             <article class="rounded-box border border-base-300 bg-base-100 p-6">
@@ -147,7 +92,9 @@
                     <h3 class="text-lg font-semibold">Job description</h3>
                     <p class="text-sm text-base-content/70">Job context used for this evaluation.</p>
                 </header>
-                <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">{{ $jobDescription }}</pre>
+                <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">
+                    {{ $evaluation->job_description_text}}
+                </pre>
             </article>
         </div>
 
@@ -159,9 +106,9 @@
                     <p class="text-sm text-base-content/70">Automated feedback for this submission.</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="badge badge-sm {{ $statusBadgeClass }}">{{ $evaluationStatus }}</span>
+                    <span class="badge badge-sm {{ $statusBadgeClass }}">{{ $evaluationStatus}}</span>
                     @if (is_numeric($keywordMatch))
-                        <span class="badge badge-outline badge-primary">Keyword match {{ $keywordMatch }}%</span>
+                        <span class="badge badge-outline badge-primary">Keyword match {{ $keywordMatch}}%</span>
                     @endif
                 </div>
             </header>
@@ -191,12 +138,12 @@
                         <p class="mt-2 text-sm leading-relaxed text-base-content/90">{{ $summary }}</p>
                     @endif
 
-                    @if (! empty($itemsToEnrich))
+                    @if (! empty($enrichment))
                         <div class="mt-4 space-y-3">
                             <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
-                                Items to strengthen ({{ count($itemsToEnrich) }})
+                                Items to strengthen ({{ count($enrichment['items_to_enrich']) }})
                             </p>
-                            @foreach ($itemsToEnrich as $item)
+                            @foreach ($enrichment["items_to_enrich"] as $item)
                                 <div class="rounded-box border border-base-300/60 bg-base-100/80 p-3">
                                     <p class="text-sm font-medium text-base-content">
                                         {{ $item['title'] }}
@@ -219,13 +166,13 @@
                         </div>
                     @endif
 
-                    @if (! empty($questions))
+                    @if (! empty($enrichment["questions"]))
                         <div class="mt-4">
                             <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
-                                Questions to consider ({{ count($questions) }})
+                                Questions to consider ({{ count($enrichment['questions']) }})
                             </p>
                             <ul class="mt-2 space-y-3">
-                                @foreach ($questions as $question)
+                                @foreach ($enrichment["questions"] as $question)
                                     <li class="text-sm text-base-content/90">
                                         <p>{{ $question['question'] }}</p>
                                         @if (! empty($question['placeholder']))
