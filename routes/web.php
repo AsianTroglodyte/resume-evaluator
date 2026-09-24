@@ -267,8 +267,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard/modules/{module}/assignments/{assignment}/submission/{submission}',
             'show')
             ->scopeBindings()
-            ->name('dashboard.modules.assignments.submissions.show');
-            // ->can('seeAllAssignmentDetails', 'assignment');
+            ->name('dashboard.modules.assignments.submissions.show')
+            ->can('seeAllAssignmentDetails', 'assignment');
     });
 
     Route::controller(AdminUserController::class)->group(function () {

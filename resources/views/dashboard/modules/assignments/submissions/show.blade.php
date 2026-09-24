@@ -2,31 +2,29 @@
     use App\Enums\EvaluationStatus;
 
     $student = $submission->user;
-    $studentName = $student->first_name . " " . $student->last_name;
-
+    $studentName = $student->first_name.' '.$student->last_name;
     $assignment = $submission->assignment;
-
-
     $evaluation = $submission->evaluation;
-    $data = is_array($evaluation->evaluation_data) ? $evaluation->evaluation_data : [];
+
+    $data = $evaluation?->evaluation_data;
+    $data = is_array($data) ? $data : [];
+
     $matchedKeywords = $data['matched_keywords'] ?? [];
     $missingKeywords = $data['missing_keywords'] ?? [];
     $aiPhrases = $data['ai_phrases'] ?? [];
-    $enrichment = $data['enrichment'] ?? null;
+    $enrichment = is_array($data['enrichment'] ?? null) ? $data['enrichment'] : null;
     $warnings = $data['warnings'] ?? [];
     $keywordMatch = $data['keyword_match'] ?? null;
-    $hasKeywordFeedback = count(array_filter($matchedKeywords, 'is_string')) > 0
-        || count(array_filter($missingKeywords, 'is_string')) > 0;
-    $summary = $enrichment['analysis_summary'] ?? null;
+    $summary = data_get($enrichment, 'analysis_summary');
+    $itemsToEnrich = data_get($enrichment, 'items_to_enrich', []);
+    $questions = data_get($enrichment, 'questions', []);
 
-    $statusBadgeClass = match ($evaluation->status) {
+    $statusBadgeClass = match ($evaluation?->status) {
         EvaluationStatus::Completed => 'badge-success',
         EvaluationStatus::Failed => 'badge-error',
         default => 'badge-ghost',
     };
-    
-    $evaluationStatus = $evaluation->status->value;
-
+    $evaluationStatus = $evaluation?->status?->value ?? 'incomplete';
 @endphp
 
 <x-dashboard-layout>
@@ -62,7 +60,7 @@
             <dl class="grid gap-4 text-sm sm:grid-cols-3">
                 <div>
                     <dt class="text-base-content/60">Submitted on</dt>
-                    <dd class="mt-1 font-medium">{{ $submission->created_at }}</dd>
+                    <dd class="mt-1 font-medium">{{ $submission->created_at->format('M j, Y g:i A') }}</dd>
                 </div>
                 <div>
                     <dt class="text-base-content/60">Assignment version</dt>
@@ -70,7 +68,9 @@
                 </div>
                 <div>
                     <dt class="text-base-content/60">Due date (snapshot)</dt>
-                    <dd class="mt-1 font-medium">{{ $submission->due_date_snapshot }}</dd>
+                    <dd class="mt-1 font-medium">
+                        {{ $submission->due_date_snapshot?->format('M j, Y g:i A') ?? '—' }}
+                    </dd>
                 </div>
             </dl>
         </article>
@@ -83,7 +83,7 @@
                     <p class="text-sm text-base-content/70">Extracted resume text.</p>
                 </header>
                 <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">
-                    {{ $evaluation->resume_text}}
+                    {{ $evaluation?->resume_text }}
                 </pre>
             </article>
 
@@ -93,7 +93,7 @@
                     <p class="text-sm text-base-content/70">Job context used for this evaluation.</p>
                 </header>
                 <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">
-                    {{ $evaluation->job_description_text}}
+                    {{ $evaluation?->job_description_text }}
                 </pre>
             </article>
         </div>
@@ -132,18 +132,19 @@
                 @endif
 
                 {{-- Resume analysis --}}
+                @if ($summary || ! empty($itemsToEnrich) || ! empty($questions))
                 <div class="rounded-box border border-primary/20 bg-primary/5 p-4">
                     <p class="text-sm font-semibold text-primary">Resume analysis</p>
                     @if ($summary)
                         <p class="mt-2 text-sm leading-relaxed text-base-content/90">{{ $summary }}</p>
                     @endif
 
-                    @if (! empty($enrichment))
+                    @if (! empty($itemsToEnrich))
                         <div class="mt-4 space-y-3">
                             <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
-                                Items to strengthen ({{ count($enrichment['items_to_enrich']) }})
+                                Items to strengthen ({{ count($itemsToEnrich) }})
                             </p>
-                            @foreach ($enrichment["items_to_enrich"] as $item)
+                            @foreach ($itemsToEnrich as $item)
                                 <div class="rounded-box border border-base-300/60 bg-base-100/80 p-3">
                                     <p class="text-sm font-medium text-base-content">
                                         {{ $item['title'] }}
@@ -166,13 +167,13 @@
                         </div>
                     @endif
 
-                    @if (! empty($enrichment["questions"]))
+                    @if (! empty($questions))
                         <div class="mt-4">
                             <p class="text-xs font-medium uppercase tracking-wide text-base-content/50">
-                                Questions to consider ({{ count($enrichment['questions']) }})
+                                Questions to consider ({{ count($questions) }})
                             </p>
                             <ul class="mt-2 space-y-3">
-                                @foreach ($enrichment["questions"] as $question)
+                                @foreach ($questions as $question)
                                     <li class="text-sm text-base-content/90">
                                         <p>{{ $question['question'] }}</p>
                                         @if (! empty($question['placeholder']))
@@ -184,6 +185,7 @@
                         </div>
                     @endif
                 </div>
+                @endif
 
                 {{-- Keyword analysis --}}
                 <x-evaluation.keyword-analysis

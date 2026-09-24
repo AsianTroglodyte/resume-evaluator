@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-
 class Submission extends Model
 {
     /** @use HasFactory<SubmissionFactory> */
@@ -20,6 +19,13 @@ class Submission extends Model
         'assignment_version',
         'due_date_snapshot',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'due_date_snapshot' => 'datetime',
+        ];
+    }
 
     public function evaluation(): HasOne
     {
