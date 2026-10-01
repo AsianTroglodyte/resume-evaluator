@@ -42,6 +42,7 @@ class Evaluation extends Model
     {
         if ($this->workspace_id !== null) {
             $this->workspace()->firstOrFail()->ensureCanStartEvaluation();
+
             return;
         }
 
@@ -51,12 +52,23 @@ class Evaluation extends Model
                     'evaluation' => 'This evaluation is already processing.',
                 ]);
             }
+
             return;
         }
 
         throw ValidationException::withMessages([
             'evaluation' => 'This evaluation cannot be retried.',
         ]);
+    }
+
+    public function submission(): BelongsTo
+    {
+        return $this->belongsTo(Submission::class);
+    }
+
+    public function jobListing(): BelongsTo
+    {
+        return $this->belongsTo(JobListing::class);
     }
 
     public function workspace(): BelongsTo

@@ -321,12 +321,15 @@
                             class="assignment-scope-group radio radio-primary"
                             @checked($selectedAssigneeScope === AssigneeScope::Group)
                         />
-                        <span class="font-medium">One group</span>
+                        <span class="font-medium">A specific group</span>
                     </label>
 
-                    <label class="assignment-group-select form-control w-full max-w-xs pl-9">
-                        <span class="label-text mb-1">Group</span>
-                        <select name="module_group_id" class="select select-bordered w-full">
+                    <div class="assignment-group-select flex flex-col gap-1 pl-10">
+                        <select
+                            name="module_group_id"
+                            aria-label="Group"
+                            @class(['select select-bordered w-full max-w-xs', 'select-error' => $errors->has('module_group_id')])
+                        >
                             <option value="" disabled @selected(old('module_group_id', $assignment?->module_group_id) === null)>
                                 Choose a group
                             </option>
@@ -339,13 +342,14 @@
                                 </option>
                             @endforeach
                         </select>
-                        <span class="label-text-alt mt-1 text-base-content/60">
-                            Only students currently in this group see the assignment and its listings.
-                        </span>
                         @error('module_group_id')
-                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                            <span class="text-xs text-error">{{ $message }}</span>
+                        @else
+                            <span class="text-xs text-base-content/60">
+                                Only students currently in this group see the assignment and its listings.
+                            </span>
                         @enderror
-                    </label>
+                    </div>
                     @endif
 
                     <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
@@ -361,7 +365,7 @@
                                     ?? AssigneeScope::Everyone->value))
                                 === AssigneeScope::Selected)
                         />
-                        <span class="font-medium">Select members</span>
+                        <span class="font-medium">Selected students</span>
                     </label>
 
                     <fieldset id="assignment-member-list" class="assignment-member-list min-w-0 space-y-3">

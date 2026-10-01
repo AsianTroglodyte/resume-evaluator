@@ -300,7 +300,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'show')
             ->scopeBindings()
             ->name('dashboard.modules.assignments.submissions.show')
-            ->can('seeAllAssignmentDetails', 'assignment');
+            ->can('view', 'submission');
     });
 
     Route::controller(JobListingClaimController::class)->group(function () {

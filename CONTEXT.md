@@ -171,7 +171,7 @@ Instructors see submissions at **all evaluation statuses** (`processing`, `faile
 | External / paste JD | Paste at submit when assignment instructions require it | Same |
 | Capacity | Per-assignment listing capacity; submit does **not** free the slot | Same |
 | Workspace + listings | Paste JD, or practice using **current claim’s JD** for a chosen assignment (read-only; no claim mutation) | Same; never consume claim slots from practice |
-| Workspace claim-JD UI | **Deferred** until groups/claims ship — paste-only (or no listing picker) until then | Ship assignment picker that resolves JD from claim |
+| Workspace claim-JD UI | **Shipped** — job-context picker lists the student's current claims (on assignments still given to them) or paste | Same |
 | Resume storage | **`resume_text` only** (upload → extract; paste OK; no file on disk) | **File + `resume_text`** (storage key, filename, frozen text) |
 | Listing-backed JD | **Snapshot `job_description_text` + `job_listing_id`** on row | Same |
 | Practice history | **Cap: latest 5 runs per workspace** (prune on insert) | Instructor-configurable or higher default |

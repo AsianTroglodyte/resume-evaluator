@@ -128,14 +128,24 @@
                     </dd>
                 </div>
                 <div>
-                    <dt class="text-base-content/60">Assignment version</dt>
-                    <dd class="mt-1 font-medium">{{ $submission->assignment_version }}</dd>
+                    <dt class="text-base-content/60">Evaluation</dt>
+                    <dd class="mt-1 font-medium">
+                        {{ ucfirst($evaluation?->status->value ?? 'incomplete') }}
+                        @if (is_numeric($evaluation?->evaluation_data['keyword_match'] ?? null))
+                            · {{ (int) round($evaluation->evaluation_data['keyword_match']) }}% keyword match
+                        @endif
+                    </dd>
                 </div>
             </dl>
         </div>
+        <div class="mt-4 flex flex-wrap justify-end gap-2">
+        <a
+            href="{{ route('dashboard.modules.assignments.submissions.show', [$module, $assignment, $submission]) }}"
+            class="btn btn-primary btn-sm">
+            View submission
+        </a>
         <form
             method="POST"
-            class="mt-4 flex justify-end"
             action="{{ route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]) }}"
             onsubmit="return confirm('Remove your submission for this assignment?')">
             @csrf
@@ -146,6 +156,7 @@
                 Remove submission
             </button>
         </form>
+        </div>
     </section>
     @elseif ($submission === null && $assignment->isPastDue())
     <section class="mt-6 border-t border-base-300 pt-6" aria-labelledby="past-due-heading">
@@ -172,17 +183,6 @@
             </div>
         </div>
     </section>
-    @endif
-    @if ($evaluation !== null)
-    <section class="space-y-4">
-        <div class="px-1">
-            <h2 class="font-semibold">Submission evaluation</h2>
-        </div>
-        @if (session('evaluation_error'))
-        <p class="text-sm text-error">{{ session('evaluation_error') }}</p>
-        @endif
-        <livewire:evaluation.evaluation :$evaluation />
-        </section>
     @endif
 </article>
 

@@ -87,15 +87,42 @@
                 <span class="label-text-alt mt-1 text-base-content/60">
                     Accepted formats: PDF, DOC, DOCX, TXT
                 </span>
-                <div class="form-control w-full">
-                    <label class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></label>
-                    <textarea
-                        name="job_description"
-                        class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
-                        placeholder="Paste a role description for targeted feedback and keyword analysis.">{{ session('job_description') }}</textarea>
-                    <span class="label-text-alt text-sm text-base-content/60">
-                        Leave blank for a general quality evaluation without keyword analysis.
-                    </span>
+                <div class="flex flex-col gap-4 [&:has(.claim-job-context:checked)_.pasted-job-description]:hidden">
+                    @if ($practiceClaims->isNotEmpty())
+                    <div class="form-control w-full">
+                        <label class="label-text mb-1 font-medium" for="claim_id">Job context</label>
+                        <select id="claim_id" name="claim_id" class="select select-bordered w-full">
+                            <option value="">Paste my own job description</option>
+                            @foreach ($practiceClaims as $claim)
+                                <option
+                                    class="claim-job-context"
+                                    value="{{ $claim->id }}"
+                                    @selected((int) old('claim_id', session('claim_id')) === $claim->id)
+                                >
+                                    {{ $claim->jobListing->name }} — {{ $claim->assignment->title }} ({{ $claim->assignment->module->name }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('claim_id')
+                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @else
+                        <span class="label-text-alt mt-1 text-base-content/60">
+                            Practise against a listing you've claimed on an assignment. This doesn't change your claim.
+                        </span>
+                        @enderror
+                    </div>
+                    @endif
+
+                    <div class="pasted-job-description form-control w-full">
+                        <label class="label-text mb-1 font-medium">Job description <span class="font-normal text-base-content/50">(optional)</span></label>
+                        <textarea
+                            name="job_description"
+                            class="textarea textarea-bordered min-h-28 max-h-60 w-full text-sm"
+                            placeholder="Paste a role description for targeted feedback and keyword analysis.">{{ session('job_description') }}</textarea>
+                        <span class="label-text-alt text-sm text-base-content/60">
+                            Leave blank for a general quality evaluation without keyword analysis.
+                        </span>
+                    </div>
                 </div>
                 <div class="flex justify-end">
                     <button type="submit" class="btn btn-primary btn-sm">

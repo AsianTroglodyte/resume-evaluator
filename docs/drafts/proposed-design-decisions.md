@@ -64,5 +64,5 @@ Do **not** build workspace JD selection UI now. Continue other MVP work; impleme
 - [x] Promote Part B claims/groups into ADR `0007` and update `CONTEXT.md`.
 - [x] Record deferred workspace claim-JD UI until groups/claims ship.
 - [x] Implement groups + claims + assignment claim UI (2026-09-30).
-- [ ] Then add workspace claim-JD picker (no listing browser).
+- [x] Then add workspace claim-JD picker (no listing browser) (2026-10-01).
 - [ ] Archive or trim superseded sections in this draft after implementation sign-off.

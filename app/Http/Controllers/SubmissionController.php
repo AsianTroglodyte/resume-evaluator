@@ -70,10 +70,7 @@ class SubmissionController extends Controller
         );
 
         return redirect()
-            ->route('dashboard.modules.assignments.show', [$assignment->module, $assignment])
-            ->with([
-                'job_description' => request()->job_description,
-            ]);
+            ->route('dashboard.modules.assignments.submissions.show', [$assignment->module, $assignment, $submission]);
     }
 
     public function destroySubmission(Request $request, Module $module, Assignment $assignment)
@@ -101,7 +98,7 @@ class SubmissionController extends Controller
 
     public function show(Module $module, Assignment $assignment, Submission $submission): View
     {
-        $submission->load(['user', 'assignment.module', 'evaluation']);
+        $submission->load(['user', 'assignment.module', 'evaluation.jobListing']);
 
         return view('dashboard.modules.assignments.submissions.show', [
             'submission' => $submission,

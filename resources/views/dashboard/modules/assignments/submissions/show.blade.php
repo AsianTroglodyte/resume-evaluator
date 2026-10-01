@@ -33,10 +33,11 @@
         default => 'badge-ghost',
     };
     $evaluationStatus = $evaluation?->status?->value ?? 'incomplete';
+    $isOwnSubmission = $submission->user_id === auth()->id();
 @endphp
 
 <x-dashboard-layout>
-    <x-slot:title>Submission · {{ $studentName}}</x-slot:title>
+    <x-slot:title>Submission · {{ $isOwnSubmission ? $assignment->title : $studentName }}</x-slot:title>
 
     <section class="space-y-6">
         {{-- Header --}}
@@ -47,10 +48,17 @@
             </a>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
+                    @if ($isOwnSubmission)
+                    <h2 class="text-2xl font-semibold">Your submission</h2>
+                    <p class="mt-1 text-sm text-base-content/70">
+                        {{ $assignment->title }} · {{ $assignment->module->name }}
+                    </p>
+                    @else
                     <h2 class="text-2xl font-semibold">{{ $studentName }}</h2>
                     <p class="mt-1 text-sm text-base-content/70">
                         {{ $student->email }} · {{ $assignment->module->name }}
                     </p>
+                    @endif
                 </div>
                 <span class="badge badge-lg {{ $statusBadgeClass }} shrink-0">
                     {{ ucfirst($evaluationStatus) }}
@@ -96,7 +104,13 @@
             <article class="rounded-box border border-base-300 bg-base-100 p-6">
                 <header class="mb-4 space-y-1 border-b border-base-300 pb-4">
                     <h3 class="text-lg font-semibold">Job description</h3>
-                    <p class="text-sm text-base-content/70">Job context used for this evaluation.</p>
+                    <p class="text-sm text-base-content/70">
+                        @if ($evaluation?->jobListing)
+                            From claimed listing: <span class="font-medium">{{ $evaluation->jobListing->name }}</span>
+                        @else
+                            Job context used for this evaluation.
+                        @endif
+                    </p>
                 </header>
                 <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">{{ $evaluation?->job_description_text ?: 'No job description was provided.' }}</pre>
             </article>
@@ -121,13 +135,21 @@
                 @if ($evaluation === null)
                 <p class="text-sm text-base-content/60">No evaluation has been recorded for this submission.</p>
                 @elseif ($evaluation->status === EvaluationStatus::Processing)
-                <p class="text-sm text-base-content/60">Evaluation in progress. Refresh the page to see the results once it completes.</p>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <p class="text-sm text-base-content/60">Evaluation in progress. This page updates when it finishes.</p>
+                    <livewire:evaluation.submission-status :evaluation-id="$evaluation->id" :reload-url="request()->url()" />
+                </div>
                 @elseif ($evaluation->status === EvaluationStatus::Failed)
-                <div class="rounded-box border border-error/30 bg-error/5 p-4">
-                    <p class="text-sm font-semibold text-error">Evaluation failed</p>
-                    <p class="mt-1 text-sm text-base-content/80">
-                        {{ $evaluation->failure_reason ?: 'Something went wrong while processing this resume.' }}
-                    </p>
+                <div class="flex flex-col gap-3 rounded-box border border-error/30 bg-error/5 p-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-error">Evaluation failed</p>
+                        <p class="mt-1 text-sm text-base-content/80">
+                            {{ $evaluation->failure_reason ?: 'Something went wrong while processing this resume.' }}
+                        </p>
+                    </div>
+                    @if ($isOwnSubmission)
+                        <livewire:evaluation.submission-status :evaluation-id="$evaluation->id" :reload-url="request()->url()" />
+                    @endif
                 </div>
                 @elseif (! $hasFeedback)
                 <p class="text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
