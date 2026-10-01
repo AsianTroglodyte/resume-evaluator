@@ -51,7 +51,7 @@ Global admins **create** modules as platform provisioning (`modules.created_by_u
 _Avoid_: Treating `created_by_user_id` as instructor membership, auto-enrolling the creator as instructor on create
 
 **Group**:
-An optional cohort within a module (e.g. IT vs CS) used to scope assignment eligibility and/or which job listings students see. A module with no groups behaves as a single implicit “everyone” cohort. A student is in **at most one group per module** (or ungrouped); deleting a group ungroups its students. See ADR `0007`.
+An optional cohort within a module (e.g. IT vs CS). An assignment may target one group (`assignee_scope = group`); students then see that assignment—and, through it, its allowed job listings—only while in the group. Listings themselves carry no group. A module with no groups behaves as a single implicit “everyone” cohort. A student is in **at most one group per module** (or ungrouped; ungrouped students see only module-wide work); deleting a group ungroups its students and is blocked while an assignment targets it. See ADR `0007`.
 _Avoid_: section, team, cohort (unless mapped as UI copy for Group)
 
 **Module Membership**:
@@ -87,7 +87,7 @@ A job listing explicitly attached to an assignment; students claim one of these 
 _Avoid_: Global listing, open listing
 
 **Job Listing Claim**:
-A student’s reserved slot on an on-site job listing for a specific assignment, enforced with per-assignment capacity (first-come first-served). At most **one active claim per (student, assignment)**. Claiming and changing claims happens on the **assignment** page; workspace practice may **read** the current claim’s JD but never creates or consumes a claim.
+A student’s reserved slot on an on-site job listing for a specific assignment, enforced with per-assignment capacity stored on the attachment (`null` = unlimited; first-come first-served). Changing claim releases the old slot. Losing access to an assignment (group move) releases an unsubmitted claim. At most **one active claim per (student, assignment)**. Claiming and changing claims happens on the **assignment** page; workspace practice may **read** the current claim’s JD but never creates or consumes a claim.
 _Avoid_: Soft preference, shortlist, practice-time claim
 
 **Submit to Assignment**:
@@ -166,7 +166,7 @@ Instructors see submissions at **all evaluation statuses** (`processing`, `faile
 |---|---|---|
 | Due date | Assignment-level `due_date` only | Per-student **assignment user overrides** (extensions, exemptions) |
 | Resubmission | **Not in polished MVP** — one submit per student; `allow_resubmission` column kept for later | In-place resubmit, withdraw-and-resubmit, instructor toggle |
-| Groups | Optional groups within a module; omit ⇒ everyone cohort | Instructor claim override / audit, richer group tooling |
+| Groups | Optional groups within a module; omit ⇒ everyone cohort. Assignments target Everyone, one Group, or Selected students | Instructor claim override / audit, richer group tooling |
 | On-site listing selection | **Claim** allowed listing (FCFS, capacity on claim); then submit resume | Same model |
 | External / paste JD | Paste at submit when assignment instructions require it | Same |
 | Capacity | Per-assignment listing capacity; submit does **not** free the slot | Same |

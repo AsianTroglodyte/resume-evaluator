@@ -7,9 +7,11 @@ use App\Enums\JobListingSource;
 use App\Enums\ModuleJobListingScope;
 use App\Enums\RoleInModule;
 use App\Models\Assignment;
+use App\Models\JobListingClaim;
 use App\Models\Module;
 use App\Models\Submission;
 use App\Models\User;
+use App\Support\ReleaseInaccessibleClaims;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr as SupportArr;
 use Illuminate\Support\Collection;
@@ -27,18 +29,21 @@ class ModuleAssignmentsController extends Controller
             'module' => $module,
             'job_listings' => $job_listings,
             'assignableMembers' => $assignableMembers,
+            'groups' => $module->groups()->orderBy('name')->get(),
         ]);
     }
 
     public function show(Request $request, Module $module, Assignment $assignment)
     {
         $users = $module->members;
-        $assignment->load(['assignees', 'jobListings']);
+        $assignment->load(['assignees', 'jobListings', 'group']);
 
         $viewData = [
             'module' => $module,
             'assignment' => $assignment,
             'users' => $users,
+            'claimableJobListings' => $assignment->claimableJobListings()->get(),
+            'currentClaim' => $assignment->claimFor($request->user())->first(),
         ];
 
         if ($request->user()->can('seeAllAssignmentDetails', $assignment)) {
@@ -63,6 +68,11 @@ class ModuleAssignmentsController extends Controller
                 Rule::enum(ModuleJobListingScope::class)],
             'assignee_scope' => ['required',
                 Rule::enum(AssigneeScope::class)],
+            'module_group_id' => [
+                'nullable',
+                'integer',
+                Rule::requiredIf(fn () => request('assignee_scope') === AssigneeScope::Group->value),
+                Rule::exists('module_groups', 'id')->where('module_id', $module->id)],
             'job_listing_ids' => ['array',
                 Rule::requiredIf(fn () => request('module_job_listing_scope') === ModuleJobListingScope::Selected->value)],
             'job_listing_ids.*' => [
@@ -70,6 +80,8 @@ class ModuleAssignmentsController extends Controller
                 'integer',
                 Rule::exists('job_listings', 'id')
                     ->where('module_id', $module->id)],
+            'job_listing_capacities' => ['array'],
+            'job_listing_capacities.*' => ['nullable', 'integer', 'min:1'],
             'assignee_ids' => ['array'],
             'assignee_ids.*' => [
                 'required',
@@ -90,6 +102,7 @@ class ModuleAssignmentsController extends Controller
             'module_job_listing_scope',
             'assignee_scope',
         ]);
+        $assigneeScope = AssigneeScope::from($assignmentInfo['assignee_scope']);
         $assignment = $module->assignments()->create([
             // ...$validated,
             'created_by_user_id' => auth()->id(),
@@ -97,21 +110,16 @@ class ModuleAssignmentsController extends Controller
             'title' => $assignmentInfo['title'],
             'description' => $assignmentInfo['description'],
             'due_date' => $assignmentInfo['due_date'],
-            'assignee_scope' => AssigneeScope::from($assignmentInfo['assignee_scope']),
+            'assignee_scope' => $assigneeScope,
+            'module_group_id' => $assigneeScope === AssigneeScope::Group ? $validated['module_group_id'] : null,
             'job_listing_source' => JobListingSource::from($assignmentInfo['job_listing_source']),
             'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
             'allow_resubmission' => false,
         ]);
 
-        $jobListingIds = $validated['job_listing_ids'] ?? [];
-        foreach ($jobListingIds as $jobListingId) {
-            $assignment->assignmentAllowedJobListings()->create([
-                'job_listing_id' => $jobListingId,
-                'assignment_id' => $assignment['id'],
-            ]);
-        }
+        $assignment->jobListings()->sync($this->allowedJobListingsWithCapacity($validated));
 
-        $assigneeIds = $validated['assignee_ids'] ?? [];
+        $assigneeIds = $assigneeScope === AssigneeScope::Selected ? ($validated['assignee_ids'] ?? []) : [];
         foreach ($assigneeIds as $assigneeId) {
             $assignment->assignmentAssignees()->create([
                 'user_id' => $assigneeId,
@@ -133,6 +141,8 @@ class ModuleAssignmentsController extends Controller
             'job_listings' => $job_listings,
             'assignment' => $assignment,
             'users' => $users,
+            'assignableMembers' => $module->assignableMembers,
+            'groups' => $module->groups()->orderBy('name')->get(),
         ]);
     }
 
@@ -148,6 +158,11 @@ class ModuleAssignmentsController extends Controller
             'job_listing_source' => ['required', Rule::enum(JobListingSource::class)],
             'module_job_listing_scope' => ['required', Rule::enum(ModuleJobListingScope::class)],
             'assignee_scope' => ['required', Rule::enum(AssigneeScope::class)],
+            'module_group_id' => [
+                'nullable',
+                'integer',
+                Rule::requiredIf(fn () => request('assignee_scope') === AssigneeScope::Group->value),
+                Rule::exists('module_groups', 'id')->where('module_id', $module->id)],
             'allow_resubmission' => ['required', 'boolean'],
             'job_listing_ids' => ['array',
                 Rule::requiredIf(fn () => request('module_job_listing_scope') === ModuleJobListingScope::Selected->value)],
@@ -156,6 +171,8 @@ class ModuleAssignmentsController extends Controller
                 'integer',
                 Rule::exists('job_listings', 'id')
                     ->where('module_id', $module->id)],
+            'job_listing_capacities' => ['array'],
+            'job_listing_capacities.*' => ['nullable', 'integer', 'min:1'],
             'assignee_ids' => ['array'],
             'assignee_ids.*' => [
                 'required',
@@ -176,6 +193,7 @@ class ModuleAssignmentsController extends Controller
             'module_job_listing_scope',
             'assignee_scope',
         ]);
+        $assigneeScope = AssigneeScope::from($assignmentInfo['assignee_scope']);
 
         $assignment->update([
             // ...$validated,
@@ -183,7 +201,8 @@ class ModuleAssignmentsController extends Controller
             'title' => $assignmentInfo['title'],
             'description' => $assignmentInfo['description'],
             'due_date' => $assignmentInfo['due_date'],
-            'assignee_scope' => AssigneeScope::from($assignmentInfo['assignee_scope']),
+            'assignee_scope' => $assigneeScope,
+            'module_group_id' => $assigneeScope === AssigneeScope::Group ? $validated['module_group_id'] : null,
             'job_listing_source' => JobListingSource::from($assignmentInfo['job_listing_source']),
             'module_job_listing_scope' => ModuleJobListingScope::from($assignmentInfo['module_job_listing_scope']),
             'allow_resubmission' => false,
@@ -191,11 +210,15 @@ class ModuleAssignmentsController extends Controller
 
         // dd($assignment);
 
-        $jobListingIds = $validated['job_listing_ids'] ?? [];
-        $assignment->jobListings()->sync($jobListingIds);
+        $assignment->jobListings()->sync($this->allowedJobListingsWithCapacity($validated));
 
-        $assigneeIds = $validated['assignee_ids'] ?? [];
+        $assigneeIds = $assigneeScope === AssigneeScope::Selected ? ($validated['assignee_ids'] ?? []) : [];
         $assignment->allAssignees()->sync($assigneeIds);
+
+        $assignment->claims()
+            ->whereNotIn('job_listing_id', $assignment->claimableJobListings()->pluck('job_listings.id'))
+            ->delete();
+        (new ReleaseInaccessibleClaims)($module->id, $assignment->claims()->pluck('user_id')->all());
 
         $users = $module->members;
 
@@ -228,13 +251,17 @@ class ModuleAssignmentsController extends Controller
      * Build one row per assignee, pairing each with their submission
      * (and its evaluation) when one exists, for the instructor grading view.
      *
-     * @return Collection<int, array{user: User, submission: ?Submission}>
+     * @return Collection<int, array{user: User, submission: ?Submission, claim: ?JobListingClaim}>
      */
     private function submissionRowsFor(Module $module, Assignment $assignment): Collection
     {
-        $roster = $assignment->assignee_scope === AssigneeScope::Everyone
-            ? $module->members()->wherePivot('role_in_module', RoleInModule::Student->value)->get()
-            : $assignment->assignees;
+        $roster = $assignment->roster()->get();
+
+        $claimsByUserId = $assignment->claims()
+            ->with('jobListing:id,name')
+            ->whereIn('user_id', $roster->pluck('id'))
+            ->get()
+            ->keyBy('user_id');
 
         $submissionsByUserId = $assignment->submissions()
             ->with('evaluation')
@@ -248,6 +275,24 @@ class ModuleAssignmentsController extends Controller
             ->map(fn ($user) => [
                 'user' => $user,
                 'submission' => $submissionsByUserId->get($user->id),
+                'claim' => $claimsByUserId->get($user->id),
             ]);
+    }
+
+    /**
+     * Pivot rows for `sync()`, carrying each selected listing's capacity (blank = unlimited).
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<int, array{capacity: ?int}>
+     */
+    private function allowedJobListingsWithCapacity(array $validated): array
+    {
+        $capacities = $validated['job_listing_capacities'] ?? [];
+
+        return collect($validated['job_listing_ids'] ?? [])
+            ->mapWithKeys(fn (int|string $jobListingId) => [
+                (int) $jobListingId => ['capacity' => $capacities[$jobListingId] ?? null],
+            ])
+            ->all();
     }
 }

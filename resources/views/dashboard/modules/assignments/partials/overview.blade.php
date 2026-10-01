@@ -61,6 +61,16 @@
             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
             @enderror
         </div>
+        @if ($currentClaim && $assignment->usesModuleListings())
+        <p class="rounded-box border border-primary/30 bg-primary/5 p-3 text-sm">
+            Your resume will be evaluated against your claimed listing:
+            <span class="font-medium">{{ $currentClaim->jobListing->name }}</span>.
+        </p>
+        @elseif ($assignment->requiresClaim())
+        <p class="rounded-box border border-warning/30 bg-warning/5 p-3 text-sm">
+            Claim a job listing below before submitting.
+        </p>
+        @else
         <div class="form-control w-full">
             <label class="label-text mb-1 font-medium" for="job_description">
                 Job description <span class="font-normal text-base-content/50">(optional)</span>
@@ -75,11 +85,12 @@
                 Leave blank for a general quality evaluation without keyword analysis.
             </span>
         </div>
+        @endif
         @error('submission')
             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
         @enderror
         <div class="flex flex-wrap justify-end gap-2">
-            <button type="submit" class="btn btn-primary">Submit resume</button>
+            <button type="submit" class="btn btn-primary" @disabled($assignment->requiresClaim() && ! $currentClaim)>Submit resume</button>
         </div>
     </form>
     @elseif($submission !== null)
@@ -176,41 +187,86 @@
 </article>
 
 {{-- Allowed job listings --}}
-@if ($assignment->job_listing_source === JobListingSource::Both
-|| $assignment->job_listing_source === JobListingSource::Module)
+@if ($assignment->usesModuleListings())
+@php
+    $claimErrors = $errors->getBag('claim');
+    $canClaim = auth()->user()->can('claim', $assignment);
+@endphp
 <details class="collapse collapse-arrow rounded-box border border-base-300 bg-base-100" open>
-    <summary class="collapse-title text-lg font-semibold">Allowed job listings</summary>
-    <div class="collapse-content space-y-1">
-        <p class="text-sm text-base-content/70">Submit your resume against one of these postings.</p>
+    <summary class="collapse-title text-lg font-semibold">Job listings</summary>
+    <div class="collapse-content space-y-3">
+        <p class="text-sm text-base-content/70">
+            @if ($assignment->requiresClaim())
+                Claim one listing to submit against. Slots are first come, first served, and you can switch while another listing has room.
+            @else
+                Claim a listing to submit against it, or paste an external job description when you submit.
+            @endif
+        </p>
 
-        @if ($assignment->module_job_listing_scope === ModuleJobListingScope::All)
-        @forelse ($module->jobListings as $jobListing)
-
-        <details class="collapse collapse-arrow rounded-box border border-base-300">
-            <summary class="collapse-title font-medium">
-                {{ $jobListing->name }}
-            </summary>
-            <div class="collapse-content">
-                <p class="text-sm text-base-content/70">
-                    {{ $jobListing->description }}
-                </p>
-            </div>
-        </details>
-        @empty
-        <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
-        @endforelse
-        @else
-        @forelse ($assignment->jobListings as $listing)
-        <details class="collapse collapse-arrow rounded-box border border-base-300">
-            <summary class="collapse-title font-medium">{{ $listing->name }}</summary>
-            <div class="collapse-content">
-                <p class="text-sm text-base-content/70">{{ $listing->description }}</p>
-            </div>
-        </details>
-        @empty
-        <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
-        @endforelse
+        @if (session('claimStatus'))
+            <div role="status" class="alert alert-success alert-soft py-2 text-sm">{{ session('claimStatus') }}</div>
         @endif
+
+        @if ($claimErrors->has('job_listing_id'))
+            <div role="alert" class="alert alert-error alert-soft py-2 text-sm">{{ $claimErrors->first('job_listing_id') }}</div>
+        @endif
+
+        @forelse ($claimableJobListings as $jobListing)
+        @php
+            $isCurrentClaim = $currentClaim?->job_listing_id === $jobListing->id;
+        @endphp
+        <div @class([
+            'rounded-box border p-4',
+            'border-primary bg-primary/5' => $isCurrentClaim,
+            'border-base-300' => ! $isCurrentClaim,
+        ])>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div class="min-w-0">
+                    <h4 class="flex flex-wrap items-center gap-2 font-medium">
+                        {{ $jobListing->name }}
+                        @if ($isCurrentClaim)
+                            <span class="badge badge-primary badge-sm">Your claim</span>
+                        @endif
+                    </h4>
+                    <p class="mt-1 text-xs text-base-content/60">
+                        @if ($jobListing->capacity === null)
+                            {{ $jobListing->claims_count }} claimed · no limit
+                        @else
+                            {{ $jobListing->claims_count }} / {{ $jobListing->capacity }} slots taken
+                        @endif
+                    </p>
+                </div>
+
+                @if ($canClaim)
+                    @if ($isCurrentClaim)
+                        <form method="POST" action="{{ route('dashboard.modules.assignments.claim.destroy', [$module, $assignment]) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline btn-sm">Release</button>
+                        </form>
+                    @elseif ($jobListing->isFull())
+                        <span class="badge badge-ghost shrink-0">Full</span>
+                    @else
+                        <form method="POST" action="{{ route('dashboard.modules.assignments.claim.update', [$module, $assignment]) }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="job_listing_id" value="{{ $jobListing->id }}" />
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                {{ $currentClaim ? 'Switch to this' : 'Claim' }}
+                            </button>
+                        </form>
+                    @endif
+                @endif
+            </div>
+
+            <details class="mt-2">
+                <summary class="cursor-pointer text-sm text-base-content/70">Job description</summary>
+                <p class="mt-2 whitespace-pre-line text-sm text-base-content/80">{{ $jobListing->description }}</p>
+            </details>
+        </div>
+        @empty
+        <p class="text-sm text-base-content/70">No job listings are available for this assignment.</p>
+        @endforelse
     </div>
 </details>
 @endif
@@ -226,10 +282,16 @@
     <dl class="space-y-4 text-sm">
         <div>
             <dt class="font-medium">Assignee scope</dt>
-            <dd class="mt-1">{{ ucfirst($assignment->assignee_scope->value) }}</dd>
+            <dd class="mt-1">
+                {{ ucfirst($assignment->assignee_scope->value) }}
+                @if ($assignment->group)
+                    — <a href="{{ route('dashboard.modules.groups.show', [$assignment->module_id, $assignment->group]) }}" class="link link-primary">{{ $assignment->group->name }}</a>
+                @endif
+            </dd>
         </div>
     </dl>
 
+    @if ($assignment->assignee_scope === \App\Enums\AssigneeScope::Selected)
     <details class="collapse collapse-arrow mt-4 rounded-box border border-base-300">
         <summary class="collapse-title text-sm font-medium">Assignees</summary>
         <div class="collapse-content">
@@ -242,5 +304,6 @@
             </ul>
         </div>
     </details>
+    @endif
 </article>
 @endcan

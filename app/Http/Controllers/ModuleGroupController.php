@@ -7,9 +7,11 @@ use App\Enums\RoleInModule;
 use App\Models\Module;
 use App\Models\ModuleGroup;
 use App\Models\ModuleMembership;
+use App\Support\ReleaseInaccessibleClaims;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ModuleGroupController extends Controller
@@ -17,7 +19,7 @@ class ModuleGroupController extends Controller
     public function index(Module $module): View
     {
         $groups = $module->groups()
-            ->withCount('members')
+            ->withCount(['members', 'assignments'])
             ->orderBy('name')
             ->get();
 
@@ -71,6 +73,8 @@ class ModuleGroupController extends Controller
                     ->where('module_id', $module->id)
                     ->whereIn('user_id', $validated['student_ids'])
                     ->update(['module_group_id' => $group->id]);
+
+                (new ReleaseInaccessibleClaims)($module->id, $validated['student_ids']);
             }
         });
 
@@ -95,6 +99,12 @@ class ModuleGroupController extends Controller
 
     public function destroy(Module $module, ModuleGroup $group): RedirectResponse
     {
+        if ($group->assignments()->exists()) {
+            throw ValidationException::withMessages([
+                'group' => "{$group->name} still has assignments. Re-target or delete them before deleting the group.",
+            ])->errorBag("deleteGroup{$group->id}");
+        }
+
         $group->delete();
 
         return redirect()->route('dashboard.modules.groups.index', ['module' => $module]);

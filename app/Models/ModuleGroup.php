@@ -35,4 +35,9 @@ class ModuleGroup extends Model
         return $this->belongsToMany(User::class, 'module_memberships', 'module_group_id', 'user_id')
             ->wherePivot('status', ModuleMembershipStatus::Active->value);
     }
+
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(Assignment::class);
+    }
 }

@@ -48,7 +48,7 @@ Kept for history. Prefer ADRs for current rules. Job-description sources below a
 - **Resubmission** — `allow_resubmission` policy, in-place resubmit, and withdraw-and-resubmit UI. **Post-MVP**; polished MVP is one submit per student.
 - Full instructor claim override + audit (post-MVP).
 - Interview scheduling (out of scope).
-- Exact `group_id` attachment on job listings vs filter-only via assignment attachment — refine when implementing groups.
+- ~~Exact `group_id` attachment on job listings vs filter-only via assignment attachment~~ — **decided** (2026-09-30): filter-only via assignment attachment; see ADR `0007`.
 
 ---
 
@@ -63,6 +63,6 @@ Do **not** build workspace JD selection UI now. Continue other MVP work; impleme
 - [x] Revise submit model in `CONTEXT.md`, ADR `0004`, ADR `0005`, README.
 - [x] Promote Part B claims/groups into ADR `0007` and update `CONTEXT.md`.
 - [x] Record deferred workspace claim-JD UI until groups/claims ship.
-- [ ] Implement groups + claims + assignment claim UI.
+- [x] Implement groups + claims + assignment claim UI (2026-09-30).
 - [ ] Then add workspace claim-JD picker (no listing browser).
 - [ ] Archive or trim superseded sections in this draft after implementation sign-off.

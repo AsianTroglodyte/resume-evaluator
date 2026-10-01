@@ -3,6 +3,7 @@
     'module',
     'assignableMembers',
     'job_listings',
+    'groups',
     'assignment' => null,
 ])
 
@@ -190,6 +191,7 @@
                                 === ModuleJobListingScope::All)
                             />
                             <span class="font-medium">All module job listings</span>
+                            <span class="text-xs text-base-content/60">(no capacity limits)</span>
                         </label>
 
                         <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
@@ -216,6 +218,9 @@
 
                         <fieldset id="job-listing-list" class="job-listing-list min-w-0 space-y-3">
                             <legend class="label-text font-medium">Select job listings</legend>
+                            <p class="text-xs text-base-content/60">
+                                Capacity is how many students can claim each listing on this assignment. Leave blank for no limit.
+                            </p>
 
                             <ul class="list max-h-150 overflow-y-auto bg-base-100">
                                 @forelse ($job_listings as $job_listing)
@@ -236,10 +241,23 @@
                                                     ?? [] )))
                                             value="{{ $job_listing->id }}"
                                         />
-                                        <span class="min-w-0 font-medium">
+                                        <span class="min-w-0 flex-1 font-medium">
                                             {{ $job_listing->name }}
                                         </span>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            name="job_listing_capacities[{{ $job_listing->id }}]"
+                                            value="{{ old('job_listing_capacities.'.$job_listing->id,
+                                                $assignment?->jobListings->firstWhere('id', $job_listing->id)?->pivot->capacity) }}"
+                                            placeholder="No limit"
+                                            aria-label="Capacity for {{ $job_listing->name }}"
+                                            class="input input-bordered input-sm w-28 shrink-0"
+                                        />
                                     </label>
+                                    @error('job_listing_capacities.'.$job_listing->id)
+                                        <span class="label-text-alt ml-9 text-error">{{ $message }}</span>
+                                    @enderror
                                 </li>
                                 @empty
                                 <li>
@@ -262,9 +280,20 @@
 
                 <fieldset
                     id="assignment-scope"
-                    class="min-w-0 space-y-3 [&:not(:has(.assignment-scope-selected:checked))_.assignment-member-list]:hidden"
+                    class="min-w-0 space-y-3 [&:not(:has(.assignment-scope-selected:checked))_.assignment-member-list]:hidden
+                    [&:not(:has(.assignment-scope-group:checked))_.assignment-group-select]:hidden"
                 >
                     <legend class="sr-only">Assignment scope</legend>
+
+                    @php
+                        $selectedAssigneeScope = AssigneeScope::from(old(
+                            'assignee_scope',
+                            $assignment?->assignee_scope->value ?? AssigneeScope::Everyone->value));
+                    @endphp
+
+                    @error('assignee_scope')
+                        <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                    @enderror
 
                     <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
                         <input
@@ -282,6 +311,42 @@
                         />
                         <span class="font-medium">Everyone in module</span>
                     </label>
+
+                    @if ($groups->isNotEmpty() || $selectedAssigneeScope === AssigneeScope::Group)
+                    <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
+                        <input
+                            type="radio"
+                            name="assignee_scope"
+                            value="group"
+                            class="assignment-scope-group radio radio-primary"
+                            @checked($selectedAssigneeScope === AssigneeScope::Group)
+                        />
+                        <span class="font-medium">One group</span>
+                    </label>
+
+                    <label class="assignment-group-select form-control w-full max-w-xs pl-9">
+                        <span class="label-text mb-1">Group</span>
+                        <select name="module_group_id" class="select select-bordered w-full">
+                            <option value="" disabled @selected(old('module_group_id', $assignment?->module_group_id) === null)>
+                                Choose a group
+                            </option>
+                            @foreach ($groups as $group)
+                                <option
+                                    value="{{ $group->id }}"
+                                    @selected((int) old('module_group_id', $assignment?->module_group_id) === $group->id)
+                                >
+                                    {{ $group->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <span class="label-text-alt mt-1 text-base-content/60">
+                            Only students currently in this group see the assignment and its listings.
+                        </span>
+                        @error('module_group_id')
+                            <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
+                        @enderror
+                    </label>
+                    @endif
 
                     <label class="flex cursor-pointer items-center gap-3 rounded p-1 transition hover:bg-base-200">
                         <input

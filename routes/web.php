@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\JobListingClaimController;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ModuleGroupController;
@@ -300,6 +301,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->scopeBindings()
             ->name('dashboard.modules.assignments.submissions.show')
             ->can('seeAllAssignmentDetails', 'assignment');
+    });
+
+    Route::controller(JobListingClaimController::class)->group(function () {
+        Route::put('/dashboard/modules/{module}/assignments/{assignment}/claim', 'update')
+            ->scopeBindings()
+            ->name('dashboard.modules.assignments.claim.update')
+            ->can('claim', 'assignment');
+        Route::delete('/dashboard/modules/{module}/assignments/{assignment}/claim', 'destroy')
+            ->scopeBindings()
+            ->name('dashboard.modules.assignments.claim.destroy')
+            ->can('claim', 'assignment');
     });
 
     Route::controller(AdminUserController::class)->group(function () {

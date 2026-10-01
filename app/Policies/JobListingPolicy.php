@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\AssigneeScope;
 use App\Models\JobListing;
 use App\Models\Module;
 use App\Models\User;
@@ -80,17 +79,8 @@ class JobListingPolicy
 
     private function visibleThroughUserAssignments(User $user, JobListing $jobListing): bool
     {
-
-        $module = $jobListing->module;
-
-        if ($module === null || !$user->isInModule($module)) {
-            return false;
-        }
         return $jobListing->assignments()
-            ->where(function ($query) use ($user) {
-                $query->where('assignee_scope', AssigneeScope::Everyone)
-                    ->orWhereHas('assignees', fn ($q) => $q->whereKey($user->id));
-            })
+            ->givenTo($user)
             ->exists();
     }
 }

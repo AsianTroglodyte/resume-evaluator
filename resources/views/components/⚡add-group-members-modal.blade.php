@@ -4,6 +4,7 @@ use App\Enums\RoleInModule;
 use App\Models\ModuleGroup;
 use App\Models\ModuleMembership;
 use App\Support\ModuleStudentCandidates;
+use App\Support\ReleaseInaccessibleClaims;
 use App\Support\PicksUsersInModal;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
@@ -48,6 +49,8 @@ new class extends Component {
         ModuleMembership::query()
             ->whereKey($memberships->modelKeys())
             ->update(['module_group_id' => $this->group->id]);
+
+        (new ReleaseInaccessibleClaims)($this->group->module_id, $memberships->pluck('user_id')->all());
 
         return redirect()
             ->route('dashboard.modules.groups.show', [$this->group->module_id, $this->group])

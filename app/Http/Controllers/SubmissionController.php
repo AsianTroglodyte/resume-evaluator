@@ -34,6 +34,18 @@ class SubmissionController extends Controller
             ]);
         }
 
+        $claimedJobListing = $assignment->usesModuleListings()
+            ? $assignment->claimFor($request->user())->first()?->jobListing
+            : null;
+
+        if ($assignment->requiresClaim() && $claimedJobListing === null) {
+            throw ValidationException::withMessages([
+                'submission' => 'Claim a job listing before submitting.',
+            ]);
+        }
+
+        $jobDescription = $claimedJobListing?->description ?? $request->job_description;
+
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
         $submission = Submission::create([
@@ -46,13 +58,14 @@ class SubmissionController extends Controller
         $evaluation = Evaluation::create([
             'submission_id' => $submission->id,
             'resume_file_path' => $resumeFilePath,
-            'job_description_text' => $request->job_description,
+            'job_listing_id' => $claimedJobListing?->id,
+            'job_description_text' => $jobDescription,
             'status' => EvaluationStatus::Processing,
         ]);
 
         EvaluateJob::dispatch(
             $resumeFilePath,
-            $request->job_description,
+            $jobDescription,
             $evaluation
         );
 

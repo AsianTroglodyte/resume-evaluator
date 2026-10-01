@@ -10,14 +10,6 @@ use Tests\TestCase;
 
 uses(RefreshDatabase::class);
 
-function placeInGroup(User $user, ModuleGroup $group): void
-{
-    ModuleMembership::query()
-        ->where('module_id', $group->module_id)
-        ->where('user_id', $user->id)
-        ->update(['module_group_id' => $group->id]);
-}
-
 function groupIdOf(User $user, Module $module): ?int
 {
     return ModuleMembership::query()

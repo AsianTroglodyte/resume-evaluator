@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Module;
 use App\Models\ModuleGroup;
 use App\Models\ModuleMembership;
+use App\Support\ReleaseInaccessibleClaims;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +28,8 @@ class ModuleGroupMembersController extends Controller
             ->where('module_group_id', $group->id)
             ->where('user_id', $validated['user_id'])
             ->update(['module_group_id' => null]);
+
+        (new ReleaseInaccessibleClaims)($module->id, [$validated['user_id']]);
 
         return redirect()
             ->route('dashboard.modules.groups.show', [$module, $group])

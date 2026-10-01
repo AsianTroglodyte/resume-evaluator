@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JobListing extends Model
 {
@@ -35,5 +36,15 @@ class JobListing extends Model
     public function assignments(): BelongsToMany
     {
         return $this->belongsToMany(Assignment::class, 'assignment_allowed_job_listings');
+    }
+
+    public function claims(): HasMany
+    {
+        return $this->hasMany(JobListingClaim::class);
+    }
+
+    public function isFull(): bool
+    {
+        return $this->capacity !== null && $this->claims_count >= $this->capacity;
     }
 }

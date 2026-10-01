@@ -188,13 +188,25 @@
                                                 <header class="space-y-1 pr-10">
                                                     <h3 class="text-xl font-bold text-primary">Delete group</h3>
                                                 </header>
-                                                <p class="mt-3 text-sm">
-                                                    Are you sure you want to delete {{ $group->name }}?
-                                                    @if ($group->members_count > 0)
-                                                        Its {{ $group->members_count }} {{ Str::plural('student', $group->members_count) }}
-                                                        will become ungrouped.
-                                                    @endif
-                                                </p>
+                                                @if ($group->assignments_count > 0)
+                                                    <p class="mt-3 text-sm">
+                                                        {{ $group->name }} is targeted by {{ $group->assignments_count }}
+                                                        {{ Str::plural('assignment', $group->assignments_count) }}.
+                                                        Re-target or delete {{ $group->assignments_count === 1 ? 'it' : 'them' }} before deleting the group.
+                                                    </p>
+                                                @else
+                                                    <p class="mt-3 text-sm">
+                                                        Are you sure you want to delete {{ $group->name }}?
+                                                        @if ($group->members_count > 0)
+                                                            Its {{ $group->members_count }} {{ Str::plural('student', $group->members_count) }}
+                                                            will become ungrouped.
+                                                        @endif
+                                                    </p>
+                                                @endif
+
+                                                @if ($errors->getBag('deleteGroup'.$group->id)->has('group'))
+                                                    <p class="mt-2 text-sm text-error">{{ $errors->getBag('deleteGroup'.$group->id)->first('group') }}</p>
+                                                @endif
 
                                                 <fieldset class="mt-4 flex flex-row justify-end gap-2">
                                                     <button
@@ -204,9 +216,11 @@
                                                     >
                                                         Cancel
                                                     </button>
-                                                    <button type="submit" class="btn btn-sm btn-error">
-                                                        Delete group
-                                                    </button>
+                                                    @if ($group->assignments_count === 0)
+                                                        <button type="submit" class="btn btn-sm btn-error">
+                                                            Delete group
+                                                        </button>
+                                                    @endif
                                                 </fieldset>
                                             </form>
                                         </div>
@@ -214,6 +228,11 @@
                                             <button type="submit">close</button>
                                         </form>
                                     </dialog>
+                                    @if ($errors->getBag('deleteGroup'.$group->id)->any())
+                                        <script>
+                                            document.getElementById('delete_group_{{ $group->id }}')?.showModal();
+                                        </script>
+                                    @endif
                                 </td>
                             </tr>
                         @empty

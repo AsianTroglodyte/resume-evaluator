@@ -6,6 +6,7 @@ use App\Enums\RoleInModule;
 use App\Models\Module;
 use App\Models\ModuleMembership;
 use App\Models\User;
+use App\Support\ReleaseInaccessibleClaims;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -107,6 +108,8 @@ class ModuleMembersController extends Controller
                 'removed_at' => now(),
                 'module_group_id' => null,
             ]);
+
+        (new ReleaseInaccessibleClaims)($module->id, [$validated['user_id']]);
 
         return redirect()
             ->route('dashboard.modules.members.index', $module)

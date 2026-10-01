@@ -15,6 +15,7 @@ class AssignmentAllowedJobListings extends Model
 
     public $fillable = [
         'assignment_id',
-        'job_listing_id'
+        'job_listing_id',
+        'capacity',
     ];
 }
