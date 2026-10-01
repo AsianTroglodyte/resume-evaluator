@@ -18,6 +18,14 @@
     $summary = data_get($enrichment, 'analysis_summary');
     $itemsToEnrich = data_get($enrichment, 'items_to_enrich', []);
     $questions = data_get($enrichment, 'questions', []);
+    $hasKeywordFeedback = count(array_filter($matchedKeywords, 'is_string')) > 0
+        || count(array_filter($missingKeywords, 'is_string')) > 0;
+    $hasFeedback = ! empty($warnings)
+        || filled($summary)
+        || ! empty($itemsToEnrich)
+        || ! empty($questions)
+        || $hasKeywordFeedback
+        || ! empty($aiPhrases);
 
     $statusBadgeClass = match ($evaluation?->status) {
         EvaluationStatus::Completed => 'badge-success',
@@ -44,7 +52,7 @@
                         {{ $student->email }} · {{ $assignment->module->name }}
                     </p>
                 </div>
-                <span class="badge badge-outline {{ $statusBadgeClass }} shrink-0">
+                <span class="badge badge-lg {{ $statusBadgeClass }} shrink-0">
                     {{ ucfirst($evaluationStatus) }}
                 </span>
             </div>
@@ -82,9 +90,7 @@
                     <h3 class="text-lg font-semibold">Resume</h3>
                     <p class="text-sm text-base-content/70">Extracted resume text.</p>
                 </header>
-                <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">
-                    {{ $evaluation?->resume_text }}
-                </pre>
+                <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">{{ $evaluation?->resume_text ?: '—' }}</pre>
             </article>
 
             <article class="rounded-box border border-base-300 bg-base-100 p-6">
@@ -92,9 +98,7 @@
                     <h3 class="text-lg font-semibold">Job description</h3>
                     <p class="text-sm text-base-content/70">Job context used for this evaluation.</p>
                 </header>
-                <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">
-                    {{ $evaluation?->job_description_text }}
-                </pre>
+                <pre class="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-relaxed text-base-content/90">{{ $evaluation?->job_description_text ?: 'No job description was provided.' }}</pre>
             </article>
         </div>
 
@@ -106,14 +110,28 @@
                     <p class="text-sm text-base-content/70">Automated feedback for this submission.</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="badge badge-sm {{ $statusBadgeClass }}">{{ $evaluationStatus}}</span>
+                    <span class="badge badge-md {{ $statusBadgeClass }}">{{ ucfirst($evaluationStatus)}}</span>
                     @if (is_numeric($keywordMatch))
-                        <span class="badge badge-outline badge-primary">Keyword match {{ $keywordMatch}}%</span>
+                        <span class="badge badge-outline badge-primary">Keyword match {{ (int) round($keywordMatch) }}%</span>
                     @endif
                 </div>
             </header>
 
             <div class="space-y-4">
+                @if ($evaluation === null)
+                <p class="text-sm text-base-content/60">No evaluation has been recorded for this submission.</p>
+                @elseif ($evaluation->status === EvaluationStatus::Processing)
+                <p class="text-sm text-base-content/60">Evaluation in progress. Refresh the page to see the results once it completes.</p>
+                @elseif ($evaluation->status === EvaluationStatus::Failed)
+                <div class="rounded-box border border-error/30 bg-error/5 p-4">
+                    <p class="text-sm font-semibold text-error">Evaluation failed</p>
+                    <p class="mt-1 text-sm text-base-content/80">
+                        {{ $evaluation->failure_reason ?: 'Something went wrong while processing this resume.' }}
+                    </p>
+                </div>
+                @elseif (! $hasFeedback)
+                <p class="text-sm text-base-content/60">Evaluation completed but no feedback was returned.</p>
+                @else
                 {{-- Completeness checks --}}
                 @if (! empty($warnings))
                     <div class="rounded-box border border-base-300 bg-base-200/40 p-4">
@@ -214,6 +232,7 @@
                             @endforeach
                         </ul>
                     </div>
+                @endif
                 @endif
             </div>
         </article>

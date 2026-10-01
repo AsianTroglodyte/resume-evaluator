@@ -11,6 +11,7 @@ use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class SubmissionController extends Controller
 {
@@ -20,7 +21,7 @@ class SubmissionController extends Controller
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
 
         ]);
-        
+
         if ($assignment->isPastDue()) {
             throw ValidationException::withMessages([
                 'submission' => 'The due date for this assignment has passed.',
@@ -32,7 +33,6 @@ class SubmissionController extends Controller
                 'submission' => 'You have already submitted to this assignment.',
             ]);
         }
-
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
@@ -86,14 +86,12 @@ class SubmissionController extends Controller
             ]);
     }
 
-    public function show(Module $module, Assignment $assignment, Submission $submission) {
-        // return redirect()
-        //     ->route('dashboard.modules.assignments.show', [$submission->assignment->module, $submission->assignment])
-        //     ->with([
-        //         'job_description' => request()->job_description,
-        // ]);
+    public function show(Module $module, Assignment $assignment, Submission $submission): View
+    {
+        $submission->load(['user', 'assignment.module', 'evaluation']);
+
         return view('dashboard.modules.assignments.submissions.show', [
-            'submission' => $submission
+            'submission' => $submission,
         ]);
     }
 }
