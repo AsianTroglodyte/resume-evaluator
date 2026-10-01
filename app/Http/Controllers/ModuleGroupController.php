@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ModuleMembershipStatus;
+use App\Enums\RoleInModule;
 use App\Models\Module;
 use App\Models\ModuleGroup;
+use App\Models\ModuleMembership;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -46,9 +50,29 @@ class ModuleGroupController extends Controller
                 'max:255',
                 Rule::unique('module_groups')->where('module_id', $module->id),
             ],
+            'student_ids' => ['array'],
+            'student_ids.*' => [
+                'integer',
+                'distinct',
+                Rule::exists('module_memberships', 'user_id')
+                    ->where('module_id', $module->id)
+                    ->where('status', ModuleMembershipStatus::Active->value)
+                    ->where('role_in_module', RoleInModule::Student->value),
+            ],
+        ], [
+            'student_ids.*.exists' => 'Only active students of this module can be added to a group.',
         ]);
 
-        $module->groups()->create($validated);
+        DB::transaction(function () use ($module, $validated): void {
+            $group = $module->groups()->create(['name' => $validated['name']]);
+
+            if (! empty($validated['student_ids'])) {
+                ModuleMembership::query()
+                    ->where('module_id', $module->id)
+                    ->whereIn('user_id', $validated['student_ids'])
+                    ->update(['module_group_id' => $group->id]);
+            }
+        });
 
         return redirect()->route('dashboard.modules.groups.index', ['module' => $module]);
     }

@@ -49,6 +49,42 @@ test('instructors can create, rename, and delete groups', function () {
     $this->assertModelMissing($group);
 });
 
+test('creating a group can place students in it, moving them from another group', function () {
+    $instructor = User::factory()->create();
+    $students = User::factory(2)->create();
+    $module = Module::factory()->withInstructor($instructor)->withMembers($students)->create();
+    $oldGroup = ModuleGroup::factory()->forModule($module)->create(['name' => 'IT']);
+    ModuleMembership::where('module_id', $module->id)->where('user_id', $students[0]->id)
+        ->update(['module_group_id' => $oldGroup->id]);
+
+    $this->actingAs($instructor)
+        ->post(route('dashboard.modules.groups.store', $module), [
+            'name' => 'CS',
+            'student_ids' => $students->pluck('id')->all(),
+        ])
+        ->assertSessionHasNoErrors();
+
+    $group = $module->groups()->where('name', 'CS')->sole();
+    expect($group->members()->pluck('users.id')->sort()->values()->all())
+        ->toBe($students->pluck('id')->sort()->values()->all());
+    expect($oldGroup->members()->count())->toBe(0);
+});
+
+test('creating a group rejects non-students and creates nothing', function () {
+    $instructor = User::factory()->create();
+    $outsider = User::factory()->create();
+    $module = Module::factory()->withInstructor($instructor)->create();
+
+    $this->actingAs($instructor)
+        ->post(route('dashboard.modules.groups.store', $module), [
+            'name' => 'CS',
+            'student_ids' => [$outsider->id, $instructor->id],
+        ])
+        ->assertSessionHasErrors(['student_ids.0', 'student_ids.1'], null, 'createGroup');
+
+    expect($module->groups()->count())->toBe(0);
+});
+
 test('global admins can create groups in any module', function () {
     $admin = User::factory()->admin()->create();
     $module = Module::factory()->create();

@@ -4,14 +4,14 @@ use App\Enums\RoleInModule;
 use App\Models\Module;
 use App\Models\ModuleMembership;
 use App\Models\User;
-use App\Support\PicksUsers;
+use App\Support\PicksUsersInModal;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 new class extends Component {
-    use PicksUsers;
+    use PicksUsersInModal;
 
     public Module $module;
     public RoleInModule $roleInModule = RoleInModule::Student;

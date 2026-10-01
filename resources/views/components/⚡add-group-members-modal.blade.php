@@ -3,14 +3,14 @@ use App\Enums\ModuleMembershipStatus;
 use App\Enums\RoleInModule;
 use App\Models\ModuleGroup;
 use App\Models\ModuleMembership;
-use App\Models\User;
-use App\Support\PicksUsers;
+use App\Support\ModuleStudentCandidates;
+use App\Support\PicksUsersInModal;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 new class extends Component {
-    use PicksUsers;
+    use PicksUsersInModal;
 
     public ModuleGroup $group;
 
@@ -19,27 +19,9 @@ new class extends Component {
         $this->group = $group;
     }
 
-    /**
-     * Active students of the module who are not already in this group.
-     * `picker_note` carries the name of the group a student would be moved from.
-     */
     protected function candidateUsers(): Builder
     {
-        return User::query()
-            ->whereIn('users.id', ModuleMembership::query()
-                ->select('user_id')
-                ->where('module_id', $this->group->module_id)
-                ->where('status', ModuleMembershipStatus::Active)
-                ->where('role_in_module', RoleInModule::Student)
-                ->where(fn ($query) => $query
-                    ->whereNull('module_group_id')
-                    ->orWhere('module_group_id', '!=', $this->group->id)))
-            ->addSelect(['picker_note' => ModuleGroup::query()
-                ->select('module_groups.name')
-                ->join('module_memberships', 'module_memberships.module_group_id', '=', 'module_groups.id')
-                ->whereColumn('module_memberships.user_id', 'users.id')
-                ->where('module_groups.module_id', $this->group->module_id)
-                ->limit(1)]);
+        return (new ModuleStudentCandidates)($this->group->module_id, exceptGroupId: $this->group->id);
     }
 
     protected function addUsers(array $emails): mixed

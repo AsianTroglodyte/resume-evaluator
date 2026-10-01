@@ -5,20 +5,17 @@ namespace App\Support;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use Livewire\WithFileUploads;
 
 /**
- * Shared state and actions for the "add users" modals: search-and-select plus
- * pasted / uploaded email lists. Pair with the `<x-user-picker-modal>` view.
+ * Shared state and actions for picking users: search-and-select plus pasted /
+ * uploaded email lists. Pair with the `<x-user-picker>` view.
  */
 trait PicksUsers
 {
     use WithFileUploads;
 
     public string $userQuery = '';
-
-    public bool $dialogIsOpen = false;
 
     /** @var list<array{id: int, first_name: string, last_name: string, email: string, picker_note: ?string}> */
     public array $selectedUsers = [];
@@ -37,11 +34,11 @@ trait PicksUsers
     abstract protected function candidateUsers(): Builder;
 
     /**
-     * Validate and persist the given emails; return a redirect on success.
+     * Handle a parsed import list.
      *
      * @param  list<string>  $emails
      */
-    abstract protected function addUsers(array $emails): mixed;
+    abstract protected function importEmails(array $emails): mixed;
 
     public function with(): array
     {
@@ -75,13 +72,7 @@ trait PicksUsers
         $user = $this->candidateUsers()->addSelect('users.*')->find($id);
 
         if ($user) {
-            $this->selectedUsers[] = [
-                'id' => $user->id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'email' => $user->email,
-                'picker_note' => $user->picker_note,
-            ];
+            $this->pushSelectedUser($user);
         }
     }
 
@@ -91,17 +82,6 @@ trait PicksUsers
             $this->selectedUsers,
             fn (array $selectedUser) => $selectedUser['id'] !== $id,
         ));
-    }
-
-    public function addSelected(): mixed
-    {
-        if ($this->selectedUsers === []) {
-            throw ValidationException::withMessages([
-                'no_selected_users' => 'You did not select any users.',
-            ]);
-        }
-
-        return $this->addUsers(array_column($this->selectedUsers, 'email'));
     }
 
     public function addFromImport(): mixed
@@ -118,20 +98,22 @@ trait PicksUsers
             rewind($stream);
         }
 
-        return $this->addUsers((new ParseEmailList)($stream));
+        return $this->importEmails((new ParseEmailList)($stream));
     }
 
-    public function toggleDialogIsOpen(): void
+    protected function pushSelectedUser(User $user): void
     {
-        $this->dialogIsOpen = ! $this->dialogIsOpen;
-    }
+        if (collect($this->selectedUsers)->contains('id', $user->id)) {
+            return;
+        }
 
-    public function cancel(): void
-    {
-        $this->toggleDialogIsOpen();
-        $this->userQuery = '';
-        $this->selectedUsers = [];
-        $this->resetErrorBag();
+        $this->selectedUsers[] = [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'picker_note' => $user->picker_note,
+        ];
     }
 
     /**

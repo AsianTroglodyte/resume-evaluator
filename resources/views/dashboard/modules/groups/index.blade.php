@@ -20,7 +20,7 @@
             </div>
 
             <dialog id="create_group_modal" class="modal">
-                <div class="modal-box w-[92vw] max-w-lg">
+                <div class="modal-box w-[92vw] max-w-2xl overflow-visible">
                     <form method="POST" action="{{ route('dashboard.modules.groups.store', $module) }}">
                         @csrf
                         <button
@@ -51,6 +51,19 @@
                                     <span class="label-text-alt mt-1 text-error">{{ $createErrors->first('name') }}</span>
                                 @endif
                             </label>
+
+                            <div class="space-y-1">
+                                <span class="label-text font-medium">Students</span>
+                                <p class="text-xs text-base-content/60">
+                                    Optional. Students already in another group will be moved.
+                                </p>
+                                <livewire:user-picker-field name="student_ids" :module="$module" />
+                                @foreach (['student_ids', 'student_ids.*'] as $errorKey)
+                                    @if ($createErrors->has($errorKey))
+                                        <span class="block text-sm text-error">{{ $createErrors->first($errorKey) }}</span>
+                                    @endif
+                                @endforeach
+                            </div>
 
                             <button type="submit" class="btn btn-primary">Create group</button>
                         </fieldset>
