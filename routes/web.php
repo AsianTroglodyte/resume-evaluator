@@ -3,6 +3,8 @@
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\ModuleGroupController;
+use App\Http\Controllers\ModuleGroupMembersController;
 use App\Http\Controllers\ModuleJobListingController;
 use App\Http\Controllers\ModuleMembersController;
 use App\Http\Controllers\ModuleSettingsController;
@@ -14,6 +16,7 @@ use App\Http\Controllers\WorkspaceController;
 use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
+use App\Models\ModuleGroup;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -213,6 +216,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->scopeBindings()
             ->name('dashboard.modules.job-listings.destroy')
             ->can('delete', 'jobListing');
+    });
+
+    Route::controller(ModuleGroupController::class)->group(function () {
+        Route::get('/dashboard/modules/{module}/groups', 'index')
+            ->name('dashboard.modules.groups.index')
+            ->can('viewAny', [ModuleGroup::class, 'module']);
+        Route::post('/dashboard/modules/{module}/groups', 'store')
+            ->name('dashboard.modules.groups.store')
+            ->can('create', [ModuleGroup::class, 'module']);
+        Route::get('/dashboard/modules/{module}/groups/{group}', 'show')
+            ->scopeBindings()
+            ->name('dashboard.modules.groups.show')
+            ->can('view', 'group');
+        Route::patch('/dashboard/modules/{module}/groups/{group}', 'update')
+            ->scopeBindings()
+            ->name('dashboard.modules.groups.update')
+            ->can('update', 'group');
+        Route::delete('/dashboard/modules/{module}/groups/{group}', 'destroy')
+            ->scopeBindings()
+            ->name('dashboard.modules.groups.destroy')
+            ->can('delete', 'group');
+    });
+
+    Route::controller(ModuleGroupMembersController::class)->group(function () {
+        Route::delete('/dashboard/modules/{module}/groups/{group}/members', 'destroy')
+            ->scopeBindings()
+            ->name('dashboard.modules.groups.members.destroy')
+            ->can('update', 'group');
     });
 
     Route::controller(ModuleSettingsController::class)->group(function () {

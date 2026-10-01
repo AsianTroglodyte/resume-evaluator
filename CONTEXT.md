@@ -51,7 +51,7 @@ Global admins **create** modules as platform provisioning (`modules.created_by_u
 _Avoid_: Treating `created_by_user_id` as instructor membership, auto-enrolling the creator as instructor on create
 
 **Group**:
-An optional cohort within a module (e.g. IT vs CS) used to scope assignment eligibility and/or which job listings students see. A module with no groups behaves as a single implicit “everyone” cohort.
+An optional cohort within a module (e.g. IT vs CS) used to scope assignment eligibility and/or which job listings students see. A module with no groups behaves as a single implicit “everyone” cohort. A student is in **at most one group per module** (or ungrouped); deleting a group ungroups its students. See ADR `0007`.
 _Avoid_: section, team, cohort (unless mapped as UI copy for Group)
 
 **Module Membership**:

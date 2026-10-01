@@ -1,5 +1,6 @@
 @php
     use App\Enums\ModuleStatus;
+    use App\Models\ModuleGroup;
 @endphp
 
 @props([
@@ -38,6 +39,16 @@
                 aria-current="{{ request()->routeIs('dashboard.modules.members.index') ? 'page' : 'false' }}"
             >
                 Members
+            </a>
+            @endcan
+            @can('viewAny', [ModuleGroup::class, $module])
+            <a
+                role="tab"
+                href="{{ route('dashboard.modules.groups.index', $module) }}"
+                class="tab {{ request()->routeIs('dashboard.modules.groups.*') ? 'tab-active' : '' }}"
+                aria-current="{{ request()->routeIs('dashboard.modules.groups.*') ? 'page' : 'false' }}"
+            >
+                Groups
             </a>
             @endcan
             @can('update', $module)

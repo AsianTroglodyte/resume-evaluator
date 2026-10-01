@@ -2,64 +2,77 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\module_group;
-use Illuminate\Http\Request;
+use App\Models\Module;
+use App\Models\ModuleGroup;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class ModuleGroupController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Module $module): View
     {
-        //
+        $groups = $module->groups()
+            ->withCount('members')
+            ->orderBy('name')
+            ->get();
+
+        return view('dashboard.modules.groups.index', [
+            'module' => $module,
+            'groups' => $groups,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(Module $module, ModuleGroup $group): View
     {
-        //
+        $members = $group->members()
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
+
+        return view('dashboard.modules.groups.show', [
+            'module' => $module,
+            'group' => $group,
+            'members' => $members,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(Module $module): RedirectResponse
     {
-        //
+        $validated = request()->validateWithBag('createGroup', [
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('module_groups')->where('module_id', $module->id),
+            ],
+        ]);
+
+        $module->groups()->create($validated);
+
+        return redirect()->route('dashboard.modules.groups.index', ['module' => $module]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(module_group $module_group)
+    public function update(Module $module, ModuleGroup $group): RedirectResponse
     {
-        //
+        $validated = request()->validateWithBag("updateGroup{$group->id}", [
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('module_groups')->where('module_id', $module->id)->ignore($group),
+            ],
+        ]);
+
+        $group->update($validated);
+
+        return redirect()->route('dashboard.modules.groups.index', ['module' => $module]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(module_group $module_group)
+    public function destroy(Module $module, ModuleGroup $group): RedirectResponse
     {
-        //
-    }
+        $group->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, module_group $module_group)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(module_group $module_group)
-    {
-        //
+        return redirect()->route('dashboard.modules.groups.index', ['module' => $module]);
     }
 }

@@ -2,65 +2,54 @@
 
 namespace App\Policies;
 
+use App\Models\Module;
+use App\Models\ModuleGroup;
 use App\Models\User;
-use App\Models\module_group;
-use Illuminate\Auth\Access\Response;
 
 class ModuleGroupPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determine whether the user can view the module's groups.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, Module $module): bool
     {
-        return false;
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($module);
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determine whether the user can view the group and its members.
      */
-    public function view(User $user, module_group $moduleGroup): bool
+    public function view(User $user, ModuleGroup $moduleGroup): bool
     {
-        return false;
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($moduleGroup->module);
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determine whether the user can create groups in the module.
      */
-    public function create(User $user): bool
+    public function create(User $user, Module $module): bool
     {
-        return false;
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($module);
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determine whether the user can update the group.
      */
-    public function update(User $user, module_group $moduleGroup): bool
+    public function update(User $user, ModuleGroup $moduleGroup): bool
     {
-        return false;
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($moduleGroup->module);
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determine whether the user can delete the group.
      */
-    public function delete(User $user, module_group $moduleGroup): bool
+    public function delete(User $user, ModuleGroup $moduleGroup): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, module_group $moduleGroup): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, module_group $moduleGroup): bool
-    {
-        return false;
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($moduleGroup->module);
     }
 }

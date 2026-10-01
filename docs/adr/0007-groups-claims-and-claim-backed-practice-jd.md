@@ -12,6 +12,9 @@ On-site mock listings need limited capacity so students self-select which postin
 
 - A **module may have optional groups**. With no groups, the module is one implicit everyone cohort.
 - Groups may scope assignment eligibility and/or listing visibility (e.g. IT vs CS).
+- A student belongs to **at most one group per module** (or none = ungrouped). Stored as nullable `module_memberships.module_group_id`, so the schema enforces the rule. Unlike Moodle's default (many groups per student), this keeps listing filters and FCFS capacity pools unambiguous.
+- Deleting a group **ungroups** its students (`nullOnDelete`); it never removes their module membership.
+- Group names are unique within a module. Groups are managed (create / rename / delete / place) by module instructors and global admins only; students do not see the group list.
 
 ### Claims & capacity (MVP)
 

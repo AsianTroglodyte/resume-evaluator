@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('module_groups', function (Blueprint $table) {
             $table->id();
-            $table->string("name");
-            // $table->
+            $table->foreignId('module_id')->constrained()->cascadeOnDelete();
+            $table->string('name');
             $table->timestamps();
+            $table->unique(['module_id', 'name']);
         });
     }
 

@@ -19,6 +19,7 @@ class ModuleMembersController extends Controller
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();
+
         // dd("bruh");
         return view('dashboard.modules.members.index', [
             'module' => $module,
@@ -104,6 +105,7 @@ class ModuleMembersController extends Controller
                 'status' => 'removed',
                 'removed_by_user_id' => auth()->id(),
                 'removed_at' => now(),
+                'module_group_id' => null,
             ]);
 
         return redirect()

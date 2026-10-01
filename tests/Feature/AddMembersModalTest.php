@@ -66,6 +66,37 @@ it('adds users from pasted email list', function () {
     }
 });
 
+it('adds nobody when any imported email is already an active member', function () {
+    /** @var TestCase $this */
+    $admin = User::factory()->admin()->create();
+    $this->actingAs($admin);
+    $existingMember = User::factory()->create();
+    $newUser = User::factory()->create();
+    $module = Module::factory()->withMembers($existingMember)->create();
+
+    Livewire::test('add-members-modal', ['module' => $module])
+        ->set('csvString', $newUser->email."\n".$existingMember->email)
+        ->call('addFromImport')
+        ->assertHasErrors('emails');
+
+    $this->assertDatabaseMissing('module_memberships', [
+        'module_id' => $module->id,
+        'user_id' => $newUser->id,
+    ]);
+});
+
+it('forbids users who cannot manage the module', function () {
+    /** @var TestCase $this */
+    $student = User::factory()->create();
+    $module = Module::factory()->withMembers($student)->create();
+    $this->actingAs($student);
+
+    Livewire::test('add-members-modal', ['module' => $module])
+        ->set('csvString', User::factory()->create()->email)
+        ->call('addFromImport')
+        ->assertForbidden();
+});
+
 it('adds users from email list file', function () {
     /** @var TestCase $this */
     $admin = User::factory()->admin()->create();
