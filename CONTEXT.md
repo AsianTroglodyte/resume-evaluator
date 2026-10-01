@@ -69,8 +69,8 @@ _Avoid_: Deleted module
 ### Workspace & practice (optional, not submit)
 
 **Workspace**:
-A **user-owned, named** area where students **freely evaluate resumes** for practice—upload or paste resume, optional job context. A user may have **multiple workspaces**. **Private to the owner** — instructors and other students cannot view workspace practice runs. Job context may be a **pasted JD** or the JD of the student’s **current claim** on a chosen assignment (practice against that mock posting). Workspaces do **not** create or change claims, do **not** consume listing capacity, and do **not** gate or supply assignment submissions.
-_Avoid_: module workspace, assignment draft, browsing all allowed listings from the workspace
+A **user-owned, named** area where students **freely evaluate resumes** for practice—upload or paste resume, optional job context. A user may have **multiple workspaces**. **Private to the owner** — instructors and other students cannot view workspace practice runs. Job context may be a **pasted JD**, the JD of the student’s **current claim** on an assignment, or—via a separate browse modal (module › assignment › listing)—any listing allowed on an assignment they are given. Practice runs do **not** create or change claims or consume listing capacity; the workspace's browse modal may claim explicitly (same rules as the assignment page). Workspaces do **not** gate or supply assignment submissions.
+_Avoid_: module workspace, assignment draft, claiming from the workspace
 
 **Practice Evaluation**:
 An automated assessment run from a workspace for student feedback only. Not submitted to assignments. **MVP:** each practice run is **persisted** in the **`evaluations`** table (one row per run; `workspace_id` set). History UI may be minimal at first; **retention: keep latest 5** workspace-backed runs per workspace (prune oldest on insert).
@@ -87,7 +87,7 @@ A job listing explicitly attached to an assignment; students claim one of these 
 _Avoid_: Global listing, open listing
 
 **Job Listing Claim**:
-A student’s reserved slot on an on-site job listing for a specific assignment, enforced with per-assignment capacity stored on the attachment (`null` = unlimited; first-come first-served). Changing claim releases the old slot. Losing access to an assignment (group move) releases an unsubmitted claim. At most **one active claim per (student, assignment)**. Claiming and changing claims happens on the **assignment** page; workspace practice may **read** the current claim’s JD but never creates or consumes a claim.
+A student’s reserved slot on an on-site job listing for a specific assignment, enforced with per-assignment capacity stored on the attachment (`null` = unlimited; first-come first-served). Changing claim releases the old slot. Losing access to an assignment (group move) releases an unsubmitted claim. At most **one active claim per (student, assignment)**. Claiming and changing claims happens on the **assignment** page or the workspace's **browse all listings** modal (same endpoint and rules); a practice run itself never creates or consumes a claim.
 _Avoid_: Soft preference, shortlist, practice-time claim
 
 **Submit to Assignment**:
@@ -170,8 +170,8 @@ Instructors see submissions at **all evaluation statuses** (`processing`, `faile
 | On-site listing selection | **Claim** allowed listing (FCFS, capacity on claim); then submit resume | Same model |
 | External / paste JD | Paste at submit when assignment instructions require it | Same |
 | Capacity | Per-assignment listing capacity; submit does **not** free the slot | Same |
-| Workspace + listings | Paste JD, or practice using **current claim’s JD** for a chosen assignment (read-only; no claim mutation) | Same; never consume claim slots from practice |
-| Workspace claim-JD UI | **Shipped** — job-context picker lists the student's current claims (on assignments still given to them) or paste | Same |
+| Workspace + listings | Paste JD or a current claim's JD; other assignment listings via a browse modal (read-only; no claim mutation) | Same; never consume claim slots from practice |
+| Workspace listing-JD UI | **Shipped** — picker shows paste + claims; "Browse all listings" modal grouped module › assignment › listing | Same |
 | Resume storage | **`resume_text` only** (upload → extract; paste OK; no file on disk) | **File + `resume_text`** (storage key, filename, frozen text) |
 | Listing-backed JD | **Snapshot `job_description_text` + `job_listing_id`** on row | Same |
 | Practice history | **Cap: latest 5 runs per workspace** (prune on insert) | Instructor-configurable or higher default |

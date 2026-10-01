@@ -19,6 +19,7 @@ class JobListingClaimController extends Controller
     {
         $validated = $request->validateWithBag('claim', [
             'job_listing_id' => ['required', 'integer'],
+            'workspace_id' => ['nullable', 'integer'],
         ]);
 
         $user = $request->user();
@@ -55,17 +56,31 @@ class JobListingClaimController extends Controller
             );
         });
 
-        return redirect()
-            ->route('dashboard.modules.assignments.show', [$module, $assignment])
-            ->with('claimStatus', 'Job listing claimed.');
+        return $this->redirectAfterClaimChange($request, $module, $assignment)
+            ->with('claimStatus', 'Job listing claimed.')
+            ->with('job_listing_id', (int) $validated['job_listing_id']);
     }
 
     public function destroy(Request $request, Module $module, Assignment $assignment): RedirectResponse
     {
         $assignment->claimFor($request->user())->delete();
 
-        return redirect()
-            ->route('dashboard.modules.assignments.show', [$module, $assignment])
+        return $this->redirectAfterClaimChange($request, $module, $assignment)
             ->with('claimStatus', 'Claim released.');
+    }
+
+    /**
+     * Claims can be changed from the assignment page or the workspace's "browse all listings"
+     * modal; return to whichever the student came from (only their own workspace).
+     */
+    private function redirectAfterClaimChange(Request $request, Module $module, Assignment $assignment): RedirectResponse
+    {
+        $workspace = $request->filled('workspace_id')
+            ? $request->user()->workspaces()->find($request->integer('workspace_id'))
+            : null;
+
+        return $workspace
+            ? redirect()->route('dashboard.workspaces.show', $workspace)
+            : redirect()->route('dashboard.modules.assignments.show', [$module, $assignment]);
     }
 }

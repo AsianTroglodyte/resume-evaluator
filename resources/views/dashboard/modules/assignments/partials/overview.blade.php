@@ -117,7 +117,7 @@
                     </div>
                 </div>
 
-                <span class="badge badge-success badge-outline shrink-0">Submitted</span>
+                <span class="badge badge-success shrink-0">Submitted</span>
             </div>
 
             <dl class="mt-5 grid gap-4 border-t border-success/20 pt-4 text-sm sm:grid-cols-2">
@@ -221,8 +221,12 @@
             'border-base-300' => ! $isCurrentClaim,
         ])>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div class="min-w-0">
-                    <h4 class="flex flex-wrap items-center gap-2 font-medium">
+                <button
+                    type="button"
+                    class="min-w-0 flex-1 cursor-pointer text-left"
+                    onclick="listing_details_{{ $jobListing->id }}.showModal()"
+                >
+                    <h4 class="flex flex-wrap items-center gap-2 font-medium hover:underline">
                         {{ $jobListing->name }}
                         @if ($isCurrentClaim)
                             <span class="badge badge-primary badge-sm">Your claim</span>
@@ -235,7 +239,7 @@
                             {{ $jobListing->claims_count }} / {{ $jobListing->capacity }} slots taken
                         @endif
                     </p>
-                </div>
+                </button>
 
                 @if ($canClaim)
                     @if ($isCurrentClaim)
@@ -259,10 +263,18 @@
                 @endif
             </div>
 
-            <details class="mt-2">
-                <summary class="cursor-pointer text-sm text-base-content/70">Job description</summary>
-                <p class="mt-2 whitespace-pre-line text-sm text-base-content/80">{{ $jobListing->description }}</p>
-            </details>
+            <dialog id="listing_details_{{ $jobListing->id }}" class="modal">
+                <div class="modal-box max-w-lg">
+                    <form method="dialog">
+                        <button class="btn btn-sm btn-circle btn-outline absolute right-2 top-2" aria-label="Close">x</button>
+                    </form>
+                    <h4 class="pr-10 text-lg font-semibold">{{ $jobListing->name }}</h4>
+                    <p class="mt-2 whitespace-pre-line text-sm text-base-content/80">{{ $jobListing->description }}</p>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
         </div>
         @empty
         <p class="text-sm text-base-content/70">No job listings are available for this assignment.</p>

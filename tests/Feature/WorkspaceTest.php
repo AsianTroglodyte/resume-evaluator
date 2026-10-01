@@ -41,7 +41,7 @@ it('creates processing evaluation; queues the job.',
                 ),
                 'job_description' => $job_description_text,
             ])
-            ->assertRedirect(route('dashboard.workspaces.show', $workspace));
+            ->assertRedirect(route('dashboard.workspaces.evaluations.show', [$workspace, $workspace->evaluations()->sole()]));
 
         $evaluation = $workspace->evaluations()->sole();
 
@@ -116,8 +116,8 @@ it('rejects a new run while one is processing', function () {
     ]);
 });
 
-it("authorizes workspace create evaluation properly", function () {
-    /** @var TestCase $this*/
+it('authorizes workspace create evaluation properly', function () {
+    /** @var TestCase $this */
     $unauthorizedUser = User::factory()->create();
     $authorizedUser = User::factory()->create();
     $admin = User::factory()->admin()->create();
@@ -132,7 +132,7 @@ it("authorizes workspace create evaluation properly", function () {
                     'application/pdf',
                     null,
                     true
-            )])->assertForbidden();
+                )])->assertForbidden();
     }
 
     Queue::assertCount(0);
@@ -146,14 +146,14 @@ it("authorizes workspace create evaluation properly", function () {
                 'application/pdf',
                 null,
                 true
-        )])->assertRedirect();
+            )])->assertRedirect();
 
     Queue::assertCount(1);
     expect(count(Storage::disk('local')->allFiles()))->toBe(1);
 });
 
-it("authorizes workspace deletion properly", function () {
-    /** @var TestCase $this*/
+it('authorizes workspace deletion properly', function () {
+    /** @var TestCase $this */
     $unauthorizedUser = User::factory()->create();
     $authorizedUser = User::factory()->create();
     $admin = User::factory()->admin()->create();
@@ -169,12 +169,12 @@ it("authorizes workspace deletion properly", function () {
     $this->actingAs($authorizedUser)
         ->delete(route('dashboard.workspaces.destroy', $workspace))
         ->assertRedirect();
-    
+
     $this->assertDatabaseMissing('workspaces', ['id' => $workspace->id]);
 });
 
-it("authorizes workspace update properly", function () {
-    /** @var TestCase $this*/
+it('authorizes workspace update properly', function () {
+    /** @var TestCase $this */
     $unauthorizedUser = User::factory()->create();
     $authorizedUser = User::factory()->create();
     $admin = User::factory()->admin()->create();
@@ -183,20 +183,20 @@ it("authorizes workspace update properly", function () {
     foreach ([$unauthorizedUser, $admin] as $user) {
         $this->actingAs($user)
             ->patch(route('dashboard.workspaces.update', $workspace),
-            ["workspace_name" => "new name"])
+                ['workspace_name' => 'new name'])
             ->assertForbidden();
     }
 
     $this->actingAs($authorizedUser)
         ->patch(route('dashboard.workspaces.update', $workspace),
-        ["workspace_name" => "new name"])
+            ['workspace_name' => 'new name'])
         ->assertRedirect();
 
-    expect($workspace->fresh()->name)->toBe("new name");
+    expect($workspace->fresh()->name)->toBe('new name');
 });
 
-it("authorizes workspace show properly", function () {
-    /** @var TestCase $this*/
+it('authorizes workspace show properly', function () {
+    /** @var TestCase $this */
     $unauthorizedUser = User::factory()->create();
     $authorizedUser = User::factory()->create();
     $admin = User::factory()->admin()->create();
@@ -212,4 +212,3 @@ it("authorizes workspace show properly", function () {
         ->get(route('dashboard.workspaces.show', $workspace))
         ->assertSuccessful();
 });
-

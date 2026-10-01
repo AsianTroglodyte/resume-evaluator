@@ -87,27 +87,48 @@
                 <span class="label-text-alt mt-1 text-base-content/60">
                     Accepted formats: PDF, DOC, DOCX, TXT
                 </span>
-                <div class="flex flex-col gap-4 [&:has(.claim-job-context:checked)_.pasted-job-description]:hidden">
-                    @if ($practiceClaims->isNotEmpty())
+                <div class="flex flex-col gap-4 [&:has(.listing-job-context:checked)_.pasted-job-description]:hidden">
+                    @if ($practiceJobContexts->isNotEmpty())
+                    @php
+                        $selectedPracticeListingId = (int) old('job_listing_id', session('job_listing_id'));
+                        $claimedContexts = $practiceJobContexts->whereNotNull('claimedJobListingId');
+                        $browsedListing = $practiceJobContexts
+                            ->flatMap(fn (array $context) => $context['listings'])
+                            ->first(fn ($listing) => $listing->id === $selectedPracticeListingId
+                                && ! $claimedContexts->contains('claimedJobListingId', $listing->id));
+                    @endphp
                     <div class="form-control w-full">
-                        <label class="label-text mb-1 font-medium" for="claim_id">Job context</label>
-                        <select id="claim_id" name="claim_id" class="select select-bordered w-full">
+                        <div class="mb-1 flex items-center justify-between gap-2">
+                            <label class="label-text font-medium" for="job_listing_id">Job context</label>
+                            <button type="button" class="btn btn-ghost btn-xs" onclick="practice_listings_modal.showModal()">
+                                Browse all listings
+                            </button>
+                        </div>
+                        <select id="job_listing_id" name="job_listing_id" class="select select-bordered w-full">
                             <option value="">Paste my own job description</option>
-                            @foreach ($practiceClaims as $claim)
+                            @foreach ($claimedContexts as $context)
+                                @php
+                                    $claimedListing = $context['listings']->firstWhere('id', $context['claimedJobListingId']);
+                                @endphp
                                 <option
-                                    class="claim-job-context"
-                                    value="{{ $claim->id }}"
-                                    @selected((int) old('claim_id', session('claim_id')) === $claim->id)
+                                    class="listing-job-context"
+                                    value="{{ $claimedListing->id }}"
+                                    @selected($selectedPracticeListingId === $claimedListing->id)
                                 >
-                                    {{ $claim->jobListing->name }} — {{ $claim->assignment->title }} ({{ $claim->assignment->module->name }})
+                                    {{ $claimedListing->name }} — {{ $context['assignment']->title }} (your claim)
                                 </option>
                             @endforeach
+                            @if ($browsedListing)
+                                <option class="listing-job-context" value="{{ $browsedListing->id }}" data-browsed selected>
+                                    {{ $browsedListing->name }}
+                                </option>
+                            @endif
                         </select>
-                        @error('claim_id')
+                        @error('job_listing_id')
                         <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
                         @else
                         <span class="label-text-alt mt-1 text-base-content/60">
-                            Practise against a listing you've claimed on an assignment. This doesn't change your claim.
+                            Use a listing you've claimed, or browse other listings on your assignments. Practising never changes a claim.
                         </span>
                         @enderror
                     </div>
@@ -130,6 +151,165 @@
                     </button>
                 </div>
             </form>
+
+            @if ($practiceJobContexts->isNotEmpty())
+            <dialog id="practice_listings_modal" class="modal">
+                <div class="modal-box w-[92vw] max-w-2xl">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-circle btn-outline absolute right-2 top-2"
+                        onclick="practice_listings_modal.close()"
+                        aria-label="Close"
+                    >
+                        ×
+                    </button>
+
+                    <header class="space-y-1 pr-10">
+                        <h3 class="text-xl font-bold text-primary">Practice job listings</h3>
+                        <p class="text-sm text-base-content/70">
+                            Listings on your assignments. "Use this" only sets this practice run's job description.
+                            Claiming reserves a slot on the assignment, the same as claiming from the assignment page.
+                        </p>
+                    </header>
+
+                    @if (session('claimStatus'))
+                        <div role="status" class="alert alert-success alert-soft mt-3 py-2 text-sm">{{ session('claimStatus') }}</div>
+                    @endif
+                    @if ($errors->getBag('claim')->has('job_listing_id'))
+                        <div role="alert" class="alert alert-error alert-soft mt-3 py-2 text-sm">{{ $errors->getBag('claim')->first('job_listing_id') }}</div>
+                    @endif
+
+                    <div class="mt-4 space-y-3">
+                        @foreach ($practiceJobContexts->groupBy(fn (array $context) => $context['assignment']->module->name) as $moduleName => $moduleContexts)
+                            <details class="collapse collapse-arrow rounded-box border border-base-300" open>
+                                <summary class="collapse-title font-semibold">{{ $moduleName }}</summary>
+                                <div class="collapse-content space-y-4">
+                                    @foreach ($moduleContexts as $context)
+                                        <section class="space-y-2">
+                                            @php
+                                                $assignment = $context['assignment'];
+                                                $canClaim = auth()->user()->can('claim', $assignment);
+                                            @endphp
+                                            <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                                                <h4 class="text-sm font-medium text-base-content/70">
+                                                    <a href="{{ route('dashboard.modules.assignments.show', [$assignment->module_id, $assignment]) }}" class="link link-hover">
+                                                        {{ $assignment->title }}
+                                                    </a>
+                                                </h4>
+                                                <div class="flex items-center gap-2 text-xs">
+                                                    <span @class(['text-error' => $assignment->isPastDue(), 'text-base-content/60' => ! $assignment->isPastDue()])>
+                                                        @if ($assignment->due_date)
+                                                            Due {{ $assignment->due_date->format('M j, g:i A') }}{{ $assignment->isPastDue() ? ' (past due)' : '' }}
+                                                        @else
+                                                            No due date
+                                                        @endif
+                                                    </span>
+                                                    @if ($context['hasSubmitted'])
+                                                        <span class="badge badge-success badge-sm">Submitted</span>
+                                                    @else
+                                                        <span class="badge badge-ghost badge-sm">Not submitted</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <ul class="space-y-2">
+                                                @foreach ($context['listings'] as $listing)
+                                                    <li class="rounded-box border border-base-300 p-3">
+                                                        <div class="flex items-start justify-between gap-3">
+                                                            <div class="min-w-0">
+                                                                <p class="flex flex-wrap items-center gap-2 text-sm font-medium">
+                                                                    {{ $listing->name }}
+                                                                    @if ($listing->id === $context['claimedJobListingId'])
+                                                                        <span class="badge badge-primary badge-xs">Your claim</span>
+                                                                    @endif
+                                                                </p>
+                                                                <p class="text-xs text-base-content/60">
+                                                                    @if ($listing->capacity === null)
+                                                                        {{ $listing->claims_count }} claimed · no limit
+                                                                    @else
+                                                                        {{ $listing->claims_count }} / {{ $listing->capacity }} slots taken
+                                                                    @endif
+                                                                </p>
+                                                                <details class="mt-1">
+                                                                    <summary class="cursor-pointer text-xs text-base-content/60">Job description</summary>
+                                                                    <p class="mt-1 whitespace-pre-line text-xs text-base-content/80">{{ $listing->description }}</p>
+                                                                </details>
+                                                            </div>
+                                                            <div class="flex shrink-0 flex-col items-end gap-1">
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-outline btn-xs"
+                                                                    data-listing-id="{{ $listing->id }}"
+                                                                    data-listing-label="{{ $listing->name }} — {{ $assignment->title }}"
+                                                                    onclick="usePracticeListing(this)"
+                                                                >
+                                                                    Use this
+                                                                </button>
+                                                                @if ($canClaim)
+                                                                    @if ($listing->id === $context['claimedJobListingId'])
+                                                                        <form method="POST" action="{{ route('dashboard.modules.assignments.claim.destroy', [$assignment->module_id, $assignment]) }}"
+                                                                            onsubmit="return confirm(@js('Release your claim on '.$listing->name.'? Someone else may take the slot.'))">
+                                                                            @csrf
+                                                                            @method('DELETE')
+                                                                            <input type="hidden" name="workspace_id" value="{{ $workspace->id }}" />
+                                                                            <button type="submit" class="btn btn-ghost btn-xs">Release</button>
+                                                                        </form>
+                                                                    @elseif ($listing->isFull())
+                                                                        <span class="badge badge-ghost badge-sm">Full</span>
+                                                                    @else
+                                                                        <form method="POST" action="{{ route('dashboard.modules.assignments.claim.update', [$assignment->module_id, $assignment]) }}"
+                                                                            @if ($context['claimedJobListingId'])
+                                                                                onsubmit="return confirm(@js('Switch your claim to '.$listing->name.'? Your current slot will be released.'))"
+                                                                            @endif
+                                                                        >
+                                                                            @csrf
+                                                                            @method('PUT')
+                                                                            <input type="hidden" name="job_listing_id" value="{{ $listing->id }}" />
+                                                                            <input type="hidden" name="workspace_id" value="{{ $workspace->id }}" />
+                                                                            <button type="submit" class="btn btn-primary btn-xs">
+                                                                                {{ $context['claimedJobListingId'] ? 'Switch claim' : 'Claim' }}
+                                                                            </button>
+                                                                        </form>
+                                                                    @endif
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </section>
+                                    @endforeach
+                                </div>
+                            </details>
+                        @endforeach
+                    </div>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button type="submit">close</button>
+                </form>
+            </dialog>
+            @if (session('claimStatus') || $errors->getBag('claim')->any())
+                <script>
+                    document.getElementById('practice_listings_modal')?.showModal();
+                </script>
+            @endif
+            <script>
+                function usePracticeListing(button) {
+                    const select = document.getElementById('job_listing_id');
+                    let option = select.querySelector(`option[value="${button.dataset.listingId}"]`);
+
+                    if (! option) {
+                        select.querySelector('option[data-browsed]')?.remove();
+                        option = new Option(button.dataset.listingLabel, button.dataset.listingId);
+                        option.className = 'listing-job-context';
+                        option.dataset.browsed = '';
+                        select.add(option);
+                    }
+
+                    select.value = button.dataset.listingId;
+                    practice_listings_modal.close();
+                }
+            </script>
+            @endif
         </section>
 
         <section class="space-y-4">
@@ -142,12 +322,39 @@
             <p class="text-sm text-error">{{ session('evaluation_error') }}</p>
             @endif
 
-            <div class="space-y-4">
-                @forelse ($workspace->evaluations as $evaluation)
-                    <livewire:evaluation.evaluation
-                        :$evaluation
-                        :wire:key="$evaluation->id"
-                    />
+            <div class="space-y-2">
+                @forelse ($workspace->latestEvaluations()->with('jobListing:id,name')->get() as $evaluation)
+                    @php
+                        $keywordMatch = is_array($evaluation->evaluation_data) ? ($evaluation->evaluation_data['keyword_match'] ?? null) : null;
+                        $statusBadgeClass = match ($evaluation->status) {
+                            \App\Enums\EvaluationStatus::Completed => 'badge-success',
+                            \App\Enums\EvaluationStatus::Failed => 'badge-error',
+                            default => 'badge-ghost',
+                        };
+                    @endphp
+                    <a
+                        href="{{ route('dashboard.workspaces.evaluations.show', [$workspace, $evaluation]) }}"
+                        class="flex flex-col gap-2 rounded-box border border-base-300 bg-base-100 p-4 transition hover:bg-base-200 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                        <div class="min-w-0">
+                            <p class="font-medium">{{ $evaluation->created_at->toDayDateTimeString() }}</p>
+                            <p class="truncate text-sm text-base-content/60">
+                                @if ($evaluation->jobListing)
+                                    Against {{ $evaluation->jobListing->name }}
+                                @elseif (filled($evaluation->job_description_text))
+                                    Against a pasted job description
+                                @else
+                                    General review (no job description)
+                                @endif
+                            </p>
+                        </div>
+                        <div class="flex shrink-0 items-center gap-2">
+                            @if (is_numeric($keywordMatch))
+                                <span class="badge badge-outline badge-primary">{{ (int) round($keywordMatch) }}%</span>
+                            @endif
+                            <span class="badge badge-sm {{ $statusBadgeClass }}">{{ $evaluation->status->value }}</span>
+                        </div>
+                    </a>
                 @empty
                     <div class="rounded-box border border-base-300 bg-base-100 px-4 py-5 sm:px-6">
                         <p class="text-sm text-base-content/60">No evaluation run yet. Submit the form above to see results here.</p>

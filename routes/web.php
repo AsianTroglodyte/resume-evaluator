@@ -282,6 +282,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/dashboard/workspaces/{workspace}', 'update')
             ->name('dashboard.workspaces.update')
             ->can('update', 'workspace');
+        Route::get('/dashboard/workspaces/{workspace}/evaluations/{evaluation}', 'showEvaluation')
+            ->scopeBindings()
+            ->name('dashboard.workspaces.evaluations.show')
+            ->can('view', 'workspace');
         Route::post('/dashboard/workspaces/{workspace}', 'storeEvaluation')
             ->name('dashboard.workspaces.evaluations.store')
             ->can('update', 'workspace');

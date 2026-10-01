@@ -37,18 +37,18 @@ On-site mock listings need limited capacity so students self-select which postin
 - Submit/resubmit for those assignments requires the student’s **current claim**; job context on the evaluation is snapshotted from the claimed listing (`job_description_text` + `job_listing_id`).
 - Assignments that use **external / paste JD** do not require claims.
 
-### Workspace practice JD (MVP product rule; UI deferred)
+### Workspace practice JD (MVP; amended 2026-10-01)
 
-- Listing-backed practice uses only the JD of the student’s **current claim** for a **chosen assignment** (read claim state; do **not** create, change, or consume claims from the workspace).
-- Paste-only and no-JD practice remain available.
-- Do **not** offer a workspace browser of all allowed listings or of other unclaimed listings on an assignment.
-- **Build order:** ship groups + claims (and assignment claim UI) before the workspace “pick assignment → use my claim’s JD” control. Until then, workspaces stay **paste / no JD only** for job context—do not invent a temporary “pick any listing” affordance that we will remove.
+- The workspace job-context picker defaults to **paste**, and otherwise lists only the student's **current claims** (one per assignment they are still given). Claims stay the primary, prioritised path.
+- A separate **"Browse all listings"** modal offers breadth: every listing allowed on an assignment the student is given, organised **module › assignment › listing**, with the claimed listing marked. Choosing one sets only that practice run's JD.
+- The browse modal also offers **Claim / Switch claim / Release** per listing (amended 2026-10-01). These post to the same claim endpoint as the assignment page (same `claim` policy, FCFS lock, capacity) and return to the workspace. Switching or releasing asks for confirmation since the old slot is freed.
+- **Practice runs** remain read-only with respect to claims: running an evaluation never creates, changes, or consumes a claim.
+- Job context is snapshotted on the practice evaluation (`job_description_text` + `job_listing_id`), same as submit.
 
 ### Explicitly rejected for MVP
 
-- Free-form pick of any allowed listing from the workspace.
-- Claim-as-default plus “browse other listings on this assignment” in the workspace.
-- Consuming or mutating claims from practice runs.
+- Listing every allowed listing inline in the workspace picker (too busy at scale); breadth lives behind the browse modal instead.
+- Consuming or mutating claims as a side effect of practice runs (explicit claim actions in the browse modal are allowed).
 
 ## Consequences
 

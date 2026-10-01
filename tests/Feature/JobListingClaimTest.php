@@ -267,6 +267,7 @@ test('the assignment page shows claim controls to students and claims to instruc
         ->get(route('dashboard.modules.assignments.show', [$module, $assignment]))
         ->assertOk()
         ->assertSee('Your claim')
+        ->assertSee("listing_details_{$claimed->id}.showModal()", false)
         ->assertSee('1 / 2 slots taken')
         ->assertSee('Switch to this')
         ->assertSee('Your resume will be evaluated against your claimed listing');

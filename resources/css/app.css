@@ -42,4 +42,8 @@
     .toast-auto-dismiss {
         animation: toast-auto-dismiss 3s ease forwards;
     }
+
+    .badge-success {
+        --badge-fg: #000;
+    }
 }

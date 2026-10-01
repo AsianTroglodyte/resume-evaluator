@@ -29,9 +29,10 @@ new class extends Component
 
     public function retry(): void
     {
-        $evaluation = Evaluation::query()->with('submission')->findOrFail($this->evaluationId);
+        $evaluation = Evaluation::query()->with(['submission', 'workspace'])->findOrFail($this->evaluationId);
 
-        abort_unless($evaluation->submission?->user_id === auth()->id(), 403);
+        $ownerId = $evaluation->submission?->user_id ?? $evaluation->workspace?->user_id;
+        abort_unless($ownerId === auth()->id(), 403);
 
         try {
             app(RetryEvaluation::class)($evaluation);

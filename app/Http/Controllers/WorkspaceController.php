@@ -3,13 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EvaluationStatus;
-use App\Enums\JobListingSource;
 use App\Jobs\EvaluateJob;
 use App\Models\Evaluation;
-use App\Models\JobListingClaim;
-use App\Models\User;
 use App\Models\Workspace;
-use Illuminate\Database\Eloquent\Builder;
+use App\Support\PracticeJobContexts;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -34,9 +31,17 @@ class WorkspaceController extends Controller
     {
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
-            'practiceClaims' => $this->practiceClaimsFor($request->user())
-                ->with(['assignment.module', 'jobListing'])
-                ->get(),
+            'practiceJobContexts' => (new PracticeJobContexts)($request->user()),
+        ]);
+    }
+
+    public function showEvaluation(Workspace $workspace, Evaluation $evaluation): View
+    {
+        $evaluation->load('jobListing');
+
+        return view('dashboard.workspaces.evaluations.show', [
+            'workspace' => $workspace,
+            'evaluation' => $evaluation,
         ]);
     }
 
@@ -57,27 +62,24 @@ class WorkspaceController extends Controller
     {
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
-            'claim_id' => ['nullable', 'integer'],
+            'job_listing_id' => ['nullable', 'integer'],
         ]);
 
         $workspace->ensureCanStartEvaluation();
 
-        $claimedJobListing = null;
+        $practiceJobListing = null;
 
-        if ($request->filled('claim_id')) {
-            $claimedJobListing = $this->practiceClaimsFor($request->user())
-                ->whereKey($request->integer('claim_id'))
-                ->first()
-                ?->jobListing;
+        if ($request->filled('job_listing_id')) {
+            $practiceJobListing = (new PracticeJobContexts)->allows($request->user(), $request->integer('job_listing_id'));
 
-            if ($claimedJobListing === null) {
+            if ($practiceJobListing === null) {
                 throw ValidationException::withMessages([
-                    'claim_id' => 'That claim is no longer available. Choose another job context.',
+                    'job_listing_id' => 'That job listing is no longer available. Choose another job context.',
                 ]);
             }
         }
 
-        $jobDescription = $claimedJobListing?->description ?? $request->job_description;
+        $jobDescription = $practiceJobListing?->description ?? $request->job_description;
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
@@ -85,7 +87,7 @@ class WorkspaceController extends Controller
         $evaluation = Evaluation::create([
             'workspace_id' => $workspace->id,
             'resume_file_path' => $resumeFilePath,
-            'job_listing_id' => $claimedJobListing?->id,
+            'job_listing_id' => $practiceJobListing?->id,
             'job_description_text' => $jobDescription,
             'status' => EvaluationStatus::Processing,
         ]);
@@ -106,35 +108,20 @@ class WorkspaceController extends Controller
             ->whereNotIn('id', $keepIds)
             ->get(['id', 'resume_file_path']);
 
-        foreach ($stale as $evaluation) {
-            if ($evaluation->resume_file_path) {
-                Storage::disk('local')->delete($evaluation->resume_file_path);
+        foreach ($stale as $staleEvaluation) {
+            if ($staleEvaluation->resume_file_path) {
+                Storage::disk('local')->delete($staleEvaluation->resume_file_path);
             }
         }
 
         $workspace->evaluations()->whereNotIn('id', $keepIds)->delete();
 
         return redirect()
-            ->route('dashboard.workspaces.show', $workspace)
+            ->route('dashboard.workspaces.evaluations.show', [$workspace, $evaluation])
             ->with([
-                'job_description' => $claimedJobListing ? null : request()->job_description,
-                'claim_id' => $claimedJobListing ? $request->integer('claim_id') : null,
+                'job_description' => $practiceJobListing ? null : request()->job_description,
+                'job_listing_id' => $practiceJobListing?->id,
             ]);
-    }
-
-    /**
-     * The user's current claims on assignments they are still given, for read-only practice JD.
-     * Practice never creates, changes, or consumes a claim (ADR 0007).
-     *
-     * @return Builder<JobListingClaim>
-     */
-    private function practiceClaimsFor(User $user): Builder
-    {
-        return JobListingClaim::query()
-            ->where('user_id', $user->id)
-            ->whereHas('assignment', fn (Builder $assignment) => $assignment
-                ->givenTo($user)
-                ->where('job_listing_source', '!=', JobListingSource::External->value));
     }
 
     public function destroy(Workspace $workspace): RedirectResponse
