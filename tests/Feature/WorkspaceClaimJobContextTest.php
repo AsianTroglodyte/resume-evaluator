@@ -153,7 +153,7 @@ test('students can claim from the browse modal and return to their workspace', f
     $this->actingAs($student)
         ->get(route('dashboard.workspaces.show', $workspace))
         ->assertSee('Switch claim')
-        ->assertSee('0 / 2 slots taken');
+        ->assertSee('0/2 slots');
 
     $this->actingAs($student)
         ->put(route('dashboard.modules.assignments.claim.update', [$module, $assignment]), [
@@ -217,4 +217,42 @@ test('browse modal headings show due date and submitted status', function () {
         ->get(route('dashboard.workspaces.show', $workspace))
         ->assertSee('Submitted')
         ->assertDontSee('Not submitted');
+});
+
+test('browse modal collapses submitted and past-due assignments below active ones', function () {
+    ['student' => $student, 'workspace' => $workspace, 'module' => $module, 'assignment' => $submitted, 'listing' => $listing] = practiceClaimSetup();
+    $submitted->update(['title' => 'A submitted assignment']);
+    Submission::factory()->for($submitted)->for($student)->create();
+
+    $pastDue = Assignment::factory()->forModule($module)->withJobListings($listing)->create([
+        'title' => 'B past due assignment',
+        'due_date' => now()->subDay(),
+        'job_listing_source' => JobListingSource::Module,
+        'module_job_listing_scope' => ModuleJobListingScope::Selected,
+    ]);
+    $active = Assignment::factory()->forModule($module)->withJobListings($listing)->create([
+        'title' => 'C active assignment',
+        'due_date' => now()->addWeek(),
+        'job_listing_source' => JobListingSource::Module,
+        'module_job_listing_scope' => ModuleJobListingScope::Selected,
+    ]);
+
+    $html = $this->actingAs($student)
+        ->get(route('dashboard.workspaces.show', $workspace))
+        ->assertSeeInOrder(['Practice job listings', 'C active assignment', 'A submitted assignment'])
+        ->getContent();
+
+    expect($html)
+        ->toMatch('/data-practice-assignment="'.$active->id.'"\s+open/')
+        ->not->toMatch('/data-practice-assignment="'.$submitted->id.'"\s+open/')
+        ->not->toMatch('/data-practice-assignment="'.$pastDue->id.'"\s+open/');
+});
+
+test('claimed listing options carry their description for the job description field', function () {
+    ['student' => $student, 'workspace' => $workspace, 'listing' => $listing] = practiceClaimSetup();
+
+    $this->actingAs($student)
+        ->get(route('dashboard.workspaces.show', $workspace))
+        ->assertSee('data-description="'.e($listing->description).'"', false)
+        ->assertSee('id="practice_job_description"', false);
 });
