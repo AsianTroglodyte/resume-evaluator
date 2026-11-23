@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\JobListingClaimController;
 use App\Http\Controllers\ModuleAssignmentsController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\ModuleGroupController;
+use App\Http\Controllers\ModuleGroupMembersController;
 use App\Http\Controllers\ModuleJobListingController;
 use App\Http\Controllers\ModuleMembersController;
 use App\Http\Controllers\ModuleSettingsController;
@@ -14,6 +17,7 @@ use App\Http\Controllers\WorkspaceController;
 use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
+use App\Models\ModuleGroup;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -215,6 +219,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->can('delete', 'jobListing');
     });
 
+    Route::controller(ModuleGroupController::class)->group(function () {
+        Route::get('/dashboard/modules/{module}/groups', 'index')
+            ->name('dashboard.modules.groups.index')
+            ->can('viewAny', [ModuleGroup::class, 'module']);
+        Route::post('/dashboard/modules/{module}/groups', 'store')
+            ->name('dashboard.modules.groups.store')
+            ->can('create', [ModuleGroup::class, 'module']);
+        Route::get('/dashboard/modules/{module}/groups/{group}', 'show')
+            ->scopeBindings()
+            ->name('dashboard.modules.groups.show')
+            ->can('view', 'group');
+        Route::patch('/dashboard/modules/{module}/groups/{group}', 'update')
+            ->scopeBindings()
+            ->name('dashboard.modules.groups.update')
+            ->can('update', 'group');
+        Route::delete('/dashboard/modules/{module}/groups/{group}', 'destroy')
+            ->scopeBindings()
+            ->name('dashboard.modules.groups.destroy')
+            ->can('delete', 'group');
+    });
+
+    Route::controller(ModuleGroupMembersController::class)->group(function () {
+        Route::delete('/dashboard/modules/{module}/groups/{group}/members', 'destroy')
+            ->scopeBindings()
+            ->name('dashboard.modules.groups.members.destroy')
+            ->can('update', 'group');
+    });
+
     Route::controller(ModuleSettingsController::class)->group(function () {
         Route::get('/dashboard/modules/{module}/settings/index', 'index')
             ->name('dashboard.modules.settings.index')
@@ -250,6 +282,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/dashboard/workspaces/{workspace}', 'update')
             ->name('dashboard.workspaces.update')
             ->can('update', 'workspace');
+        Route::get('/dashboard/workspaces/{workspace}/evaluations/{evaluation}', 'showEvaluation')
+            ->scopeBindings()
+            ->name('dashboard.workspaces.evaluations.show')
+            ->can('view', 'workspace');
         Route::post('/dashboard/workspaces/{workspace}', 'storeEvaluation')
             ->name('dashboard.workspaces.evaluations.store')
             ->can('update', 'workspace');
@@ -268,7 +304,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'show')
             ->scopeBindings()
             ->name('dashboard.modules.assignments.submissions.show')
-            ->can('seeAllAssignmentDetails', 'assignment');
+            ->can('view', 'submission');
+    });
+
+    Route::controller(JobListingClaimController::class)->group(function () {
+        Route::put('/dashboard/modules/{module}/assignments/{assignment}/claim', 'update')
+            ->scopeBindings()
+            ->name('dashboard.modules.assignments.claim.update')
+            ->can('claim', 'assignment');
+        Route::delete('/dashboard/modules/{module}/assignments/{assignment}/claim', 'destroy')
+            ->scopeBindings()
+            ->name('dashboard.modules.assignments.claim.destroy')
+            ->can('claim', 'assignment');
     });
 
     Route::controller(AdminUserController::class)->group(function () {

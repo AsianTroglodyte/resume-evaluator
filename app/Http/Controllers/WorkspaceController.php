@@ -6,9 +6,11 @@ use App\Enums\EvaluationStatus;
 use App\Jobs\EvaluateJob;
 use App\Models\Evaluation;
 use App\Models\Workspace;
+use App\Support\PracticeJobContexts;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class WorkspaceController extends Controller
@@ -25,10 +27,21 @@ class WorkspaceController extends Controller
         ]);
     }
 
-    public function show(Workspace $workspace): View
+    public function show(Request $request, Workspace $workspace): View
     {
         return view('dashboard.workspaces.show', [
             'workspace' => $workspace,
+            'practiceJobContexts' => (new PracticeJobContexts)($request->user()),
+        ]);
+    }
+
+    public function showEvaluation(Workspace $workspace, Evaluation $evaluation): View
+    {
+        $evaluation->load('jobListing');
+
+        return view('dashboard.workspaces.evaluations.show', [
+            'workspace' => $workspace,
+            'evaluation' => $evaluation,
         ]);
     }
 
@@ -49,9 +62,24 @@ class WorkspaceController extends Controller
     {
         $request->validate([
             'resume_file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
+            'job_listing_id' => ['nullable', 'integer'],
         ]);
 
         $workspace->ensureCanStartEvaluation();
+
+        $practiceJobListing = null;
+
+        if ($request->filled('job_listing_id')) {
+            $practiceJobListing = (new PracticeJobContexts)->allows($request->user(), $request->integer('job_listing_id'));
+
+            if ($practiceJobListing === null) {
+                throw ValidationException::withMessages([
+                    'job_listing_id' => 'That job listing is no longer available. Choose another job context.',
+                ]);
+            }
+        }
+
+        $jobDescription = $practiceJobListing?->description ?? $request->job_description;
 
         $resumeFilePath = $request->file('resume_file')->store('resumes/tmp');
 
@@ -59,17 +87,18 @@ class WorkspaceController extends Controller
         $evaluation = Evaluation::create([
             'workspace_id' => $workspace->id,
             'resume_file_path' => $resumeFilePath,
-            'job_description_text' => $request->job_description,
+            'job_listing_id' => $practiceJobListing?->id,
+            'job_description_text' => $jobDescription,
             'status' => EvaluationStatus::Processing,
         ]);
 
-        // Delete any evaluation files past 5
         EvaluateJob::dispatch(
             $resumeFilePath,
-            $request->job_description,
+            $jobDescription,
             $evaluation
-        );
-
+            );
+            
+        // Delete any evaluation files past 5
         $keepIds = $workspace->latestEvaluations()
             ->latest('id')
             ->limit(5)
@@ -79,18 +108,19 @@ class WorkspaceController extends Controller
             ->whereNotIn('id', $keepIds)
             ->get(['id', 'resume_file_path']);
 
-        foreach ($stale as $evaluation) {
-            if ($evaluation->resume_file_path) {
-                Storage::disk('local')->delete($evaluation->resume_file_path);
+        foreach ($stale as $staleEvaluation) {
+            if ($staleEvaluation->resume_file_path) {
+                Storage::disk('local')->delete($staleEvaluation->resume_file_path);
             }
         }
 
         $workspace->evaluations()->whereNotIn('id', $keepIds)->delete();
 
         return redirect()
-            ->route('dashboard.workspaces.show', $workspace)
+            ->route('dashboard.workspaces.evaluations.show', [$workspace, $evaluation])
             ->with([
-                'job_description' => request()->job_description,
+                'job_description' => $practiceJobListing ? null : request()->job_description,
+                'job_listing_id' => $practiceJobListing?->id,
             ]);
     }
 

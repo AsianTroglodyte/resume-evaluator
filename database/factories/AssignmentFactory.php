@@ -8,6 +8,7 @@ use App\Enums\ModuleJobListingScope;
 use App\Models\Assignment;
 use App\Models\JobListing;
 use App\Models\Module;
+use App\Models\ModuleGroup;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection;
@@ -43,6 +44,15 @@ class AssignmentFactory extends Factory
     public function forModule(Module $module): static
     {
         return $this->state(fn () => ['module_id' => $module->id]);
+    }
+
+    public function forGroup(ModuleGroup $group): static
+    {
+        return $this->state(fn () => [
+            'module_id' => $group->module_id,
+            'assignee_scope' => AssigneeScope::Group,
+            'module_group_id' => $group->id,
+        ]);
     }
 
     public function createdBy(User $user): static

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\RoleInModule;
 use App\Models\Module;
 use App\Models\ModuleMembership;
 use App\Models\User;
@@ -34,6 +35,56 @@ it('redirects to the new module show page after provisioning', function () {
             'name' => 'New Module',
         ])
         ->assertRedirect(route('dashboard.modules.show', Module::query()->where('name', 'New Module')->sole()));
+});
+
+it('adds the chosen instructors and students when provisioning', function () {
+    $admin = User::factory()->admin()->create();
+    $instructor = User::factory()->create();
+    $students = User::factory(2)->create();
+
+    $this->actingAs($admin)
+        ->post(route('dashboard.modules.store'), [
+            'name' => 'Senior Seminar',
+            'instructor_ids' => [$instructor->id],
+            'student_ids' => $students->pluck('id')->all(),
+        ])
+        ->assertSessionHasNoErrors();
+
+    $module = Module::query()->where('name', 'Senior Seminar')->sole();
+
+    expect($module->instructors()->pluck('users.id')->all())->toBe([$instructor->id]);
+    expect($module->assignableMembers()->pluck('users.id')->sort()->values()->all())
+        ->toBe($students->pluck('id')->sort()->values()->all());
+    expect($module->memberships()->where('added_by_user_id', $admin->id)->count())->toBe(3);
+});
+
+it('rejects a user chosen as both instructor and student and creates nothing', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->post(route('dashboard.modules.store'), [
+            'name' => 'Overlap Module',
+            'instructor_ids' => [$user->id],
+            'student_ids' => [$user->id],
+        ])
+        ->assertSessionHasErrors('student_ids.0');
+
+    expect(Module::query()->where('name', 'Overlap Module')->exists())->toBeFalse();
+});
+
+it('rejects unknown user ids and creates nothing', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->post(route('dashboard.modules.store'), [
+            'name' => 'Ghost Module',
+            'student_ids' => [999999],
+        ])
+        ->assertSessionHasErrors('student_ids.0');
+
+    expect(Module::query()->where('name', 'Ghost Module')->exists())->toBeFalse();
+    expect(ModuleMembership::query()->where('role_in_module', RoleInModule::Student)->count())->toBe(0);
 });
 
 it('lists all modules for global admins on the index', function () {

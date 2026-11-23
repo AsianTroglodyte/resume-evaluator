@@ -6,6 +6,8 @@
     :$module
     :$job_listings
     :$users
+    :$assignableMembers
+    :$groups
     :$assignment
 />
 

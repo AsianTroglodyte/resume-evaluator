@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\AssigneeScope;
 use App\Models\Assignment;
 use App\Models\Module;
 use App\Models\User;
@@ -22,27 +21,26 @@ class AssignmentPolicy
      */
     public function view(User $user, Assignment $assignment): bool
     {
-        $isAssigned = 
-            $user->isInModule($assignment->module)
-            && ($assignment->assignee_scope === AssigneeScope::Everyone 
-                || $assignment->assignees()->whereKey($user->id)->exists());
-
-        // dd($assignment->module);
         return $user->isGlobalAdmin()
             || $user->isInstructorInModule($assignment->module)
-            || $isAssigned;
+            || $user->isGivenAssignment($assignment);
     }
 
     public function submit(User $user, Assignment $assignment): bool
     {
-        $isAssigned = 
-            $user->isInModule($assignment->module)
-            && ($assignment->assignee_scope === AssigneeScope::Everyone 
-                || $assignment->assignees()->whereKey($user->id)->exists());
+        return $user->isGlobalAdmin()
+            || $user->isInstructorInModule($assignment->module)
+            || $user->isGivenAssignment($assignment);
+    }
 
-        return  $user->isGlobalAdmin()
-                || $user->isInstructorInModule($assignment->module)
-                || $isAssigned;
+    /**
+     * Only students given the assignment hold claims; instructors never consume capacity.
+     */
+    public function claim(User $user, Assignment $assignment): bool
+    {
+        return $assignment->usesModuleListings()
+            && $assignment->module->assignableMembers()->whereKey($user->id)->exists()
+            && $user->isGivenAssignment($assignment);
     }
 
     /**

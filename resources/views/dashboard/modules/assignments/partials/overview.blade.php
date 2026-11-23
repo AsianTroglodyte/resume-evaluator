@@ -61,6 +61,16 @@
             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
             @enderror
         </div>
+        @if ($currentClaim && $assignment->usesModuleListings())
+        <p class="rounded-box border border-primary/30 bg-primary/5 p-3 text-sm">
+            Your resume will be evaluated against your claimed listing:
+            <span class="font-medium">{{ $currentClaim->jobListing->name }}</span>.
+        </p>
+        @elseif ($assignment->requiresClaim())
+        <p class="rounded-box border border-warning/30 bg-warning/5 p-3 text-sm">
+            Claim a job listing below before submitting.
+        </p>
+        @else
         <div class="form-control w-full">
             <label class="label-text mb-1 font-medium" for="job_description">
                 Job description <span class="font-normal text-base-content/50">(optional)</span>
@@ -75,11 +85,12 @@
                 Leave blank for a general quality evaluation without keyword analysis.
             </span>
         </div>
+        @endif
         @error('submission')
             <span class="label-text-alt mt-1 text-error">{{ $message }}</span>
         @enderror
         <div class="flex flex-wrap justify-end gap-2">
-            <button type="submit" class="btn btn-primary">Submit resume</button>
+            <button type="submit" class="btn btn-primary" @disabled($assignment->requiresClaim() && ! $currentClaim)>Submit resume</button>
         </div>
     </form>
     @elseif($submission !== null)
@@ -106,7 +117,7 @@
                     </div>
                 </div>
 
-                <span class="badge badge-success badge-outline shrink-0">Submitted</span>
+                <span class="badge badge-success shrink-0">Submitted</span>
             </div>
 
             <dl class="mt-5 grid gap-4 border-t border-success/20 pt-4 text-sm sm:grid-cols-2">
@@ -117,14 +128,24 @@
                     </dd>
                 </div>
                 <div>
-                    <dt class="text-base-content/60">Assignment version</dt>
-                    <dd class="mt-1 font-medium">{{ $submission->assignment_version }}</dd>
+                    <dt class="text-base-content/60">Evaluation</dt>
+                    <dd class="mt-1 font-medium">
+                        {{ ucfirst($evaluation?->status->value ?? 'incomplete') }}
+                        @if (is_numeric($evaluation?->evaluation_data['keyword_match'] ?? null))
+                            · {{ (int) round($evaluation->evaluation_data['keyword_match']) }}% keyword match
+                        @endif
+                    </dd>
                 </div>
             </dl>
         </div>
+        <div class="mt-4 flex flex-wrap justify-end gap-2">
+        <a
+            href="{{ route('dashboard.modules.assignments.submissions.show', [$module, $assignment, $submission]) }}"
+            class="btn btn-primary btn-sm">
+            View submission
+        </a>
         <form
             method="POST"
-            class="mt-4 flex justify-end"
             action="{{ route('dashboard.modules.assignments.submissions.destroy', [$module, $assignment]) }}"
             onsubmit="return confirm('Remove your submission for this assignment?')">
             @csrf
@@ -135,6 +156,7 @@
                 Remove submission
             </button>
         </form>
+        </div>
     </section>
     @elseif ($submission === null && $assignment->isPastDue())
     <section class="mt-6 border-t border-base-300 pt-6" aria-labelledby="past-due-heading">
@@ -162,55 +184,101 @@
         </div>
     </section>
     @endif
-    @if ($evaluation !== null)
-    <section class="space-y-4">
-        <div class="px-1">
-            <h2 class="font-semibold">Submission evaluation</h2>
-        </div>
-        @if (session('evaluation_error'))
-        <p class="text-sm text-error">{{ session('evaluation_error') }}</p>
-        @endif
-        <livewire:evaluation.evaluation :$evaluation />
-        </section>
-    @endif
 </article>
 
 {{-- Allowed job listings --}}
-@if ($assignment->job_listing_source === JobListingSource::Both
-|| $assignment->job_listing_source === JobListingSource::Module)
+@if ($assignment->usesModuleListings())
+@php
+    $claimErrors = $errors->getBag('claim');
+    $canClaim = auth()->user()->can('claim', $assignment);
+@endphp
 <details class="collapse collapse-arrow rounded-box border border-base-300 bg-base-100" open>
-    <summary class="collapse-title text-lg font-semibold">Allowed job listings</summary>
-    <div class="collapse-content space-y-1">
-        <p class="text-sm text-base-content/70">Submit your resume against one of these postings.</p>
+    <summary class="collapse-title text-lg font-semibold">Job listings</summary>
+    <div class="collapse-content space-y-3">
+        <p class="text-sm text-base-content/70">
+            @if ($assignment->requiresClaim())
+                Claim one listing to submit against. Slots are first come, first served, and you can switch while another listing has room.
+            @else
+                Claim a listing to submit against it, or paste an external job description when you submit.
+            @endif
+        </p>
 
-        @if ($assignment->module_job_listing_scope === ModuleJobListingScope::All)
-        @forelse ($module->jobListings as $jobListing)
-
-        <details class="collapse collapse-arrow rounded-box border border-base-300">
-            <summary class="collapse-title font-medium">
-                {{ $jobListing->name }}
-            </summary>
-            <div class="collapse-content">
-                <p class="text-sm text-base-content/70">
-                    {{ $jobListing->description }}
-                </p>
-            </div>
-        </details>
-        @empty
-        <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
-        @endforelse
-        @else
-        @forelse ($assignment->jobListings as $listing)
-        <details class="collapse collapse-arrow rounded-box border border-base-300">
-            <summary class="collapse-title font-medium">{{ $listing->name }}</summary>
-            <div class="collapse-content">
-                <p class="text-sm text-base-content/70">{{ $listing->description }}</p>
-            </div>
-        </details>
-        @empty
-        <p class="text-sm text-base-content/70">No specific job listings are linked to this assignment.</p>
-        @endforelse
+        @if (session('claimStatus'))
+            <div role="status" class="alert alert-success alert-soft py-2 text-sm">{{ session('claimStatus') }}</div>
         @endif
+
+        @if ($claimErrors->has('job_listing_id'))
+            <div role="alert" class="alert alert-error alert-soft py-2 text-sm">{{ $claimErrors->first('job_listing_id') }}</div>
+        @endif
+
+        @forelse ($claimableJobListings as $jobListing)
+        @php
+            $isCurrentClaim = $currentClaim?->job_listing_id === $jobListing->id;
+        @endphp
+        <div @class([
+            'rounded-box border p-4',
+            'border-primary bg-primary/5' => $isCurrentClaim,
+            'border-base-300' => ! $isCurrentClaim,
+        ])>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <button
+                    type="button"
+                    class="min-w-0 flex-1 cursor-pointer text-left"
+                    onclick="listing_details_{{ $jobListing->id }}.showModal()"
+                >
+                    <h4 class="flex flex-wrap items-center gap-2 font-medium hover:underline">
+                        {{ $jobListing->name }}
+                        @if ($isCurrentClaim)
+                            <span class="badge badge-primary badge-sm">Your claim</span>
+                        @endif
+                    </h4>
+                    <p class="mt-1 text-xs text-base-content/60">
+                        @if ($jobListing->capacity === null)
+                            {{ $jobListing->claims_count }} claimed · no limit
+                        @else
+                            {{ $jobListing->claims_count }} / {{ $jobListing->capacity }} slots taken
+                        @endif
+                    </p>
+                </button>
+
+                @if ($canClaim)
+                    @if ($isCurrentClaim)
+                        <form method="POST" action="{{ route('dashboard.modules.assignments.claim.destroy', [$module, $assignment]) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline btn-sm">Release</button>
+                        </form>
+                    @elseif ($jobListing->isFull())
+                        <span class="badge badge-ghost shrink-0">Full</span>
+                    @else
+                        <form method="POST" action="{{ route('dashboard.modules.assignments.claim.update', [$module, $assignment]) }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="job_listing_id" value="{{ $jobListing->id }}" />
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                {{ $currentClaim ? 'Switch to this' : 'Claim' }}
+                            </button>
+                        </form>
+                    @endif
+                @endif
+            </div>
+
+            <dialog id="listing_details_{{ $jobListing->id }}" class="modal">
+                <div class="modal-box max-w-lg">
+                    <form method="dialog">
+                        <button class="btn btn-sm btn-circle btn-outline absolute right-2 top-2" aria-label="Close">x</button>
+                    </form>
+                    <h4 class="pr-10 text-lg font-semibold">{{ $jobListing->name }}</h4>
+                    <p class="mt-2 whitespace-pre-line text-sm text-base-content/80">{{ $jobListing->description }}</p>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+        </div>
+        @empty
+        <p class="text-sm text-base-content/70">No job listings are available for this assignment.</p>
+        @endforelse
     </div>
 </details>
 @endif
@@ -226,10 +294,16 @@
     <dl class="space-y-4 text-sm">
         <div>
             <dt class="font-medium">Assignee scope</dt>
-            <dd class="mt-1">{{ ucfirst($assignment->assignee_scope->value) }}</dd>
+            <dd class="mt-1">
+                {{ ucfirst($assignment->assignee_scope->value) }}
+                @if ($assignment->group)
+                    — <a href="{{ route('dashboard.modules.groups.show', [$assignment->module_id, $assignment->group]) }}" class="link link-primary">{{ $assignment->group->name }}</a>
+                @endif
+            </dd>
         </div>
     </dl>
 
+    @if ($assignment->assignee_scope === \App\Enums\AssigneeScope::Selected)
     <details class="collapse collapse-arrow mt-4 rounded-box border border-base-300">
         <summary class="collapse-title text-sm font-medium">Assignees</summary>
         <div class="collapse-content">
@@ -242,5 +316,6 @@
             </ul>
         </div>
     </details>
+    @endif
 </article>
 @endcan

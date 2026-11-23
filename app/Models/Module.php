@@ -37,6 +37,11 @@ class Module extends Model
         return $this->hasMany(Assignment::class);
     }
 
+    public function groups(): HasMany
+    {
+        return $this->hasMany(ModuleGroup::class);
+    }
+
     public function memberships(): HasMany
     {
         return $this->hasMany(ModuleMembership::class);

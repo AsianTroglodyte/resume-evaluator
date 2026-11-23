@@ -46,6 +46,9 @@ $evaluation = $submission?->evaluation;
                         <thead>
                             <tr>
                                 <th>Student</th>
+                                @if ($assignment->usesModuleListings())
+                                <th>Claimed listing</th>
+                                @endif
                                 <th>Submitted on</th>
                                 <th>Status</th>
                                 <th>Score</th>
@@ -75,6 +78,9 @@ $evaluation = $submission?->evaluation;
                                     <div class="font-medium">{{ $row['user']->first_name }} {{ $row['user']->last_name }}</div>
                                     <div class="text-xs text-base-content/60">{{ $row['user']->email }}</div>
                                 </td>
+                                @if ($assignment->usesModuleListings())
+                                <td>{{ $row['claim']?->jobListing->name ?? '—' }}</td>
+                                @endif
                                 <td>{{ $rowSubmission?->created_at->format('M j, Y g:i A') ?? '—' }}</td>
                                 <td>
                                     <span class="badge badge-sm {{ $rowStatusBadgeClass }}">

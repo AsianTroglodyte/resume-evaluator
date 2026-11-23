@@ -6,6 +6,7 @@ use App\Enums\RoleInModule;
 use App\Models\Module;
 use App\Models\ModuleMembership;
 use App\Models\User;
+use App\Support\ReleaseInaccessibleClaims;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -19,6 +20,7 @@ class ModuleMembersController extends Controller
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();
+
         // dd("bruh");
         return view('dashboard.modules.members.index', [
             'module' => $module,
@@ -104,7 +106,10 @@ class ModuleMembersController extends Controller
                 'status' => 'removed',
                 'removed_by_user_id' => auth()->id(),
                 'removed_at' => now(),
+                'module_group_id' => null,
             ]);
+
+        (new ReleaseInaccessibleClaims)($module->id, [$validated['user_id']]);
 
         return redirect()
             ->route('dashboard.modules.members.index', $module)

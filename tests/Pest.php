@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\ModuleGroup;
+use App\Models\ModuleMembership;
+use App\Models\User;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -11,7 +16,7 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
+pest()->extend(TestCase::class)
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
@@ -41,9 +46,17 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function evaluationFixture(string $filename) 
+function evaluationFixture(string $filename)
 {
     return base_path("tests/Fixtures/evaluations/{$filename}");
+}
+
+function placeInGroup(User $user, ModuleGroup $group): void
+{
+    ModuleMembership::query()
+        ->where('module_id', $group->module_id)
+        ->where('user_id', $user->id)
+        ->update(['module_group_id' => $group->id]);
 }
 
 function something()

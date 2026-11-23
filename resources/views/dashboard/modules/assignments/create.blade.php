@@ -6,5 +6,6 @@
         :$module
         :$job_listings
         :$assignableMembers
+        :$groups
         />
 </x-dashboard-layout>

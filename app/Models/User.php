@@ -4,10 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use App\Enums\AssigneeScope;
 use App\Enums\GlobalRole;
 use App\Enums\ModuleMembershipStatus;
-use App\Enums\ModuleStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -93,12 +91,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isGivenAssignment(Assignment $assignment): bool
     {
-        if (! $this->isInModule($assignment->module)) {
-            return false;
-        }
-
-        return $assignment->assignee_scope === AssigneeScope::Everyone
-            || $assignment->assignees()->whereKey($this->id)->exists();
+        return Assignment::query()
+            ->whereKey($assignment->id)
+            ->givenTo($this)
+            ->exists();
     }
 
     public function workspaces(): HasMany
