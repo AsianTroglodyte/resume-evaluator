@@ -41,7 +41,7 @@
                 </div>
                 <span class="badge badge-lg {{ $statusBadgeClass }} shrink-0">
                     {{ ucfirst($evaluationStatus) }}
-                </span>
+                </span> 
             </div>
         </header>
 

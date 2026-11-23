@@ -92,13 +92,13 @@ class WorkspaceController extends Controller
             'status' => EvaluationStatus::Processing,
         ]);
 
-        // Delete any evaluation files past 5
         EvaluateJob::dispatch(
             $resumeFilePath,
             $jobDescription,
             $evaluation
-        );
-
+            );
+            
+        // Delete any evaluation files past 5
         $keepIds = $workspace->latestEvaluations()
             ->latest('id')
             ->limit(5)
