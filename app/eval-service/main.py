@@ -11,7 +11,6 @@ from keyword_match import (
     resume_from_plain_text,
 )
 from parser import parse_resume_to_json
-from pydantic import BaseModel
 from review_warnings import build_review_warnings
 from schemas import ResumeData
 from parser import parse_document
@@ -22,11 +21,11 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-@app.post("/evaluate")
-async def post_item(
-    resume_file: UploadFile = File(...), 
-    job_description: str | None = Form(None)):
 
+@app.post("/evaluate")
+async def post_item(resume_file: UploadFile = File(...),
+                    job_description: str | None = Form(None)):
+    """Run an evaluation."""
     content = await resume_file.read()
     resume_text = await parse_document(
         content,

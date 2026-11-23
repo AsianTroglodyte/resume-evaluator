@@ -56,7 +56,7 @@ class CreateAdmin extends Command
         }
 
         // Give first password
-        $password = $this->secret('gib password: ');
+        $password = $this->secret('gib password');
         $validator = Validator::make(
             ['password' => $password],
             ['password' => ['required', Password::min(6)]]
@@ -68,7 +68,7 @@ class CreateAdmin extends Command
         }
 
         // Confirm password
-        $passwordConfirmation = $this->secret('Confirm password: ');
+        $passwordConfirmation = $this->secret('Confirm password');
         $validator = Validator::make(
             ['password' => $password, 'password_confirmation' => $passwordConfirmation],
             ['password' => ['required', Password::min(6), 'confirmed']]
