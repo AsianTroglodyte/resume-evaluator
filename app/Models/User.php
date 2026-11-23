@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use App\Enums\GlobalRole;
 use App\Enums\ModuleMembershipStatus;
 use Database\Factories\UserFactory;
