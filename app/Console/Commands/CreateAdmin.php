@@ -15,7 +15,7 @@ class CreateAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'app:create-admin-command {first_name} {last_name} {email}';
+    protected $signature = 'app:create-admin {first_name} {last_name} {email}';
 
     /**
      * The console command description.
@@ -67,7 +67,7 @@ class CreateAdmin extends Command
         }
 
         // Confirm password
-        $passwordConfirmation = $this->secret('gib password confirmation: ');
+        $passwordConfirmation = $this->secret('Confirm password: ');
         $validator = Validator::make(
             ['password' => $password, 'password_confirmation' => $passwordConfirmation],
             ['password' => ['required', Password::min(6), 'confirmed']]
