@@ -23,5 +23,9 @@ class AppServiceProvider extends ServiceProvider
         View::composer(['components.dashboard-layout', 'components.app-navbar'], function ($view): void {
             $view->with('actingUser', auth()->user());
         });
+
+        View::composer(['components.dashboard-layout', 'components.app-navbar'], function ($view): void {
+            $view->with('actingUser', auth()->user());
+        });
     }
 }

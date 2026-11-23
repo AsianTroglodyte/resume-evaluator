@@ -64,7 +64,6 @@ class CreateAdmin extends Command
 
         if ($validator->fails()) {
             $this->error($validator->errors()->all()[0]);
-
             return self::FAILURE;
         }
 

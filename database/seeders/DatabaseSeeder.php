@@ -85,13 +85,13 @@ class DatabaseSeeder extends Seeder
             'email' => 'rordonez@southern.edu',
         ]);
 
-        $this->regularUserTester(
-            'Karan',
-            'Swansi',
-            'password',
-            'kswansi2002@gmail.com',
-            $admin,
-        );
+        // $this->regularUserTester(
+        //     'Karan',
+        //     'Swansi',
+        //     'password',
+        //     'kswansi2002@gmail.com',
+        //     $admin,
+        // );
 
         Workspace::factory()->name('test workspace')->withUser($testUser1)->create();
 
