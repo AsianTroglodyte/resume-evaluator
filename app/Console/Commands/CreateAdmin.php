@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\GlobalRole;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
@@ -29,9 +30,9 @@ class CreateAdmin extends Command
      */
     public function handle()
     {
-        $first_name = $this->argument("first_name");
-        $last_name = $this->argument("last_name");
-        $email = $this->argument("email");
+        $first_name = $this->argument('first_name');
+        $last_name = $this->argument('last_name');
+        $email = $this->argument('email');
 
         $validator = Validator::make(
             [
@@ -50,9 +51,9 @@ class CreateAdmin extends Command
             foreach ($validator->errors()->all() as $error) {
                 $this->error($error);
             }
+
             return self::FAILURE;
         }
-
 
         // Give first password
         $password = $this->secret('gib password: ');
@@ -63,6 +64,7 @@ class CreateAdmin extends Command
 
         if ($validator->fails()) {
             $this->error($validator->errors()->all()[0]);
+
             return self::FAILURE;
         }
 
@@ -77,17 +79,21 @@ class CreateAdmin extends Command
             foreach ($validator->errors()->all() as $error) {
                 $this->error($error);
             }
+
             return self::FAILURE;
         }
-        
-        // Create admin
-        User::factory()->admin()->password($password)->create([
+
+        User::create([
             'first_name' => $first_name,
             'last_name' => $last_name,
             'email' => $email,
+            'password' => $password,
+            'global_role' => GlobalRole::Admin,
+            'email_verified_at' => now(),
         ]);
 
         $this->info("User $first_name $last_name with email $email was created.");
+
         return self::SUCCESS;
     }
 }
